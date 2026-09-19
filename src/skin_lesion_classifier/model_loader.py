@@ -4,9 +4,9 @@ MÓDULO: model_loader.py
 PROYECTO: SkinLesionClassifier (Detección Temprana de Cáncer de Piel)
 ARQUITECTURA: Clean Architecture / Resiliencia y Manejo Defensivo de Excepciones
 RESPONSABILIDAD ÚNICA:
-    Cargar, validar la integridad y ensamblar el Vision Transformer (ViT)
-    y su procesador de imágenes, gestionando fallos de red, corrupción de archivos
-    o discrepancias en la arquitectura del modelo.
+    Cargar, validar la integridad arquitectónica y clínica, y ensamblar el
+    Vision Transformer (ViT) y su procesador de imágenes, gestionando fallos
+    de red, corrupción de archivos o discrepancias en la taxonomía HAM10000.
 
 COMPONENTES:
     1. MODEL_ID: 'Anwarkh1/Skin_Cancer-Image_Classification' (Modelo ajustado a HAM10000).
@@ -15,7 +15,8 @@ COMPONENTES:
 OBJETIVO POR FUNCIÓN:
     - validate_model_integrity(model: ViTForImageClassification) -> None
       Certifica que el modelo cargado contiene exactamente las 7 neuronas de salida
-      correspondientes a las clases clínicas del benchmark HAM10000.
+      y que sus etiquetas de clasificación corresponden rigurosamente con las
+      7 patologías dermatológicas del benchmark HAM10000.
 
     - load_inference_service(model_id: str) -> InferenceService
       Carga los pesos del modelo, inicializa el procesador de tensores y devuelve
@@ -27,7 +28,7 @@ import logging
 
 from transformers import ViTForImageClassification, ViTImageProcessor
 
-from skin_lesion_classifier.inference import InferenceService
+from skin_lesion_classifier.inference import MODEL_LABEL_TO_CODE, InferenceService
 
 logger = logging.getLogger(__name__)
 
@@ -38,8 +39,9 @@ MODEL_ID = "Anwarkh1/Skin_Cancer-Image_Classification"
 # por tanto, se utiliza el procesador del checkpoint base oficial de Google (224x224 píxeles).
 BASE_PROCESSOR_ID = "google/vit-base-patch16-224-in21k"
 
-# Número canónico de clases patológicas exigidas por el benchmark HAM10000
+# Conjunto canónico de clases patológicas exigidas por el benchmark HAM10000
 EXPECTED_LABELS_COUNT = 7
+EXPECTED_MODEL_LABELS = frozenset(MODEL_LABEL_TO_CODE.keys())
 
 
 class ModelLoadingError(RuntimeError):
@@ -52,17 +54,31 @@ def validate_model_integrity(model: ViTForImageClassification) -> None:
     """
     Certifica que el modelo cargado cumple estrictamente con la especificación clínica.
 
+    Valida tanto la cantidad de neuronas de salida como la correspondencia exacta
+    de las etiquetas diagnósticas con la taxonomía oficial de HAM10000.
+
     Args:
         model (ViTForImageClassification): Instancia del modelo a validar.
 
     Raises:
-        ModelLoadingError: Si el número de clases de salida difiere de 7.
+        ModelLoadingError: Si el número de clases difiere de 7 o si las etiquetas
+                           diagnósticas no coinciden con las patologías esperadas.
     """
     num_labels = getattr(model.config, "num_labels", None)
     if num_labels != EXPECTED_LABELS_COUNT:
         raise ModelLoadingError(
             f"Fallo de integridad arquitectónica: Se esperaban {EXPECTED_LABELS_COUNT} "
             f"clases patológicas, pero el modelo tiene {num_labels}."
+        )
+
+    id2label = getattr(model.config, "id2label", {})
+    model_labels = set(id2label.values())
+    if model_labels != EXPECTED_MODEL_LABELS:
+        missing = EXPECTED_MODEL_LABELS - model_labels
+        unexpected = model_labels - EXPECTED_MODEL_LABELS
+        raise ModelLoadingError(
+            f"Fallo de integridad clínica: Las etiquetas del modelo no coinciden con HAM10000. "
+            f"Faltantes: {missing or 'Ninguna'}, Inesperadas: {unexpected or 'Ninguna'}."
         )
 
 
@@ -98,7 +114,7 @@ def load_inference_service(model_id: str = MODEL_ID) -> InferenceService:
         logger.error(f"Error inesperado al instanciar el modelo: {err}")
         raise ModelLoadingError(f"Error crítico al inicializar el modelo: {err}") from err
 
-    # 2. Validar integridad de la arquitectura clínica
+    # 2. Validar integridad de la arquitectura y taxonomía clínica
     validate_model_integrity(model)
 
     # 3. Intentar cargar el procesador de imágenes (normalización y redimensionado)

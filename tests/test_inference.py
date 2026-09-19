@@ -80,3 +80,25 @@ def test_predict_raises_on_zero_dimension_image() -> None:
     empty_image = Image.new("RGB", (0, 0))
     with pytest.raises(InferenceError, match="dimensiones nulas"):
         service.predict(empty_image)
+
+
+def test_predict_raises_inference_error_on_corrupted_model_output() -> None:
+    from unittest.mock import MagicMock
+
+    import pytest
+
+    from skin_lesion_classifier.inference import InferenceError
+
+    fake_model = MagicMock()
+    fake_model.eval.return_value = fake_model
+    # Corrupt logits with empty tensor that fails indexing
+    fake_model.return_value.logits = torch.empty((0,))
+
+    fake_processor = MagicMock()
+    fake_processor.return_value = {"pixel_values": torch.zeros((1, 3, 224, 224))}
+
+    service = InferenceService(model=fake_model, processor=fake_processor)
+    image = Image.new("RGB", (224, 224))
+
+    with pytest.raises(InferenceError, match="Error al postprocesar"):
+        service.predict(image)

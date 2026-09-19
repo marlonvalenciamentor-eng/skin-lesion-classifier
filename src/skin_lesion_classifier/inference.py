@@ -31,7 +31,7 @@ OBJETIVO POR CLASE / FUNCIÓN:
 
 import logging
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Protocol, runtime_checkable
 
 import torch
 from PIL import Image
@@ -75,6 +75,22 @@ class Prediction:
     probabilities: dict[str, float]
 
 
+@runtime_checkable
+class ImageProcessorProtocol(Protocol):
+    """Protocolo que define el contrato del extractor de características de imagen."""
+
+    def __call__(self, images: Any, return_tensors: str = "pt") -> Any: ...
+
+
+@runtime_checkable
+class ClassificationModelProtocol(Protocol):
+    """Protocolo que define el contrato del modelo de clasificación por visión."""
+
+    def eval(self) -> Any: ...
+    def __call__(self, **kwargs: Any) -> Any: ...
+    config: Any
+
+
 class InferenceService:
     """
     Servicio desacoplado de inferencia para clasificación dermatológica.
@@ -83,13 +99,17 @@ class InferenceService:
     (pesos reales de Hugging Face o mocks sintéticos para pruebas unitarias rápidas).
     """
 
-    def __init__(self, model: Any, processor: Any) -> None:
+    def __init__(
+        self,
+        model: ClassificationModelProtocol,
+        processor: ImageProcessorProtocol,
+    ) -> None:
         """
         Inicializa el servicio configurando el modelo en modo de evaluación.
 
         Args:
-            model: Modelo Vision Transformer (ej. ViTForImageClassification).
-            processor: Procesador de imágenes asociado (ej. ViTImageProcessor).
+            model: Modelo Vision Transformer que cumple con ClassificationModelProtocol.
+            processor: Procesador de imágenes que cumple con ImageProcessorProtocol.
         """
         self._model = model.eval()
         self._processor = processor
@@ -139,17 +159,21 @@ class InferenceService:
             logger.error(f"Fallo durante el forward pass del modelo: {err}")
             raise InferenceError(f"Error en la ejecución del modelo ViT: {err}") from err
 
-        # 4. Cálculo de probabilidades con Softmax
-        scores = torch.softmax(logits, dim=-1)[0].tolist()
+        # 4. Postprocesamiento seguro (Softmax, mapeo a HAM10000 y Top-1)
+        try:
+            scores = torch.softmax(logits, dim=-1)[0].tolist()
 
-        # 5. Mapeo estructurado hacia la nomenclatura HAM10000
-        probabilities = {
-            MODEL_LABEL_TO_CODE[self._model.config.id2label[index]]: score
-            for index, score in enumerate(scores)
-        }
+            probabilities = {
+                MODEL_LABEL_TO_CODE[self._model.config.id2label[index]]: score
+                for index, score in enumerate(scores)
+            }
 
-        # 6. Selección de la clase con mayor certidumbre clínica (Top-1)
-        top_label = max(probabilities, key=probabilities.get)
+            top_label = max(probabilities, key=probabilities.get)
+        except Exception as err:
+            logger.error(f"Fallo durante el postprocesamiento de predicciones: {err}")
+            raise InferenceError(
+                f"Error al postprocesar los logits del modelo en probabilidades HAM10000: {err}"
+            ) from err
 
         return Prediction(
             label=top_label,
