@@ -151,17 +151,40 @@
       </div>
     </details>
 
-    <details class="dashboard-panel">
-      <summary>Hoja 3 · Mapa conceptual del pipeline</summary>
+        <details class="dashboard-panel">
+      <summary>Hoja 3 · Derrotero Operativo del Pipeline Clínico</summary>
       <div class="panel-content concept-map">
-        <p class="concept-intro">Cuatro ramas conectan el pensamiento de entrega continua con la calidad del pipeline de datos, la arquitectura modular y la detección temprana de bugs.</p>
+        <p class="concept-intro">Instrucciones técnicas de extremo a extremo: conecta el flujo de datos del clasificador dermatológico con la prevención sistemática de bugs y el despliegue asistido con Streamlit.</p>
         <div class="concept-branches">
-          <section class="concept-branch" style="--branch-color:#176b87"><h3>Rama A · Concepto del Pipeline</h3><div class="concept-node"><strong>Dave Farley</strong>Entrega continua como flujo de cambios pequeños, automatizados y observables.</div><div class="concept-node"><strong>Única ruta a producción</strong>El mismo camino verificable conduce desde Commit hasta Deploy Streamlit.</div></section>
-          <section class="concept-branch" style="--branch-color:#0f8b8d"><h3>Rama B · Etapas de Despliegue</h3><div class="concept-node"><strong>Commit → Build</strong>El cambio versionado activa <code>uv sync</code> con Python 3.13.</div><div class="concept-node"><strong>Testing AAA</strong>Arrange, Act, Assert validan preprocesamiento, tensores 224x224 y normalización ImageNet.</div><div class="concept-node"><strong>Staging → Deploy</strong>El Walking Skeleton llega a Streamlit con integración progresiva.</div></section>
-          <section class="concept-branch" style="--branch-color:#7759a6"><h3>Rama C · CI/CD &amp; Spec-Driven Development</h3><div class="concept-node"><strong>SDD</strong>La transición Vibe Coding → <code>Explore → Propose → Spec → Implement &amp; Verify</code> guía el trabajo.</div><div class="concept-node"><strong>Walking Skeleton</strong>Una ruta mínima integra carga, <code>DermatologyDiagnosticFacade</code>, ViT, Grad-CAM y Streamlit.</div><div class="concept-node"><strong>Entregas continuas</strong>CI/CD conserva feedback frecuente, modularidad, alta cohesión y bajo acoplamiento.</div></section>
-          <section class="concept-branch" style="--branch-color:#e77765"><h3>Rama D · Detección Temprana de Bugs</h3><div class="concept-node"><strong>Shift-Left</strong>La calidad se valida desde el commit y acompaña cada etapa del pipeline.</div><div class="concept-node"><strong>PyTest en tensores</strong><code>test_preprocess_img.py</code> comprueba dimensiones 224x224 y normalización ImageNet con AAA.</div><div class="concept-node"><strong>Sesgos en HAM10000</strong>Las pruebas y métricas orientan una lectura responsable del desbalance de clases.</div></section>
+          <section class="concept-branch" style="--branch-color:#176b87">
+            <h3>Rama A · Ingesta &amp; Data Pipeline</h3>
+            <div class="concept-node"><strong>Validación de Entrada</strong>Cargar fotografía dermatoscópica en JPG/PNG mediante <code>st.file_uploader</code> y verificar canales RGB con <code>PIL.Image</code>.</div>
+            <div class="concept-node"><strong>Preprocesamiento Determinista</strong>Redimensionar a 224×224 y normalizar tensores según medias ImageNet usando <code>AutoImageProcessor</code>.</div>
+            <div class="concept-node"><strong>Bug Evitado</strong>Prevenir fallos de PyTorch por imágenes corruptas, canales <code>RGBA</code> o dimensiones inválidas antes de inferir.</div>
+          </section>
+          
+          <section class="concept-branch" style="--branch-color:#0f8b8d">
+            <h3>Rama B · Build &amp; Pruebas AAA</h3>
+            <div class="concept-node"><strong>Entorno determinista 'uv'</strong>Sincronizar dependencias exactas con <code>uv sync</code> bajo Python 3.13 y auditar estilo con <code>uv run ruff check .</code>.</div>
+            <div class="concept-node"><strong>Patrón AAA en PyTest</strong>Ejecutar <code>uv run pytest -v test/test_preprocess_img.py</code> validando forma <code>(1, 3, 224, 224)</code>, rango <code>[0.0, 1.0]</code> y tipo <code>float32</code>.</div>
+            <div class="concept-node"><strong>Bug Evitado</strong>Detección en pre-commit de tensores mal escalados o divergencias numéricas antes de producción (Shift-Left).</div>
+          </section>
+          
+          <section class="concept-branch" style="--branch-color:#7759a6">
+            <h3>Rama C · Arquitectura Facade &amp; Inferencia</h3>
+            <div class="concept-node"><strong>Desacoplamiento con Facade</strong>Orquestar con <code>DermatologyDiagnosticFacade</code> para aislar la interfaz Streamlit de la complejidad interna de PyTorch.</div>
+            <div class="concept-node"><strong>Inferencia ViT &amp; Grad-CAM</strong>Ejecutar <code>ViTForImageClassification</code> y extraer activaciones de <code>vit.encoder.layer[-1]</code> para explicabilidad médica.</div>
+            <div class="concept-node"><strong>Bug Evitado</strong>Eliminar el sesgo de 'caja negra' ante el médico y optimizar hilos en CPU para evitar bloqueos del navegador.</div>
+          </section>
+          
+          <section class="concept-branch" style="--branch-color:#e77765">
+            <h3>Rama D · Despliegue &amp; Triaje HAM10000</h3>
+            <div class="concept-node"><strong>Despliegue de Aplicación</strong>Publicar la estación clínica con <code>uv run streamlit run app.py</code> conservando una ruta verificada de punta a punta.</div>
+            <div class="concept-node"><strong>Ranking Multiclase y Alertas</strong>Renderizar contraste lado a lado y barras de probabilidad con <code>st.progress</code> para las 7 patologías cutáneas.</div>
+            <div class="concept-node"><strong>Bug Evitado</strong>Reducir falsos negativos en Melanoma (MEL) calibrando umbrales clínicos frente al desbalance de Nevos (&gt;65% en HAM10000).</div>
+          </section>
         </div>
-        <div class="pipeline" aria-label="Resumen visual de etapas"><div class="pipeline-step" style="--pipeline-color:#176b87"><strong>Build</strong><code>uv sync</code></div><div class="pipeline-step" style="--pipeline-color:#0f8b8d"><strong>Test</strong><code>uv run pytest</code></div><div class="pipeline-step" style="--pipeline-color:#e77765"><strong>Deploy</strong>Streamlit</div><div class="pipeline-step" style="--pipeline-color:#7759a6"><strong>Verify</strong><code>uv run ruff</code></div></div>
+        <div class="pipeline" aria-label="Derrotero secuencial de comandos del pipeline"><div class="pipeline-step" style="--pipeline-color:#176b87"><strong>1. Build</strong><code>uv sync</code></div><div class="pipeline-step" style="--pipeline-color:#0f8b8d"><strong>2. Lint</strong><code>uv run ruff check .</code></div><div class="pipeline-step" style="--pipeline-color:#7759a6"><strong>3. Test AAA</strong><code>uv run pytest -v</code></div><div class="pipeline-step" style="--pipeline-color:#e77765"><strong>4. Deploy</strong><code>uv run streamlit run app.py</code></div></div>
       </div>
     </details>
   </main>
