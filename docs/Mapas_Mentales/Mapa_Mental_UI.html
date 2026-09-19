@@ -109,7 +109,13 @@
        
        /* Evitar cortes feos en elementos pequeños, pero PERMITIR cortes en los paneles grandes */
        .node, .result-card, .detail-item, .concept-branch, .pipeline-step { break-inside: avoid; page-break-inside: avoid; }
-       .dashboard-panel { break-inside: auto; page-break-inside: auto; margin-bottom: 20px; }
+       
+       /* Forzar que el Mapa Conceptual empiece en una pagina nueva limpia */
+       .dashboard-panel:nth-of-type(2) { page-break-before: always; break-before: page; }
+       
+       /* Evitar que el panel de Maqueta UI se rompa si por alguna razon es muy largo */
+       .dashboard-panel { break-inside: avoid; page-break-inside: avoid; }
+
        
        .toolbar { display: none !important; }
        
