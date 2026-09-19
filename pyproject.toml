@@ -7,7 +7,12 @@ authors = [
     { name = "marlonvalenciamentor-eng", email = "marlonvalenciamentor@gmail.com" }
 ]
 requires-python = ">=3.13"
-dependencies = []
+dependencies = [
+    "pillow>=11.0",
+    "torch>=2.6",
+    "torchvision>=0.21",
+    "transformers>=4.50",
+]
 
 [build-system]
 requires = ["uv_build>=0.12.9,<0.13.0"]
@@ -20,9 +25,21 @@ dev = [
     "ruff>=0.16.8",
 ]
 
+[tool.uv.sources]
+torch = { index = "pytorch-cpu" }
+torchvision = { index = "pytorch-cpu" }
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-ra"
+addopts = "-ra -m \"not integration\""
+markers = [
+    "integration: downloads the real model from Hugging Face (slow, needs network)",
+]
 
 [tool.ruff]
 line-length = 100
