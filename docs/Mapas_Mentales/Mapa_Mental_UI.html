@@ -281,11 +281,51 @@
       const botonImprimir = document.querySelector('#boton-imprimir');
       const estadoVista = { modo: 'inicial', pestañaInicial: pestañas[0], pestañaActiva: pestañas[0] };
       const contenidos = {
-        'zona-encabezado': { titulo: 'Encabezado', descripcion: 'Presenta el nombre del clasificador y orienta al usuario desde el primer vistazo.', items: ['Jerarquía visual clara para el flujo diagnóstico.', 'Título, contexto y nombres accesibles.'], integracion: { streamlit: 'Streamlit presenta el título y el contexto; esta maqueta no ejecuta inferencia.', facade: 'DermatologyDiagnosticFacade todavía no recibe datos en el encabezado; la interfaz solo orienta.', vit: 'ViTForImageClassification queda documentado como dependencia del flujo, no como código ejecutado aquí.', gradCam: 'Grad-CAM se anuncia como capacidad explicativa disponible para los resultados.' } },
-        'zona-barra': { titulo: 'Barra lateral con información técnica', descripcion: 'Mantiene el modelo, los formatos aceptados y la explicación disponibles sin distraer de la tarea principal.', items: ['Controles para el modelo y el formato de entrada.', 'Información de Grad-CAM e inferencia en CPU.'], integracion: { streamlit: 'Streamlit muestra controles y metadatos de configuración.', facade: 'DermatologyDiagnosticFacade recibe la configuración que la aplicación determine.', vit: 'ViTForImageClassification es el modelo descrito por la configuración, sin importarlo desde este HTML.', gradCam: 'Grad-CAM se presenta como la explicación que el backend puede devolver.' } },
-        'zona-carga': { titulo: 'Carga de archivos', descripcion: 'Define el inicio del flujo de la imagen dermatoscópica y comunica de inmediato qué archivos puede usar la persona.', items: ['Carga y validación de archivos JPG o PNG.', 'Mensajes claros para errores y estados de carga.'], integracion: { streamlit: 'Streamlit recibe el archivo mediante el control de carga.', facade: 'DermatologyDiagnosticFacade recibe la imagen validada y coordina el procesamiento.', vit: 'La imagen se prepara antes de entregarla a ViTForImageClassification.', gradCam: 'La imagen preparada queda disponible para acompañar la explicación Grad-CAM.' } },
-        'zona-resultados': { titulo: 'Área de resultados en dos columnas', descripcion: 'Compara la imagen recibida con la evidencia visual generada por el modelo.', items: ['Presentación de la imagen de entrada.', 'Superposición del mapa de calor Grad-CAM.'], integracion: { streamlit: 'Streamlit presenta la imagen y la evidencia visual en columnas.', facade: 'DermatologyDiagnosticFacade devuelve el resultado compuesto para la interfaz.', vit: 'ViTForImageClassification aporta la salida que se relaciona con la evidencia visual.', gradCam: 'Grad-CAM genera el mapa que se superpone sobre la imagen.' } },
-        'zona-probabilidades': { titulo: 'Barras de probabilidad', descripcion: 'Resume la confianza del modelo en una lectura rápida, ordenada y comprensible.', items: ['Orden de clases y porcentajes calculados.', 'Barras visuales con etiquetas accesibles.'], integracion: { streamlit: 'Streamlit transforma el resultado recibido en barras y etiquetas accesibles.', facade: 'DermatologyDiagnosticFacade entrega clases y valores listos para presentar.', vit: 'ViTForImageClassification produce las puntuaciones de clase que se convierten en probabilidades.', gradCam: 'Grad-CAM complementa las probabilidades con una explicación visual, no las sustituye.' } }
+        'zona-encabezado': { 
+            titulo: 'Encabezado', 
+            descripcion: 'Presenta el nombre del clasificador y orienta al usuario desde el primer vistazo.', 
+            items: ['Jerarquía visual clara para el flujo diagnóstico.', 'Título, contexto y nombres accesibles.'], 
+            puntos: [
+                '<strong>Streamlit:</strong> Uso de st.title y st.markdown para inyectar contexto médico estructurado.',
+                '<strong>UX/UI:</strong> Texto descriptivo que establece la expectativa de uso sin saturar la pantalla principal.'
+            ] 
+        },
+        'zona-barra': { 
+            titulo: 'Barra lateral con información técnica', 
+            descripcion: 'Mantiene el modelo, los formatos aceptados y la explicación disponibles sin distraer de la tarea principal.', 
+            items: ['Controles para el modelo y el formato de entrada.', 'Información de Grad-CAM e inferencia en CPU.'], 
+            puntos: [
+                '<strong>Streamlit:</strong> Despliegue de st.sidebar aislando parámetros de configuración.',
+                '<strong>Arquitectura:</strong> Separa las decisiones técnicas (modelo, CPU) del flujo clínico principal.'
+            ] 
+        },
+        'zona-carga': { 
+            titulo: 'Carga de archivos', 
+            descripcion: 'Define el inicio del flujo de la imagen dermatoscópica y comunica de inmediato qué archivos puede usar la persona.', 
+            items: ['Carga y validación de archivos JPG o PNG.', 'Mensajes claros para errores y estados de carga.'], 
+            puntos: [
+                '<strong>Streamlit:</strong> Componente st.file_uploader limitado estrictamente a extensiones permitidas.',
+                '<strong>Facade:</strong> Punto de entrada donde DermatologyDiagnosticFacade valida la integridad de la imagen antes de cualquier inferencia.'
+            ] 
+        },
+        'zona-resultados': { 
+            titulo: 'Área de resultados en dos columnas', 
+            descripcion: 'Compara la imagen recibida con la evidencia visual generada por el modelo.', 
+            items: ['Presentación de la imagen de entrada.', 'Superposición del mapa de calor Grad-CAM.'], 
+            puntos: [
+                '<strong>Streamlit:</strong> Layout con st.columns para contraste lado a lado entre original y evidencia.',
+                '<strong>Grad-CAM:</strong> Módulo de interpretabilidad que renderiza el mapa de calor sobre la lesión original para fundamentar la predicción.'
+            ] 
+        },
+        'zona-probabilidades': { 
+            titulo: 'Barras de probabilidad', 
+            descripcion: 'Resume la confianza del modelo en una lectura rápida, ordenada y comprensible.', 
+            items: ['Orden de clases y porcentajes calculados.', 'Barras visuales con etiquetas accesibles.'], 
+            puntos: [
+                '<strong>ViT:</strong> El transformer entrega los logits que se convierten en probabilidades softmax.',
+                '<strong>UX/UI:</strong> Renderizado de barras progresivas que jerarquizan el diagnóstico clínico de mayor a menor.'
+            ] 
+        }
       };
 
      function resaltar(target, activo) {
@@ -312,13 +352,15 @@
         });
         const integracion = document.createElement('div');
         integracion.className = 'detail-integration';
-        const capas = [['Streamlit', contenido.integracion.streamlit], ['Facade', contenido.integracion.facade], ['ViT', contenido.integracion.vit], ['Grad-CAM', contenido.integracion.gradCam]];
-        capas.forEach(([nombre, texto]) => {
+        
+        contenido.puntos.forEach(pto => {
           const fila = document.createElement('div');
-          const etiqueta = document.createElement('strong');
-          etiqueta.textContent = `${nombre}: `;
-          fila.append(etiqueta, document.createTextNode(texto));
-          integracion.append(fila);
+          fila.innerHTML = pto;
+          fila.style.marginBottom = '8px';
+          fila.style.fontSize = '0.9rem';
+          fila.style.lineHeight = '1.4';
+          fila.style.color = 'var(--ink)';
+          integracion.appendChild(fila);
         });
         detalleContenido.append(kicker, titulo, descripcion, lista, integracion);
       }
