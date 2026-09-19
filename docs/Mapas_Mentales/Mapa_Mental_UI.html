@@ -104,7 +104,7 @@
       @media (max-width:650px) { .detail-grid, .pipeline { grid-template-columns:1fr; } .detail-view { padding:21px; } .pipeline-step { border-left:0; border-top:4px solid var(--pipeline-color); } .pipeline-step:not(:last-child)::after { right:auto; top:auto; bottom:-11px; left:50%; transform:rotate(90deg); } }
      @media print {
        @page { size: A4 landscape; margin: 0; }
-       html, body { background: white; -webkit-print-color-adjust: exact; print-color-adjust: exact; padding: 10mm; margin: 0; box-sizing: border-box; }
+       html, body { background: white; -webkit-print-color-adjust: exact; print-color-adjust: exact; padding: 15mm 10mm; margin: 0; box-sizing: border-box; }
        .sheet { min-height: 0; width: 100%; max-width: 100%; padding: 0; border: 0; box-shadow: none; margin: 0; box-sizing: border-box; }
        
        /* Evitar cortes feos en elementos pequeños, pero PERMITIR cortes en los paneles grandes */
@@ -112,7 +112,7 @@
        
        * { box-sizing: border-box; word-wrap: break-word; }
        /* Forzar que el Mapa Conceptual empiece en una pagina nueva limpia */
-       .dashboard-panel:nth-of-type(2) { page-break-before: always; break-before: page; }
+       .dashboard-panel:nth-of-type(2) { page-break-before: always; break-before: page; margin-top: 15mm; }
        
        /* Evitar que el panel de Maqueta UI se rompa si por alguna razon es muy largo */
        .dashboard-panel { break-inside: avoid; page-break-inside: avoid; }
@@ -142,7 +142,7 @@
            page-break-before: always; 
            break-before: page; 
            margin-top: 0; 
-           padding-top: 0; 
+           padding-top: 15mm; 
            border-top: none; 
        }
        .detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
