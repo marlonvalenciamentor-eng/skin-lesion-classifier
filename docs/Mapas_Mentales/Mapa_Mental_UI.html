@@ -103,9 +103,9 @@
       @media (max-width:900px) { body { padding:10px; } .sheet { padding:22px 20px; } header, .intro, .dashboard-hero { display:block; } .hero-actions { align-items:flex-start; margin-top:16px; } .hero-meta { margin-top:0; } .authors { margin-top:12px; text-align:left; } .legend { justify-content:flex-start; margin-top:12px; } .map, .concept-branches { grid-template-columns:1fr; } .nodes { padding-bottom:0; } }
       @media (max-width:650px) { .detail-grid, .pipeline { grid-template-columns:1fr; } .detail-view { padding:21px; } .pipeline-step { border-left:0; border-top:4px solid var(--pipeline-color); } .pipeline-step:not(:last-child)::after { right:auto; top:auto; bottom:-11px; left:50%; transform:rotate(90deg); } }
      @media print {
-       @page { size: A4 landscape; margin: 10mm; }
-       html, body { background: white; -webkit-print-color-adjust: exact; print-color-adjust: exact; padding: 0; margin: 0; }
-       .sheet { min-height: 0; max-width: none; padding: 0; border: 0; box-shadow: none; margin: 0; }
+       @page { size: A4 landscape; margin: 0; }
+       html, body { background: white; -webkit-print-color-adjust: exact; print-color-adjust: exact; padding: 10mm; margin: 0; }
+       .sheet { min-height: 0; max-width: none; padding: 0; border: 0; box-shadow: none; margin: 0; zoom: 0.88; }
        
        /* Evitar cortes feos en elementos pequeños, pero PERMITIR cortes en los paneles grandes */
        .node, .result-card, .detail-item, .concept-branch, .pipeline-step { break-inside: avoid; page-break-inside: avoid; }
@@ -329,5 +329,20 @@
       botonVolver.addEventListener('click', mostrarImagenInicial);
       botonImprimir.addEventListener('click', () => window.print());
     </script>
+<script>
+    // Garantizar que todos los paneles cerrados se abran justo antes de imprimir
+    let openedForPrint = [];
+    window.addEventListener('beforeprint', () => {
+        document.querySelectorAll('details:not([open])').forEach(d => {
+            d.setAttribute('open', '');
+            openedForPrint.push(d);
+        });
+    });
+    // Y que se vuelvan a cerrar despues de imprimir
+    window.addEventListener('afterprint', () => {
+        openedForPrint.forEach(d => d.removeAttribute('open'));
+        openedForPrint = [];
+    });
+  </script>
 </body>
 </html>
