@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Propuesta de Proyecto - SkinLesionClassifier</title>
+  <style>
+    @page {
+      size: A4 portrait;
+      margin: 2.5cm;
+    }
+    
+    body {
+      font-family: Arial, Calibri, "Segoe UI", sans-serif;
+      font-size: 12pt;
+      line-height: 1.5;
+      color: #111827;
+      text-align: justify;
+      margin: 0;
+      padding: 0;
+    }
+
+    .cover-page {
+      page-break-after: always;
+      text-align: center;
+      padding-top: 10pt;
+    }
+
+    .cover-inst h1 {
+      font-size: 15pt;
+      font-weight: bold;
+      color: #0f2942;
+      margin: 0 0 6pt;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .cover-inst h2 {
+      font-size: 12.5pt;
+      font-weight: normal;
+      color: #334e68;
+      margin: 0 0 4pt;
+    }
+
+    .cover-inst h3 {
+      font-size: 11.5pt;
+      font-weight: 600;
+      color: #176b87;
+      margin: 0 0 4pt;
+    }
+
+    .cover-inst p {
+      margin: 0;
+      font-weight: bold;
+      color: #0f2942;
+      font-size: 11pt;
+    }
+
+    .cover-box {
+      border-top: 2px solid #176b87;
+      border-bottom: 2px solid #176b87;
+      padding: 20pt 10pt;
+      margin: 35pt 0;
+    }
+
+    .cover-box h1 {
+      font-size: 14pt;
+      font-weight: bold;
+      color: #102a43;
+      margin: 0 0 8pt;
+      line-height: 1.35;
+      border: none;
+      padding: 0;
+    }
+
+    .cover-box p {
+      font-size: 10.5pt;
+      color: #486581;
+      margin: 0;
+      font-style: italic;
+    }
+
+    .cover-meta {
+      margin-top: 35pt;
+      font-size: 11pt;
+      line-height: 1.6;
+    }
+
+    .cover-meta p {
+      margin: 0 0 4pt;
+    }
+
+    .cover-date {
+      margin-top: 45pt;
+      font-size: 11pt;
+      color: #627d98;
+    }
+
+    h1 {
+      font-size: 14pt;
+      font-weight: bold;
+      color: #102a43;
+      margin-top: 22pt;
+      margin-bottom: 8pt;
+      border-bottom: 1.5px solid #cbd5e1;
+      padding-bottom: 3pt;
+    }
+
+    h2 {
+      font-size: 12pt;
+      font-weight: bold;
+      color: #176b87;
+      margin-top: 14pt;
+      margin-bottom: 6pt;
+    }
+
+    h3 {
+      font-size: 12pt;
+      font-weight: bold;
+      color: #243b53;
+      margin-top: 10pt;
+      margin-bottom: 4pt;
+    }
+
+    h4 {
+      font-size: 11pt;
+      font-weight: bold;
+      color: #334e68;
+      margin-top: 8pt;
+      margin-bottom: 3pt;
+    }
+
+    p {
+      margin: 0 0 7pt 0;
+    }
+
+    ul, ol {
+      margin: 0 0 7pt 0;
+      padding-left: 20pt;
+    }
+
+    li {
+      margin-bottom: 2pt;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12pt 0;
+      font-size: 10pt;
+    }
+
+    th, td {
+      border: 1px solid #cbd5e1;
+      padding: 5pt 7pt;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f1f5f9;
+      font-weight: bold;
+      color: #0f2942;
+    }
+
+    pre {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-left: 3px solid #176b87;
+      padding: 6pt 8pt;
+      font-family: Consolas, monospace;
+      font-size: 8.5pt;
+      line-height: 1.3;
+      margin: 8pt 0;
+      overflow-x: auto;
+    }
+
+    code {
+      font-family: Consolas, monospace;
+      font-size: 9pt;
+      background: #f1f5f9;
+      padding: 1pt 3pt;
+      border-radius: 2pt;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- PORTADA FORMAL EXCLUSIVA (PÁGINA 1) -->
+  <div class="cover-page">
+    <div class="cover-inst">
+      <h1>Universidad Autónoma de Occidente</h1>
+      <h2>Facultad de Ingeniería</h2>
+      <h3>Especialización en Inteligencia Artificial</h3>
+      <p>Desarrollo de Soluciones de Inteligencia Artificial II — Módulo 2</p>
+    </div>
+
+    <div class="cover-box">
+      <h1>SkinLesionClassifier: Sistema Asistivo para la Detección Temprana de Lesiones Cutáneas mediante Vision Transformers (ViT) y Explicabilidad Visual (Grad-CAM)</h1>
+      <p>Documento Formal de Formulación y Viabilidad Técnica del Proyecto</p>
+    </div>
+
+    <div class="cover-meta">
+      <p><strong>Estudiantes del Equipo de Trabajo:</strong></p>
+      <p>Marlon Valencia Velosa — C.C. / Código: <strong>1113531444</strong></p>
+      <p>Miguel Ángel Ortiz Roldán — Código Estudiantil: <strong>6200485</strong></p>
+      <br>
+      <p><strong>Docente de la Asignatura:</strong></p>
+      <p>Jan Polanco Velasco</p>
+    </div>
+
+    <div class="cover-date">
+      <p>Santiago de Cali, Colombia<br>22 de Septiembre de 2026</p>
+    </div>
+  </div>
+
+  <!-- CUERPO DE LA PROPUESTA (PÁGINAS 2 EN ADELANTE) -->
+  <div class="content">
+<h2>ÍNDICE GENERAL</h2>
+<ol>
+<li><a href="#capítulo-1-contexto-del-proyecto">Capítulo 1: Contexto del Proyecto</a></li>
+<li><a href="#capítulo-2-objetivos-y-alcance">Capítulo 2: Objetivos y Alcance</a></li>
+<li><a href="#capítulo-3-cronograma-y-ruta-crítica-cpm">Capítulo 3: Cronograma y Ruta Crítica (CPM)</a></li>
+<li><a href="#capítulo-4-marco-de-investigación-y-metodología-crisp-dm">Capítulo 4: Marco de Investigación y Metodología CRISP-DM</a></li>
+<li><a href="#capítulo-5-gestión-de-tareas-kanban">Capítulo 5: Gestión de Tareas (Kanban)</a></li>
+<li><a href="#capítulo-6-anexos-y-repositorios">Capítulo 6: Anexos y Repositorios</a></li>
+</ol>
+<hr />
+<h2>CAPÍTULO 1: CONTEXTO DEL PROYECTO</h2>
+<h3>1.1. Descripción del Problema y Justificación</h3>
+<p>El cáncer de piel se sitúa entre las neoplasias malignas de mayor incidencia a nivel global. El melanoma, en particular, representa la forma más letal debido a su elevado potencial metastásico si no se detecta en fases tempranas. La inspección visual dermatoscópica convencional demanda una curva de aprendizaje prolongada y está sujeta a variabilidad inter-observador (sensibilidad del 65% al 85% en profesionales no especializados).</p>
+<p>La adopción de la Inteligencia Artificial en salud mediante <strong>Sistemas de Soporte a la Decisión Clínica (CDSS)</strong> no pretende sustituir el criterio médico, sino actuar como un filtro preliminar (triaje) de alta sensibilidad que optimice los tiempos de atención, priorice casos críticos y reduzca la tasa de falsos negativos en atención primaria.</p>
+<h3>1.2. Descripción del Modelo Base</h3>
+<ul>
+<li><strong>Nombre Oficial:</strong> <code>Anwarkh1/Skin_Cancer-Image_Classification</code></li>
+<li><strong>Repositorio Oficial:</strong> <a href="https://huggingface.co/Anwarkh1/Skin_Cancer-Image_Classification">Hugging Face Model Hub</a></li>
+<li><strong>Función:</strong> Clasificación multiclase de imágenes dermatoscópicas en 7 tipos patológicos.</li>
+<li><strong>Arquitectura Base:</strong> <code>google/vit-base-patch16-224-in21k</code> (Vision Transformer desarrollado por Google Research), adaptado y ajustado finamente (<em>fine-tuning</em>) para diagnóstico dermatológico.</li>
+<li><strong>Mecanismo de Inferencia:</strong> Descomposición de la imagen de 224×224 en parches de 16×16 tokens procesados mediante bloques de auto-atención multi-cabeza.</li>
+</ul>
+<h3>1.3. Ficha Técnica del Modelo (Model Card)</h3>
+<ul>
+<li><strong>Creadores y Licencia:</strong> Modelo adaptado por Anwar Kh bajo licencia permisiva <strong>Apache-2.0</strong>.</li>
+<li><strong>Métricas Reportadas:</strong> <strong>Validation Accuracy de 96.95%</strong> en conjunto de prueba validado.</li>
+<li><strong>Datos de Entrenamiento:</strong> Dataset <code>marmal88/skin_cancer</code>, subconjunto derivado del benchmark estándar HAM10000 (Kaggle / ISIC Archive).</li>
+<li><strong>Sesgos Identificados:</strong> Los datasets dermatológicos públicos presentan un sesgo demográfico documentado hacia fototipos de piel clara (Escala Fitzpatrick I a III), con menor representación en pieles oscuras (Fitzpatrick V y VI). El sistema debe documentar esta limitación para evitar sobrediagnósticos o fallos en poblaciones subrepresentadas.</li>
+<li><strong>Limitaciones Éticas y Uso Previsto:</strong> Sistema catalogado estrictamente como <strong>herramienta de asistencia y triaje investigativo</strong>. Queda explícitamente restringido su uso como dispositivo médico de diagnóstico autónomo sin supervisión de un facultativo certificado.</li>
+</ul>
+<h3>1.4. Restricciones Técnicas y Operativas</h3>
+<table>
+<thead>
+<tr>
+<th>Componente</th>
+<th>Requisito Mínimo</th>
+<th>Requisito Recomendado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Lenguaje</strong></td>
+<td>Python 3.11+ / 3.13</td>
+<td>Python 3.13 con gestor <code>uv</code></td>
+</tr>
+<tr>
+<td><strong>Frameworks ML</strong></td>
+<td>PyTorch &gt;= 2.1, Transformers &gt;= 4.35</td>
+<td>PyTorch (CPU o CUDA)</td>
+</tr>
+<tr>
+<td><strong>Almacenamiento Modelo</strong></td>
+<td>343 MB (<code>model.safetensors</code>)</td>
+<td>Safetensors en memoria RAM</td>
+</tr>
+<tr>
+<td><strong>Hardware</strong></td>
+<td>4 GB RAM, CPU x86-64 moderno</td>
+<td>8 GB RAM, GPU con CUDA opcional</td>
+</tr>
+<tr>
+<td><strong>Licencia de Software</strong></td>
+<td>Apache-2.0 / MIT</td>
+<td>Compatible con uso académico y comercial</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>CAPÍTULO 2: OBJETIVOS Y ALCANCE</h2>
+<h3>2.1. Objetivo General</h3>
+<p>Diseñar, implementar y evaluar un sistema interactivo de software basado en Inteligencia Artificial que permita la clasificación automatizada de lesiones cutáneas en 7 categorías clínicas, integrando arquitecturas <em>Vision Transformer</em> pre-entrenadas, técnicas de explicabilidad visual (<em>Grad-CAM</em>) y una interfaz web reactiva bajo principios de arquitectura limpia.</p>
+<h3>2.2. Objetivos Específicos</h3>
+<ol>
+<li><strong>Configurar y adaptar</strong> el pipeline de inferencia del modelo <em>Vision Transformer</em> (<code>Anwarkh1/Skin_Cancer-Image_Classification</code>) para el procesamiento determinista de imágenes dermatoscópicas en formato estándar.</li>
+<li><strong>Implementar algoritmos de explicabilidad (XAI)</strong> basados en mapas de activación de clase (<em>Grad-CAM</em>) aplicados a capas de auto-atención, permitiendo visualizar los patrones morfológicos determinantes de la predicción.</li>
+<li><strong>Construir una interfaz de usuario web interactiva y modular</strong> con Streamlit que consuma la lógica de IA mediante el patrón de diseño Fachada (<em>Facade Pattern</em>).</li>
+<li><strong>Validar el rendimiento técnico y operativo</strong> de la solución mediante una batería de pruebas unitarias automatizadas con <code>pytest</code> y gestión del ciclo de desarrollo con Scrum/Kanban.</li>
+</ol>
+<h3>2.3. Matriz de Alcance</h3>
+<table>
+<thead>
+<tr>
+<th>Clasificación</th>
+<th>Componentes y Funcionalidades</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Incluido (In Scope)</strong></td>
+<td>• Integración del modelo pre-entrenado ViT en formato <code>.safetensors</code>.<br>• Módulo de preprocesamiento y normalización estandarizada de imágenes (224×224).<br>• Generación y renderizado de mapas de calor explicativos con Grad-CAM.<br>• Aplicación web moderna con Streamlit.<br>• Módulo Fachada (<code>integrator.py</code>) desacoplado de la interfaz gráfica.<br>• Entorno de ejecución reproducible gestionado por <code>uv</code> (<code>pyproject.toml</code>, <code>uv.lock</code>).<br>• Batería de pruebas unitarias con <code>pytest</code>.</td>
+</tr>
+<tr>
+<td><strong>Deseable (Nice to have)</strong></td>
+<td>• Exportación de reporte clínico preliminar en formato PDF imprimible.<br>• Despliegue contenerizado mediante Dockerfile.<br>• Soporte para archivos dermatológicos de alta resolución con segmentación previa.</td>
+</tr>
+<tr>
+<td><strong>Excluido (Out of Scope)</strong></td>
+<td>• Re-entrenamiento completo de la red desde cero (se usa transferencia de aprendizaje).<br>• Diagnóstico clínico directo sin validación humana.<br>• Integración con sistemas de historias clínicas electrónicas (EHR / HL7 / FHIR).<br>• Requerimiento mandatorio de GPU en el entorno de producción del usuario final.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>CAPÍTULO 3: CRONOGRAMA Y RUTA CRÍTICA (CPM)</h2>
+<h3>3.1. Cronograma de Ejecución (15 Días)</h3>
+<p>El proyecto se desarrollará en 4 fases principales coordinadas mediante sprints cortos:</p>
+<pre><code class="language-mermaid">gantt
+    title Cronograma de Implementación y Ruta Crítica (15 Días)
+    dateFormat  YYYY-MM-DD
+    section Fase 1: Planeación
+    Revisión de Requisitos y Guía Clase 2       :done, p1, 2026-09-16, 2026-09-17
+    Elaboración de Propuesta Formal (PDF/MD)    :active, p2, 2026-09-17, 2026-09-18
+    Diseño de Mapas Mentales (Agile + DevOps)   :crit, p3, 2026-09-18, 2026-09-19
+    Configuración de Tablero Kanban y Repo Git  :p4, 2026-09-19, 2026-09-20
+    section Fase 2: Backend &amp; Inferencia
+    Configuración Entorno UV y Dependencias     :crit, b1, 2026-09-20, 2026-09-21
+    Módulo de Ingesta y Preprocesamiento        :b2, 2026-09-21, 2026-09-22
+    Integración Inferencia ViT (Hugging Face)   :crit, b3, 2026-09-22, 2026-09-24
+    Módulo de Explicabilidad Grad-CAM           :crit, b4, 2026-09-24, 2026-09-26
+    section Fase 3: Frontend &amp; Fachada
+    Implementación Capa Fachada (Integrator)    :crit, f1, 2026-09-26, 2026-09-27
+    Diseño UI con Streamlit                     :f2, 2026-09-27, 2026-09-29
+    section Fase 4: Calidad &amp; Entrega
+    Suite de Pruebas Unitarias (Pytest)         :crit, q1, 2026-09-29, 2026-09-30
+    Validación Cruzada y Reporte Final          :q2, 2026-09-30, 2026-10-01
+</code></pre>
+<h3>3.2. Identificación de la Ruta Crítica (CPM)</h3>
+<p>Las actividades que determinan la duración mínima del proyecto y no admiten holgura son:
+1. <strong>Configuración de Entorno <code>uv</code>:</strong> Base para la reproducibilidad de paquetes.
+2. <strong>Pipeline de Inferencia con ViT:</strong> La carga de pesos Safetensors y extracción de tensores de atención.
+3. <strong>Mapeo Grad-CAM en Capas de Auto-Atención:</strong> La adaptación matemática de Grad-CAM a arquitecturas Transformer (manipulación del tensor de salida de la última capa de atención previa a la cabeza de clasificación).
+4. <strong>Capa Fachada (<code>Integrator</code>):</strong> Garantiza el desacoplamiento estricto requerido por la arquitectura limpia de la cátedra.
+5. <strong>Testing Unitario con <code>pytest</code>:</strong> Criterio mandatorio de aceptación para asegurar estabilidad.</p>
+<hr />
+<h2>CAPÍTULO 4: MARCO DE INVESTIGACIÓN Y METODOLOGÍA CRISP-DM</h2>
+<h3>4.1. Modelos y Formatos Considerados</h3>
+<ul>
+<li><strong>Formatos Evaluados:</strong></li>
+<li><code>.h5 / .keras</code>: Tradicionales en Keras/TensorFlow. Descartados por riesgo de deserialización de código arbitrario y mayor uso de memoria.</li>
+<li><code>.pt / .pth</code>: Formato nativo de PyTorch con soporte de pickle.</li>
+<li><strong><code>.safetensors</code> (Seleccionado):</strong> Desarrollado por Hugging Face; formato serializado de tensores de cero-copia, ultra seguro y con tiempo de carga casi instantáneo en CPU.</li>
+</ul>
+<h3>4.2. Dataset Seleccionado: <code>marmal88/skin_cancer</code> (HAM10000)</h3>
+<p>El conjunto de datos comprende más de 10,000 imágenes dermatoscópicas etiquetadas por biopsia o consenso de expertos:
+* <strong>mel:</strong> Melanoma maligno (alta prioridad).
+* <strong>nv:</strong> Nevus melanocítico benigno (lunares comunes).
+* <strong>bcc:</strong> Carcinoma basocelular.
+* <strong>akiec:</strong> Queratosis actínica y carcinoma intraepitelial.
+* <strong>bkl:</strong> Queratosis benigna (tipo seborreica o solar).
+* <strong>df:</strong> Dermatofibroma.
+* <strong>vasc:</strong> Lesiones vasculares (angiomas, hemangiomas).</p>
+<h3>4.3. Mapeo de las 6 Fases de CRISP-DM</h3>
+<pre><code>+-------------------------------------------------------------------------+
+|                              CRISP-DM                                   |
+|  1. Comprensión Negocio  --&gt;  2. Comprensión Datos  --&gt;  3. Prep. Datos |
+|          ^                                                     |        |
+|          |                                                     v        |
+|  6. Despliegue (Streamlit)&lt;-- 5. Evaluación (Tests) &lt;--  4. Modelado    |
++-------------------------------------------------------------------------+
+</code></pre>
+<ol>
+<li><strong>Comprensión del Negocio (Business Understanding):</strong> Definir el problema clínico de detección temprana y establecer métricas de éxito: Sensibilidad &gt; 90% para Melanoma y tiempo de inferencia en CPU &lt; 3 segundos por imagen.</li>
+<li><strong>Comprensión de los Datos (Data Understanding):</strong> Explorar la distribución de las 7 clases, identificar desbalances muestrales (mayor proporción de nevus benignos) y analizar resoluciones espaciales originales.</li>
+<li><strong>Preparación de los Datos (Data Preparation):</strong> Normalización de canales RGB con media y desviación estándar de ImageNet (<code>mean=[0.485, 0.456, 0.406]</code>, <code>std=[0.229, 0.224, 0.225]</code>), redimensionamiento bilinear a 224×224 píxeles y canalización a tensores PyTorch.</li>
+<li><strong>Modelado (Modeling):</strong> Uso del modelo base pre-entrenado <code>google/vit-base-patch16-224-in21k</code> ajustado en el espacio latente de las 7 clases dermatológicas.</li>
+<li><strong>Evaluación (Evaluation):</strong> Verificación de la matriz de confusión del modelo (96.95% de exactitud), pruebas de robustez ante imágenes con baja luminosidad o ruido, y evaluación de la coherencia visual del mapa Grad-CAM sobre la lesión.</li>
+<li><strong>Despliegue (Deployment):</strong> Empaquetado de la solución en una aplicación web interactiva con Streamlit, documentada en GitHub con arquitectura reproducible bajo <code>uv</code>.</li>
+</ol>
+<hr />
+<h2>CAPÍTULO 5: GESTIÓN DE TAREAS (KANBAN)</h2>
+<h3>5.1. Estructura del Tablero</h3>
+<p>El proyecto implementará un tablero ágil en <strong>GitHub Projects</strong> con 4 estados de flujo continuo:
+* <code>To Do</code> (Por hacer)
+* <code>In Progress</code> (En progreso)
+* <code>In Review</code> (En revisión por pares)
+* <code>Done</code> (Completado y validado)</p>
+<h3>5.2. Anatomía de Tickets de Trabajo (Muestreo Técnico con Estimación Fibonacci)</h3>
+<h4>Ticket #001: Configuración de Arquitectura Base y Entorno UV</h4>
+<ul>
+<li><strong>Estimación:</strong> <code>2 SP</code></li>
+<li><strong>Asignado:</strong> Marlon Valencia Velosa</li>
+<li><strong>Etiquetas:</strong> <code>DevOps</code>, <code>Infrastructure</code></li>
+<li><strong>Fecha Límite:</strong> 20/09/2026</li>
+<li><strong>Descripción:</strong> Inicializar el entorno virtual determinista con <code>uv</code>, configurar <code>pyproject.toml</code>, <code>.gitignore</code> y definir la jerarquía de carpetas bajo Clean Architecture (<code>src/</code>, <code>tests/</code>, <code>docs/</code>).</li>
+<li><strong>Acceptance Criteria (AC):</strong></li>
+<li><code>uv sync</code> corre sin dependencias rotas en Linux/macOS.</li>
+<li>No se rastrean archivos <code>.safetensors</code> ni carpetas de caché en Git.</li>
+</ul>
+<h4>Ticket #002: Ingesta y Preprocesamiento de Imágenes Dermatológicas</h4>
+<ul>
+<li><strong>Estimación:</strong> <code>3 SP</code></li>
+<li><strong>Asignado:</strong> Miguel Ángel Ortiz Roldán</li>
+<li><strong>Etiquetas:</strong> <code>Data Pipeline</code>, <code>ML Backend</code></li>
+<li><strong>Fecha Límite:</strong> 22/09/2026</li>
+<li><strong>Descripción:</strong> Implementar el módulo <code>src/preprocessing.py</code> que reciba imágenes en formato PIL o buffer de bytes, valide integridad y retorne el tensor normalizado para ViT (shape <code>[1, 3, 224, 224]</code>).</li>
+<li><strong>Acceptance Criteria (AC):</strong></li>
+<li>Rechaza archivos no admitidos (ej. PDFs o corruptos).</li>
+<li>Retorna tensor flotante de 32 bits normalizado.</li>
+<li>Test unitario <code>test_preprocessing.py</code> pasa exitosamente con <code>pytest</code>.</li>
+</ul>
+<h4>Ticket #003: Integración del Modelo ViT y Servicio de Inferencia</h4>
+<ul>
+<li><strong>Estimación:</strong> <code>5 SP</code></li>
+<li><strong>Asignado:</strong> Marlon Valencia Velosa</li>
+<li><strong>Etiquetas:</strong> <code>Deep Learning</code>, <code>HuggingFace</code></li>
+<li><strong>Fecha Límite:</strong> 24/09/2026</li>
+<li><strong>Descripción:</strong> Cargar pesos <code>Anwarkh1/Skin_Cancer-Image_Classification</code> usando <code>transformers.ViTForImageClassification</code>, retornar vector de probabilidades de las 7 clases y el diagnóstico top-1 con nivel de confianza.</li>
+<li><strong>Acceptance Criteria (AC):</strong></li>
+<li>Inferencia en CPU toma menos de 3.0 segundos.</li>
+<li>Mapeo correcto de etiquetas (<code>mel</code>, <code>nv</code>, <code>bcc</code>, <code>akiec</code>, <code>bkl</code>, <code>df</code>, <code>vasc</code>).</li>
+</ul>
+<h4>Ticket #004: Algoritmo de Explicabilidad Visual Grad-CAM para Transformers</h4>
+<ul>
+<li><strong>Estimación:</strong> <code>8 SP</code> (Tarea Crítica)</li>
+<li><strong>Asignado:</strong> Miguel Ángel Ortiz Roldán</li>
+<li><strong>Etiquetas:</strong> <code>XAI</code>, <code>Computer Vision</code></li>
+<li><strong>Fecha Límite:</strong> 26/09/2026</li>
+<li><strong>Descripción:</strong> Extraer mapas de activación de la última capa de auto-atención del ViT, calcular gradientes respecto a la clase predicha y sobreponer el mapa de calor sobre la imagen original.</li>
+<li><strong>Acceptance Criteria (AC):</strong></li>
+<li>Genera imagen compuesta (Superimposed Heatmap) en formato RGB compatible con UI.</li>
+<li>No bloquea el hilo principal de ejecución.</li>
+</ul>
+<h4>Ticket #005: Fachada Orquestadora (<code>src/integrator.py</code>)</h4>
+<ul>
+<li><strong>Estimación:</strong> <code>3 SP</code></li>
+<li><strong>Asignado:</strong> Miguel Ángel Ortiz Roldán &amp; Marlon Valencia Velosa</li>
+<li><strong>Etiquetas:</strong> <code>Architecture</code>, <code>Core</code></li>
+<li><strong>Fecha Límite:</strong> 27/09/2026</li>
+<li><strong>Descripción:</strong> Diseñar la clase <code>DermatologyDiagnosticFacade</code> que exponga un método único <code>diagnose_image(file_path)</code> que orqueste lectura, preprocesamiento, inferencia y Grad-CAM.</li>
+<li><strong>Acceptance Criteria (AC):</strong></li>
+<li>La interfaz gráfica no contiene imports de <code>torch</code> ni <code>transformers</code>.</li>
+<li>La fachada retorna un objeto estructurado <code>DiagnosticResult</code> con clase, confianza y mapa de calor.</li>
+</ul>
+<h4>Ticket #006: Interfaz Web Reactiva en Streamlit</h4>
+<ul>
+<li><strong>Estimación:</strong> <code>5 SP</code></li>
+<li><strong>Asignado:</strong> Marlon Valencia Velosa</li>
+<li><strong>Etiquetas:</strong> <code>Frontend</code>, <code>Streamlit</code></li>
+<li><strong>Fecha Límite:</strong> 29/09/2026</li>
+<li><strong>Descripción:</strong> Construir la interfaz de usuario con widget de carga de archivos <code>st.file_uploader</code>, visualización en dos columnas (Imagen Original vs. Mapa Grad-CAM) y barras de probabilidad porcentuales.</li>
+<li><strong>Acceptance Criteria (AC):</strong></li>
+<li>Diseño limpio, sin fallos de renderizado.</li>
+<li>Manejo amigable de errores si la imagen no cumple estándares.</li>
+</ul>
+<h4>Ticket #007: Suite de Pruebas Automatizadas y Aseguramiento de Calidad</h4>
+<ul>
+<li><strong>Estimación:</strong> <code>5 SP</code></li>
+<li><strong>Asignado:</strong> Miguel Ángel Ortiz Roldán</li>
+<li><strong>Etiquetas:</strong> <code>QA</code>, <code>Testing</code></li>
+<li><strong>Fecha Límite:</strong> 30/09/2026</li>
+<li><strong>Descripción:</strong> Desarrollar pruebas unitarias y de integración en <code>tests/</code> cubriendo los contratos de métodos, manejo de excepciones y tiempos de respuesta.</li>
+<li><strong>Acceptance Criteria (AC):</strong></li>
+<li>Cobertura de pruebas superior al 80% en los módulos de <code>src/</code>.</li>
+<li>Ejecución exitosa de <code>uv run pytest</code>.</li>
+</ul>
+<hr />
+<h2>CAPÍTULO 6: ANEXOS Y REPOSITORIOS</h2>
+<h3>6.1. Enlaces a Artefactos Digitales</h3>
+<ul>
+<li><strong>Repositorio de Código Fuente:</strong> <a href="https://github.com/marlonvalenciamentor-eng/skin-lesion-classifier">https://github.com/marlonvalenciamentor-eng/skin-lesion-classifier</a></li>
+<li><strong>Tablero Kanban (GitHub Projects):</strong> Disponible en la pestaña <em>Projects</em> del repositorio oficial.</li>
+<li><strong>Ficha del Modelo en Hugging Face:</strong> <a href="https://huggingface.co/Anwarkh1/Skin_Cancer-Image_Classification">Anwarkh1/Skin_Cancer-Image_Classification</a></li>
+</ul>
+<h3>6.2. Referencias Bibliográficas</h3>
+<ol>
+<li><strong>Tschandl, P., Rosendahl, C., &amp; Kittler, H. (2018).</strong> <em>The HAM10000 dataset, a large collection of multi-source dermatoscopic images of common pigmented skin lesions.</em> Scientific Data, 5(1), 180161.</li>
+<li><strong>Dosovitskiy, A., et al. (2020).</strong> <em>An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale.</em> International Conference on Learning Representations (ICLR).</li>
+<li><strong>Selvaraju, R. R., et al. (2017).</strong> <em>Grad-CAM: Visual Explanations from Deep Networks via Gradient-Based Localization.</em> IEEE International Conference on Computer Vision (ICCV), 618-626.</li>
+<li><strong>Chapman, P., et al. (2000).</strong> <em>CRISP-DM 1.0: Step-by-step data mining guide.</em> The CRISP-DM consortium.</li>
+<li><strong>Martin, R. C. (2017).</strong> <em>Clean Architecture: A Craftsman's Guide to Software Structure and Design.</em> Prentice Hall.</li>
+</ol>
+  </div>
+
+</body>
+</html>
