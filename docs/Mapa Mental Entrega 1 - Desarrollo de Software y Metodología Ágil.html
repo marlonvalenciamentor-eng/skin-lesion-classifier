@@ -1,0 +1,484 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clasificador de lesiones cutáneas — mapa mental de la interfaz</title>
+  <style>
+    :root { --navy:#102a43; --blue:#176b87; --cyan:#42c8d5; --teal:#0f8b8d; --ink:#243b53; --muted:#627d98; --line:#c7d8e4; --paper:#f7fbfd; --coral:#e77765; --shadow:0 12px 28px rgba(16,42,67,.10); }
+    * { box-sizing:border-box; }
+    html { background:#dfeaf0; color:var(--ink); font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif; }
+    body { margin:0; padding:24px; }
+    .sheet { max-width:1500px; min-height:calc(100vh - 48px); margin:auto; padding:30px 34px 24px; background:white; border:1px solid #d5e3eb; box-shadow:var(--shadow); }
+    header { display:flex; justify-content:space-between; align-items:flex-end; gap:24px; padding-bottom:18px; border-bottom:2px solid var(--cyan); }
+    .eyebrow { color:var(--teal); font-size:.72rem; font-weight:800; letter-spacing:.16em; text-transform:uppercase; }
+    h1 { margin:5px 0 4px; color:var(--navy); font-size:clamp(1.7rem,3vw,2.55rem); letter-spacing:-.04em; }
+    .subtitle { margin:0; color:var(--muted); font-size:.98rem; }
+    .authors { max-width:315px; color:var(--navy); font-size:.84rem; line-height:1.5; text-align:right; }
+    .authors strong { display:block; color:var(--teal); font-size:.68rem; letter-spacing:.12em; text-transform:uppercase; }
+    .intro { display:flex; align-items:center; justify-content:space-between; gap:24px; padding:12px 0 10px; }
+    .intro p { flex:1; width:100%; max-width:none; margin:0; color:var(--muted); font-size:.84rem; line-height:1.45; }
+    .legend { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:8px; align-content:flex-start; font-size:.72rem; color:var(--muted); }
+     .legend span { display:inline-flex; align-items:center; gap:6px; white-space:nowrap; }
+     .legend i { width:11px; height:11px; display:inline-block; border-radius:50%; background:var(--cyan); }
+    .map { position:relative; display:grid; grid-template-columns:minmax(250px,.86fr) minmax(480px,1.55fr); gap:28px; align-items:stretch; }
+    .nodes { display:grid; align-content:center; gap:12px; padding:16px 0; }
+     .node { position:relative; z-index:2; width:100%; padding:14px 16px; background:var(--paper); border:1px solid var(--line); border-left:5px solid var(--teal); border-radius:12px; box-shadow:0 5px 14px rgba(16,42,67,.06); color:inherit; font:inherit; text-align:left; cursor:pointer; transition:transform .18s ease, border-color .18s ease, box-shadow .18s ease, background .18s ease; }
+     .node:hover, .node:focus-visible, .node[aria-selected="true"] { transform:translateX(5px); border-color:var(--cyan); background:#e8f8fa; box-shadow:0 8px 20px rgba(23,107,135,.16); }
+    .node h2 { margin:0 0 4px; color:var(--navy); font-size:.98rem; }
+    .node p { margin:0; color:var(--muted); font-size:.77rem; line-height:1.4; }
+    .node code, .screen code { color:var(--blue); font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.72rem; }
+     .node.accent { border-left-color:var(--coral); }
+    .mockup-wrap { position:relative; z-index:1; padding:16px 0; }
+    .mockup-label { margin:0 0 8px; color:var(--teal); font-size:.72rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
+     .screen { min-height:405px; border:1px solid #b9cdd9; border-radius:14px; background:#f3f7f9; box-shadow:0 12px 25px rgba(16,42,67,.14); overflow:hidden; }
+    .screen-top { display:flex; align-items:center; justify-content:space-between; padding:11px 15px; border-bottom:1px solid #cfdee6; background:white; border-radius:14px 14px 0 0; }
+    .brand { color:var(--navy); font-size:.76rem; font-weight:800; }
+    .dots { display:flex; gap:5px; } .dots i { width:7px; height:7px; border-radius:50%; background:#b8cad5; }
+     .screen-body { display:grid; grid-template-columns:31% 69%; min-height:360px; }
+     .screen-side { position:relative; padding:16px 13px; border-right:1px solid #cfdee6; background:#eaf4f6; }
+    .screen-side h3 { margin:0 0 14px; color:var(--navy); font-size:.8rem; }
+    .fake-label { display:block; margin:11px 0 5px; color:var(--muted); font-size:.66rem; font-weight:700; }
+    .fake-control { padding:8px; border:1px solid #c6d8e0; border-radius:6px; background:white; color:#8aa1af; font-size:.62rem; }
+    .screen-main { padding:17px; background:#f8fbfc; }
+    .screen-main h2 { margin:0 0 4px; color:var(--navy); font-size:1.1rem; }
+    .screen-main p { margin:0 0 14px; color:var(--muted); font-size:.68rem; }
+     .upload { margin-bottom:14px; padding:14px; border:1px solid var(--cyan); border-radius:8px; background:#effbfc; color:var(--blue); font-size:.68rem; text-align:center; }
+    .results { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+     .hotspot { transition:background .18s ease, box-shadow .18s ease; }
+     .hotspot.is-highlighted { z-index:4; background:#e8f8fa; box-shadow:0 0 0 2px rgba(66,200,213,.55), 0 8px 18px rgba(16,42,67,.12); }
+     .screen-side.hotspot.is-highlighted { background:#dff2f4; }
+    .result-card { min-height:158px; padding:12px; border:1px solid #d3e1e7; border-radius:9px; background:white; }
+    .result-card h4 { margin:0 0 12px; color:var(--navy); font-size:.7rem; }
+    .image-placeholder { display:grid; place-items:center; height:108px; border-radius:6px; background:linear-gradient(135deg,#b8d9d8,#f1c9bf 55%,#5e8c9a); color:white; font-size:.62rem; font-weight:800; }
+    .bar { margin:9px 0; } .bar label { display:flex; justify-content:space-between; color:var(--muted); font-size:.62rem; } .track { height:7px; margin-top:4px; border-radius:9px; background:#e6eef2; } .fill { height:100%; border-radius:9px; background:linear-gradient(90deg,var(--teal),var(--cyan)); } .fill.high { width:84%; } .fill.mid { width:53%; } .fill.low { width:22%; }
+     .detail-view { min-height:360px; padding:28px; background:linear-gradient(135deg,#f8fbfc,#e8f8fa); }
+     .detail-view[hidden], .screen-body[hidden] { display:none; }
+     .detail-kicker { margin:0 0 8px; color:var(--teal); font-size:.68rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
+     .detail-view h2 { margin:0 0 10px; color:var(--navy); font-size:1.55rem; }
+      .detail-view p { max-width:650px; margin:0 0 18px; color:var(--muted); font-size:.82rem; line-height:1.55; }
+      .detail-list { display:grid; gap:9px; max-width:680px; margin:0; padding:0; list-style:none; }
+      .detail-list li { padding:11px 13px; border:1px solid #c8e1e6; border-radius:8px; background:white; color:var(--ink); font-size:.75rem; }
+      .detail-integration { display:grid; gap:9px; max-width:680px; margin:18px 0 20px; }
+      .detail-integration div { padding:10px 12px; border-left:3px solid var(--cyan); border-radius:6px; background:rgba(255,255,255,.78); color:var(--ink); font-size:.75rem; line-height:1.45; }
+      .detail-integration strong { color:var(--navy); }
+      .native-button { padding:9px 13px; border:1px solid var(--blue); border-radius:7px; background:var(--blue); color:white; font:inherit; font-size:.76rem; font-weight:800; cursor:pointer; }
+      .native-button:hover, .native-button:focus-visible { background:var(--navy); }
+      .toolbar { display:flex; justify-content:flex-end; gap:9px; margin-top:14px; }
+      .toolbar .native-button { background:white; color:var(--blue); }
+      .toolbar .native-button:hover, .toolbar .native-button:focus-visible { background:#e8f8fa; }
+     .caption { margin:9px 0 0; color:var(--muted); font-size:.72rem; line-height:1.4; }
+      .dashboard-hero { display:grid; grid-template-columns:1fr auto; gap:20px; align-items:center; margin-bottom:20px; padding:22px 26px; border:1px solid #c8e1e6; border-radius:16px; background:linear-gradient(120deg,#effbfc,#f8fbfc 62%,#fff8f5); }
+      .hero-copy { min-width:0; }
+      .dashboard-hero h2 { margin:6px 0 8px; color:var(--navy); font-size:clamp(1.45rem,2.4vw,2.1rem); letter-spacing:-.03em; }
+      .dashboard-hero p { width:100%; max-width:none; margin:4px 0 10px 0; color:var(--muted); font-size:.92rem; line-height:1.5; }
+      .dashboard-hero .authors { max-width:none; margin-top:12px; text-align:left; } .authors-line { display:flex; flex-wrap:wrap; align-items:center; gap:14px; margin-top:4px; color:var(--navy); font-size:.85rem; } .author-sep { color:var(--teal); font-weight:700; }
+      .hero-actions { display:flex; flex-direction:column; align-items:flex-end; justify-content:flex-start; gap:12px; }
+      .hero-meta { display:inline-flex; flex-wrap:wrap; gap:6px 14px; margin-top:10px; color:var(--navy); font-size:.78rem; font-weight:700; }
+      .hero-meta span { white-space:nowrap; }
+      .hero-meta strong { color:var(--teal); font-size:.68rem; letter-spacing:.08em; text-transform:uppercase; }
+     .dashboard-panel { margin-top:18px; border:1px solid var(--line); border-radius:14px; background:#fff; overflow:hidden; }
+     .dashboard-panel > summary { padding:16px 20px; color:var(--navy); font-size:1.05rem; font-weight:800; cursor:pointer; list-style-position:inside; }
+     .dashboard-panel > summary:hover, .dashboard-panel > summary:focus-visible { background:#effbfc; color:var(--teal); }
+     .panel-content { padding:0 20px 20px; }
+     .concept-map { display:grid; gap:14px; padding-top:4px; }
+     .concept-intro { margin:0; color:var(--muted); font-size:.82rem; line-height:1.5; }
+     .concept-branches { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
+     .concept-branch { display:grid; gap:9px; align-content:start; padding:14px; border:1px solid var(--branch-color); border-top:5px solid var(--branch-color); border-radius:11px; background:color-mix(in srgb,var(--branch-color) 7%,white); }
+     .concept-branch h3 { margin:0; color:var(--navy); font-size:.9rem; }
+     .concept-node { padding:9px 11px; border:1px solid color-mix(in srgb,var(--branch-color) 42%,white); border-radius:8px; background:white; color:var(--ink); font-size:.76rem; line-height:1.35; }
+     .concept-node strong { display:block; color:var(--branch-color); }
+     .pipeline { display:grid; grid-template-columns:repeat(4,1fr); gap:0; padding:16px; border:1px solid #c7d8e4; border-radius:11px; background:#f8fbfc; }
+     .pipeline-step { position:relative; padding:10px 14px; border-left:4px solid var(--pipeline-color); color:var(--ink); font-size:.78rem; text-align:center; }
+     .pipeline-step:not(:last-child)::after { content:'→'; position:absolute; right:-8px; top:8px; color:var(--pipeline-color); font-size:1.2rem; font-weight:800; }
+     .pipeline-step strong { display:block; color:var(--pipeline-color); }
+    footer { display:flex; justify-content:space-between; gap:20px; margin-top:15px; padding-top:12px; border-top:1px solid #d9e5eb; color:var(--muted); font-size:.7rem; }
+    .detail-sheet { display:none; margin-top:24px; padding-top:26px; border-top:2px solid var(--cyan); }
+    .detail-sheet h2 { margin:0 0 8px; color:var(--navy); font-size:1.45rem; }
+    .detail-sheet > p { max-width:900px; margin:0 0 18px; color:var(--muted); font-size:.88rem; line-height:1.55; }
+    .detail-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:13px; }
+    .detail-item { padding:13px 15px; border:1px solid var(--line); border-left:4px solid var(--teal); border-radius:10px; background:var(--paper); }
+    .detail-item h3 { margin:0 0 5px; color:var(--navy); font-size:.9rem; }
+    .detail-item p { margin:0; color:var(--muted); font-size:.77rem; line-height:1.48; }
+      @media (max-width:900px) { body { padding:10px; } .sheet { padding:22px 20px; } header, .intro, .dashboard-hero { display:block; } .hero-actions { align-items:flex-start; margin-top:16px; } .hero-meta { margin-top:0; } .authors { margin-top:12px; text-align:left; } .legend { justify-content:flex-start; margin-top:12px; } .map, .concept-branches { grid-template-columns:1fr; } .nodes { padding-bottom:0; } }
+      @media (max-width:650px) { .detail-grid, .pipeline { grid-template-columns:1fr; } .detail-view { padding:21px; } .pipeline-step { border-left:0; border-top:4px solid var(--pipeline-color); } .pipeline-step:not(:last-child)::after { right:auto; top:auto; bottom:-11px; left:50%; transform:rotate(90deg); } }
+     @media print {
+        /* Medio centimetro (5mm) exacto de margen superior e inferior en TODAS las hojas */
+        @page { size: A4 landscape; margin: 0; }
+        html, body { background: white; -webkit-print-color-adjust: exact; print-color-adjust: exact; padding: 5mm 10mm; margin: 0; box-sizing: border-box; }
+        
+        /* Reordenamiento del PDF con flexbox: 1. Maqueta UI (con Hero) -> 2. Desglose -> 3. Mapa Conceptual */
+        body { display: flex !important; flex-direction: column !important; }
+        main.sheet { display: contents !important; }
+        
+        .dashboard-hero { order: 1; }
+        details.dashboard-panel:nth-of-type(1) { order: 2; }
+        section.detail-sheet { order: 3; }
+        details.dashboard-panel:nth-of-type(2) { order: 4; }
+
+        .sheet { min-height: 0; width: 100%; max-width: 100%; padding: 0; border: 0; box-shadow: none; margin: 0; box-sizing: border-box; }
+        .toolbar { display: none !important; }
+        footer { display: none !important; }
+        * { box-sizing: border-box; word-wrap: break-word; }
+
+        /* ==================== HOJA 1: HERO + MAQUETA UI JUNTOS ==================== */
+        .dashboard-hero { 
+            padding: 10px 18px !important; 
+            margin: 0 0 6px 0 !important; 
+            padding-top: 0 !important; 
+            border-radius: 12px !important;
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+        }
+        .dashboard-hero h2 { font-size: 1.3rem !important; margin: 0 0 2px !important; }
+        .dashboard-hero p { font-size: 0.8rem !important; line-height: 1.35 !important; margin: 2px 0 4px !important; }
+        .dashboard-hero .authors { margin-top: 4px !important; }
+        .authors-line { font-size: 0.76rem !important; gap: 10px !important; }
+
+        details.dashboard-panel:nth-of-type(1) { 
+            margin: 0 !important; 
+            padding: 0 !important; 
+            border: none !important; 
+            background: transparent !important; 
+            box-shadow: none !important;
+            break-inside: avoid !important; 
+            page-break-inside: avoid !important;
+            break-before: avoid !important;
+            page-break-before: avoid !important;
+        }
+        details.dashboard-panel:nth-of-type(1) > summary { display: none !important; }
+        details.dashboard-panel:nth-of-type(1) > .panel-content { padding: 0 !important; }
+        
+        .intro { padding: 2px 0 6px !important; }
+        .intro p { font-size: 0.74rem !important; line-height: 1.3 !important; }
+        .legend { font-size: 0.66rem !important; }
+        
+        .map { grid-template-columns: minmax(230px, .75fr) minmax(0, 1.55fr) !important; gap: 10px !important; align-items: start !important; }
+        .nodes { padding: 0 !important; gap: 4px !important; }
+        .node { padding: 5px 10px !important; border-radius: 8px !important; }
+        .node h2 { font-size: 0.76rem !important; margin: 0 0 1px !important; }
+        .node p { font-size: 0.64rem !important; line-height: 1.25 !important; }
+        
+        .mockup-wrap { padding: 0 !important; }
+        .mockup-label { margin: 0 0 3px !important; font-size: 0.64rem !important; }
+        .screen { min-height: 0 !important; border-radius: 10px !important; box-shadow: none !important; overflow: hidden !important; }
+        .screen-top { padding: 5px 10px !important; }
+        .screen-body { display: grid !important; min-height: 0 !important; grid-template-columns: 28% 72% !important; }
+        .detail-view { display: none !important; }
+        .screen-side { padding: 8px 10px !important; }
+        .screen-side h3 { margin: 0 0 6px !important; font-size: 0.7rem !important; }
+        .fake-label { margin: 5px 0 2px !important; font-size: 0.58rem !important; }
+        .fake-control { padding: 4px 6px !important; font-size: 0.56rem !important; }
+        .screen-main { padding: 8px 10px !important; }
+        .screen-main h2 { font-size: 0.88rem !important; margin: 0 0 2px !important; }
+        .screen-main p { font-size: 0.62rem !important; margin: 0 0 5px !important; }
+        .upload { padding: 5px !important; font-size: 0.64rem !important; }
+        .results { gap: 6px !important; }
+        .result-card { min-height: 0 !important; padding: 6px 8px !important; }
+        .result-card h4 { margin: 0 0 3px !important; font-size: 0.63rem !important; }
+        .image-placeholder { height: 62px !important; font-size: 0.54rem !important; }
+        .bar { margin: 3px 0 !important; }
+        .bar label { font-size: 0.56rem !important; }
+        .track { height: 5px !important; margin-top: 2px !important; }
+        .caption { margin: 3px 0 0 !important; font-size: 0.6rem !important; line-height: 1.2 !important; }
+
+        /* ==================== HOJA 2: DESGLOSE TÉCNICO (NUEVA PÁGINA) ==================== */
+        .detail-sheet { 
+            display: block !important; 
+            page-break-before: always !important; 
+            break-before: page !important; 
+            margin-top: 0 !important; 
+            padding-top: 5mm !important; 
+            border-top: none !important; 
+        }
+        .detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 10px !important; }
+        .detail-item { padding: 10px 12px !important; }
+        .detail-item h3 { font-size: 0.82rem !important; margin: 0 0 4px !important; }
+        .detail-item p { font-size: 0.72rem !important; line-height: 1.38 !important; }
+
+        /* ==================== HOJA 3: MAPA CONCEPTUAL (NUEVA PÁGINA) ==================== */
+        .dashboard-panel:nth-of-type(2) { 
+            page-break-before: always !important; 
+            break-before: page !important; 
+            padding-top: 5mm !important; 
+            margin-top: 0 !important; 
+            border: none !important;
+            box-shadow: none !important;
+        }
+        .dashboard-panel:nth-of-type(2) > summary { display: block !important; padding: 0 0 8px 0 !important; font-size: 1.15rem !important; border: none !important; }
+        .dashboard-panel:nth-of-type(2) > summary::marker, .dashboard-panel:nth-of-type(2) > summary::-webkit-details-marker { display: none !important; }
+        .dashboard-panel:nth-of-type(2) > .panel-content { padding: 0 !important; }
+        .concept-map { gap: 10px !important; }
+        .concept-intro { font-size: 0.78rem !important; margin: 0 0 6px 0 !important; }
+        .concept-branches { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; gap: 8px !important; }
+        .concept-branch { padding: 10px !important; border-top-width: 4px !important; }
+        .concept-branch h3 { font-size: 0.84rem !important; margin: 0 0 6px 0 !important; }
+        .concept-node { font-size: 0.72rem !important; line-height: 1.3 !important; padding: 6px 8px !important; margin-bottom: 6px !important; }
+        .pipeline { grid-template-columns: repeat(4, 1fr) !important; gap: 4px !important; padding: 10px !important; margin-top: 6px !important; }
+        .pipeline-step { padding: 6px 8px !important; font-size: 0.68rem !important; }
+      }
+  </style>
+</head>
+<body>
+  <main class="sheet">
+    <section class="dashboard-hero" aria-labelledby="primera-vista">
+      <div class="hero-copy"><h2 id="primera-vista">Clasificador de lesiones cutáneas</h2><p>Propuesta visual para una experiencia de diagnóstico explicable: un modelo ViT produce la predicción y Grad-CAM aporta la evidencia visual para interpretarla.</p><div class="authors"><strong>Integrantes</strong><div class="authors-line"><span>Marlon Valencia Velosa (ID: 1113531444)</span><span class="author-sep">—</span><span>Miguel Angel Ortiz Roldan (Código: 6200485)</span></div></div></div>
+       <div class="hero-actions"><div class="toolbar" aria-label="Acciones del documento"><button id="boton-imprimir" class="native-button" type="button">Imprimir a PDF</button></div></div>
+    </section>
+    <details class="dashboard-panel">
+      <summary>Maqueta UI</summary>
+      <div class="panel-content">
+        <section class="intro"><p>El panel izquierdo organiza la estructura de Streamlit visible para el usuario; el panel derecho traduce cada nodo a una maqueta de pantalla. Pasá el cursor para resaltar su zona o hacé clic para abrir una vista detallada.</p><div class="legend"><span><i></i> Estructura de Streamlit</span></div></section>
+        <section class="map" aria-label="Mapa híbrido de la interfaz de Streamlit">
+      <div class="nodes" role="tablist" aria-label="Secciones de la interfaz">
+        <button class="node" type="button" role="tab" aria-selected="true" aria-controls="panel-detalle" data-target="zona-encabezado"><h2>Encabezado</h2><p>Título del proyecto, contexto diagnóstico conciso y comienzo claro.</p></button>
+        <button class="node" type="button" role="tab" aria-selected="false" aria-controls="panel-detalle" data-target="zona-barra"><h2>Barra lateral con información técnica</h2><p>El contexto técnico y la información de apoyo permanecen disponibles junto a la tarea principal.</p></button>
+        <button class="node accent" type="button" role="tab" aria-selected="false" aria-controls="panel-detalle" data-target="zona-carga"><h2>Carga de archivos</h2><p>Área de entrada de imágenes dermatoscópicas en formato JPG/PNG.</p></button>
+        <button class="node" type="button" role="tab" aria-selected="false" aria-controls="panel-detalle" data-target="zona-resultados"><h2>Área de resultados en dos columnas</h2><p>Espacio de comparación para la evidencia visual y la salida del modelo.</p></button>
+        <button class="node" type="button" role="tab" aria-selected="false" aria-controls="panel-detalle" data-target="zona-probabilidades"><h2>Barras de probabilidad</h2><p>Distribución legible de la confianza para las clases predichas.</p></button>
+      </div>
+      <div class="mockup-wrap"><p class="mockup-label">Pantalla de Streamlit · maqueta CSS</p><div class="screen" aria-label="Maqueta interactiva de la pantalla de Streamlit">
+        <div id="zona-encabezado" class="screen-top hotspot is-highlighted"><span class="brand">Clasificador de lesiones cutáneas</span><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span></div>
+        <div id="panel-maqueta" class="screen-body">
+          <aside id="zona-barra" class="screen-side hotspot"><h3>Información técnica</h3><span class="fake-label">Modelo</span><div class="fake-control">ViT · inferencia en CPU</div><span class="fake-label">Formato de entrada</span><div class="fake-control">JPG / PNG</div><span class="fake-label">Explicación</span><div class="fake-control">Grad-CAM habilitado</div></aside>
+          <div class="screen-main"><h2>Diagnóstico dermatológico</h2><p>Cargá una imagen para revisar el resultado del modelo y la explicación visual.</p>
+            <div id="zona-carga" class="upload hotspot">＋ Soltá aquí una imagen JPG o PNG</div>
+            <div class="results">
+              <div id="zona-resultados" class="result-card hotspot"><h4>Evidencia Visual Lado a Lado</h4><div class="image-placeholder">Dermatoscopia (224x224) ➔ Mapa de Calor Grad-CAM</div></div>
+              <div id="zona-probabilidades" class="result-card hotspot"><h4>Probabilidades Diagnósticas (HAM10000)</h4><div class="bar"><label><span>Melanoma (MEL) - Alerta</span><span>86%</span></label><div class="track"><div class="fill high"></div></div></div><div class="bar"><label><span>Nevo melanocítico (NV)</span><span>10%</span></label><div class="track"><div class="fill mid"></div></div></div><div class="bar"><label><span>Carcinoma basocelular (BCC)</span><span>4%</span></label><div class="track"><div class="fill low"></div></div></div></div>
+            </div>
+            <div class="upload hotspot" style="margin-top:12px;margin-bottom:0;background:#fff8f5;border-color:var(--coral);color:var(--ink);">Resultado interpretado · revisión orientativa</div>
+          </div>
+        </div>
+         <div id="panel-detalle" class="detail-view" role="tabpanel" aria-live="polite" hidden><div id="detalle-contenido"></div><button id="boton-volver" class="native-button" type="button">Volver a la imagen inicial</button></div>
+      </div><p class="caption">El hover resalta la zona relacionada y el clic cambia todo el contenido del panel a una vista detallada; la hoja 2 conserva el desglose completo para impresión.</p></div>
+        </section>
+         <footer><span>Pasá el cursor o enfocá una zona para revisar responsabilidades.</span></footer>
+      </div>
+    </details>
+    <details class="dashboard-panel">
+      <summary>Mapa Conceptual</summary>
+      <div class="panel-content concept-map">
+         <p class="concept-intro">Tres ramas conectan los retos del software con una entrega iterativa y una operación confiable de soluciones ML-IA.</p>
+         <div class="concept-branches">
+            <section class="concept-branch" style="--branch-color:#176b87">
+               <h3>Rama A — Retos del Proyecto</h3>
+               <div class="concept-node">
+                  <strong>Reentrenamiento del Modelo</strong>
+                  Ajustar (fine-tuning) el modelo pre-entrenado ViT para especializarlo en el diagnóstico de las 7 clases de lesiones cutáneas, superando el reto de la complejidad médica.
+               </div>
+               <div class="concept-node">
+                  <strong>Trabajo en Equipo y Versionado</strong>
+                  Aplicar metodologías de desarrollo colaborativo utilizando Git/GitHub para evitar conflictos de integración y mantener un historial limpio (Git Flow).
+               </div>
+            </section>
+            
+            <section class="concept-branch" style="--branch-color:#0f8b8d">
+               <h3>Rama B — Metodologías de Desarrollo</h3>
+               <div class="concept-node">
+                  <strong>Desarrollo Iterativo</strong>
+                  Adaptar los requerimientos a medida que el proyecto avanza, realizando entregas pequeñas y funcionales en lugar de esperar al final para ensamblar el sistema.
+               </div>
+               <div class="concept-node">
+                  <strong>Gestión de Entornos</strong>
+                  Garantizar que todo el equipo (Marlon y Miguel Ángel) trabaje bajo las mismas versiones de librerías mediante el uso del gestor determinista <code>uv</code>.
+               </div>
+            </section>
+            
+            <section class="concept-branch" style="--branch-color:#e77765">
+               <h3>Rama C — Pipeline y Arquitectura</h3>
+               <div class="concept-node">
+                  <strong>Walking Skeleton</strong>
+                  Desplegar desde el primer día una ruta mínima funcional: cargar la imagen en Streamlit, procesarla en el modelo y devolver una predicción, probando toda la arquitectura base.
+               </div>
+               <div class="concept-node">
+                  <strong>Explicabilidad (XAI)</strong>
+                  Integrar Grad-CAM al final del pipeline para que el modelo no sea una caja negra, sino que entregue evidencia visual al médico.
+               </div>
+               <div class="pipeline" aria-label="Fases del pipeline">
+                  <div class="pipeline-step" style="--pipeline-color:#176b87"><strong>Build</strong>Entorno <code>uv</code></div>
+                  <div class="pipeline-step" style="--pipeline-color:#0f8b8d"><strong>Test</strong>Validación</div>
+                  <div class="pipeline-step" style="--pipeline-color:#e77765"><strong>Deploy</strong>Streamlit app</div>
+                  <div class="pipeline-step" style="--pipeline-color:#8a5a9e"><strong>Monitor</strong>Grad-CAM</div>
+               </div>
+            </section>
+         </div>
+      </div>
+    </details>
+   </main>
+   <section class="sheet detail-sheet" aria-labelledby="detalle-componentes">
+      <header><div><div class="eyebrow">Hoja 2 · documentación funcional</div><h2 id="detalle-componentes">Desglose técnico de la estación diagnóstica</h2><p class="subtitle">Integración de componentes, interacción de código y mitigación de retos del dominio.</p></div><div class="authors"><strong>Clasificador de lesiones cutáneas</strong>Flujo clínico asistido por IA</div></header>
+      <p>Esta hoja detalla la arquitectura de integración clínica del sistema: describe cómo Streamlit orquesta la captura de datos, cómo el patrón Facade desacopla la inferencia y cómo el Vision Transformer junto con Grad-CAM entregan un triaje dermatológico confiable, auditable y transparente.</p>
+      <div class="detail-grid">
+        <article class="detail-item"><h3>Streamlit · Capa de Presentación Clínica</h3><p>Construye la estación diagnóstica interactiva con <code>st.file_uploader</code>, <code>st.columns</code> y <code>st.progress</code>. Gestiona el ciclo de vida del usuario, comunica el estado de análisis y asegura una ergonomía visual sobria para médicos y especialistas.</p></article>
+        <article class="detail-item"><h3>Facade · DermatologyDiagnosticFacade</h3><p>Patrón estructural central que aísla la UI de la complejidad de PyTorch. Valida la integridad del archivo, coordina el pipeline de transformación, invoca al clasificador ViT y ensambla la superposición de Grad-CAM en una respuesta estructurada.</p></article>
+        <article class="detail-item"><h3>ViTForImageClassification · Red Neuronal Transformer</h3><p>Modelo pre-entrenado fine-tuneado sobre el dataset HAM10000. Procesa parches de 16x16 píxeles con mecanismos de auto-atención global, produciendo logits calibrados mediante softmax para clasificar con precisión las 7 patologías cutáneas.</p></article>
+        <article class="detail-item"><h3>Grad-CAM · Explicabilidad Médica (XAI)</h3><p>Calcula el gradiente de la clase predicha respecto a los mapas de activación de la última capa del ViT. Genera un mapa de calor que resalta las características morfológicas (bordes irregulares, pigmentación) que motivaron el diagnóstico.</p></article>
+        <article class="detail-item"><h3>Encabezado y Barra Lateral Técnica</h3><p>Centraliza la parametrización operativa: permite seleccionar el checkpoint del modelo, ajustar umbrales de sensibilidad diagnóstica y definir el modo de ejecución (CPU/GPU) mediante <code>st.sidebar</code> sin saturar el flujo de consulta principal.</p></article>
+        <article class="detail-item"><h3>Carga y Pipeline de Preprocesamiento</h3><p>Verifica extensiones (JPG/PNG), dimensiones y consistencia de la imagen dermatoscópica. Transforma la fotografía al espacio RGB con redimensionamiento a 224x224 y normalización estándar ImageNet mediante <code>AutoImageProcessor</code>.</p></article>
+        <article class="detail-item"><h3>Resultados Jerarquizados y Probabilidades</h3><p>Presenta las 7 clases diagnósticas ordenadas por nivel de confianza. Aplica alertas visuales diferenciadas para patologías malignas críticas (Melanoma, Carcinoma Basocelular) versus lesiones benignas frecuentes (Nevos melanocíticos).</p></article>
+        <article class="detail-item"><h3>Mitigación de Retos Clínicos y Técnicos</h3><p>Aborda el desbalance severo de HAM10000 con umbrales clínicos calibrados, reduce la latencia de inferencia en CPU para consultorios locales y garantiza reproducibilidad determinista del entorno de ejecución mediante <code>uv</code>.</p></article>
+     </div>
+     <footer><span>Hoja de detalle · documento complementario del mapa UI</span><span>Sistema de soporte de decisión clínica orientativa para triaje asistido.</span></footer>
+   </section>
+   <script>
+      const pestañas = [...document.querySelectorAll('[role="tab"]')];
+      const maqueta = document.querySelector('#panel-maqueta');
+      const detalle = document.querySelector('#panel-detalle');
+      const detalleContenido = document.querySelector('#detalle-contenido');
+      const botonVolver = document.querySelector('#boton-volver');
+      const botonImprimir = document.querySelector('#boton-imprimir');
+      const estadoVista = { modo: 'inicial', pestañaInicial: pestañas[0], pestañaActiva: pestañas[0] };
+            const contenidos = {
+        'zona-encabezado': { 
+            titulo: 'Encabezado · Contexto Clínico y Triaje', 
+            descripcion: 'Establece la identidad de la estación de triaje dermatológico para la clasificación asistida de 7 lesiones cutáneas mediante Vision Transformers.', 
+            items: [
+                'Comunica el propósito diagnóstico de asistencia clínica y alerta ética orientativa.',
+                'Indica el estado del sistema, checkpoints cargados y disponibilidad del pipeline.'
+            ], 
+            puntos: [
+                '<strong>UI y Presentación:</strong> Implementado con <code>st.set_page_config()</code> y <code>st.title()</code>, estableciendo una jerarquía médica sobria que guía la atención del facultativo.',
+                '<strong>Propósito del Proyecto:</strong> Sistema de soporte para reducir tiempos de triaje y minimizar falsos negativos en lesiones malignas críticas como Melanoma (MEL) y Carcinoma (BCC).',
+                '<strong>Reto de Diseño:</strong> Proporcionar contexto clínico inmediato y accesible sin saturar el espacio de trabajo con metadatos irrelevantes para la consulta.'
+            ] 
+        },
+        'zona-barra': { 
+            titulo: 'Barra Lateral · Configuración y Parámetros Técnicos', 
+            descripcion: 'Aísla la parametrización técnica y la metadata del modelo para mantener limpio el panel diagnóstico principal.', 
+            items: [
+                'Control de selección del modelo ViT fine-tuneado y dispositivo de ejecución (CPU/GPU).',
+                'Ajuste del umbral de confianza diagnóstica y visualización de metadatos de las 7 clases.'
+            ], 
+            puntos: [
+                '<strong>Código e Interacción:</strong> Desplegado mediante <code>st.sidebar.selectbox()</code> y <code>st.sidebar.slider()</code>, vinculado dinámicamente al estado de sesión <code>st.session_state</code>.',
+                '<strong>Arquitectura:</strong> Se comunica con la capa de configuración para definir el tamaño de lote, el uso de hilos en PyTorch CPU y la activación de explicabilidad Grad-CAM.',
+                '<strong>Dificultad Técnica:</strong> Optimizar la latencia de inferencia de transformers en procesadores de escritorio (CPU) convencionales de centros de salud primarios.'
+            ] 
+        },
+        'zona-carga': { 
+            titulo: 'Carga de Archivos · Ingesta Dermatoscópica', 
+            descripcion: 'Punto de entrada de fotografías dermatoscópicas con validación estricta de formato, resolución e integridad de imagen.', 
+            items: [
+                'Carga interactiva drag & drop para imágenes de alta definición en formato JPG o PNG.',
+                'Validación preliminar de dimensiones y preprocesamiento automático para el Vision Transformer.'
+            ], 
+            puntos: [
+                '<strong>Código e Interacción:</strong> Usa <code>st.file_uploader()</code> y delega la verificación al método <code>DermatologyDiagnosticFacade.validate_image()</code>.',
+                '<strong>Pipeline de Datos:</strong> Preprocesamiento con <code>AutoImageProcessor</code>: redimensionamiento a 224x224 píxeles, conversión de canales RGB y normalización con medias y desviaciones de ImageNet.',
+                '<strong>Dificultades del Dominio:</strong> Presencia de artefactos dermatoscópicos frecuentes (vellosidades, burbujas de gel, reflejos corneales) que requieren verificación antes de inferencia.'
+            ] 
+        },
+        'zona-resultados': { 
+            titulo: 'Resultados en Dos Columnas · Diagnóstico y XAI', 
+            descripcion: 'Contraste visual simultáneo entre la dermatoscopia original y el mapa de calor de atención generado por Grad-CAM.', 
+            items: [
+                'Columna 1: Fotografía dermatoscópica original centrada y recortada a la lesión.',
+                'Columna 2: Mapa de calor explicativo Grad-CAM superpuesto sobre la estructura celular patológica.'
+            ], 
+            puntos: [
+                '<strong>Código e Interacción:</strong> Renderizado con <code>st.columns(2)</code> y <code>st.image()</code>, consumiendo el objeto diagnóstico devuelto por <code>DermatologyDiagnosticFacade.predict_and_explain()</code>.',
+                '<strong>Mecanismo de Explicabilidad:</strong> Grad-CAM extrae activaciones y gradientes de la última capa de atención del ViT (<code>vit.encoder.layer[-1]</code>) para transparentar la decisión de la red.',
+                '<strong>Reto Clínico (Caja Negra):</strong> Los médicos requieren correlacionar la predicción con criterios dermoscópicos reales (red de pigmento, glóbulos, estrías) para confiar en el triaje asistido.'
+            ] 
+        },
+        'zona-probabilidades': { 
+            titulo: 'Barras de Probabilidad · Confianza Multiclase', 
+            descripcion: 'Desglose probabilístico de las 7 patologías cutáneas de HAM10000 ordenadas de mayor a menor certidumbre estadística.', 
+            items: [
+                'Jerarquía de predicciones con porcentajes softmax calculados por el Vision Transformer.',
+                'Alertas de criticidad cromática (rojo/ámbar) para patologías malignas vs diagnósticos benignos.'
+            ], 
+            puntos: [
+                '<strong>Código e Interacción:</strong> Convierte los logits de salida de <code>ViTForImageClassification</code> mediante <code>torch.softmax()</code> y los renderiza con <code>st.progress()</code>.',
+                '<strong>Mapeo de Patologías:</strong> Identifica Melanoma (MEL), Nevo melanocítico (NV), Carcinoma basocelular (BCC), Queratosis actínica (AKIEC), Queratosis benigna (BKL), Dermatofibroma (DF) y Lesión vascular (VASC).',
+                '<strong>Dificultad de Modelado:</strong> Enfrentar el severo desbalance de clases de HAM10000 (donde NV representa >65% del dataset) mediante ponderación de pérdidas y calibración estricta de umbrales.'
+            ] 
+        }
+      };
+
+     function resaltar(target, activo) {
+       const zona = document.getElementById(target);
+       if (zona) zona.classList.toggle('is-highlighted', activo);
+     }
+
+      function construirDetalle(target) {
+        const contenido = contenidos[target];
+        detalleContenido.replaceChildren();
+        const kicker = document.createElement('p');
+        kicker.className = 'detail-kicker';
+        kicker.textContent = 'Vista detallada de la sección';
+       const titulo = document.createElement('h2');
+       titulo.textContent = contenido.titulo;
+       const descripcion = document.createElement('p');
+       descripcion.textContent = contenido.descripcion;
+       const lista = document.createElement('ul');
+       lista.className = 'detail-list';
+       contenido.items.forEach((item) => {
+         const elemento = document.createElement('li');
+          elemento.textContent = item;
+          lista.append(elemento);
+        });
+        const integracion = document.createElement('div');
+        integracion.className = 'detail-integration';
+        
+        contenido.puntos.forEach(pto => {
+          const fila = document.createElement('div');
+          fila.innerHTML = pto;
+          fila.style.marginBottom = '8px';
+          fila.style.fontSize = '0.9rem';
+          fila.style.lineHeight = '1.4';
+          fila.style.color = 'var(--ink)';
+          integracion.appendChild(fila);
+        });
+        detalleContenido.append(kicker, titulo, descripcion, lista, integracion);
+      }
+
+      function seleccionar(pestaña) {
+        pestañas.forEach((elemento) => elemento.setAttribute('aria-selected', String(elemento === pestaña)));
+        construirDetalle(pestaña.dataset.target);
+        estadoVista.modo = 'detalle';
+        estadoVista.pestañaActiva = pestaña;
+        maqueta.hidden = true;
+        detalle.hidden = false;
+        botonVolver.focus();
+      }
+
+      function mostrarImagenInicial() {
+        estadoVista.modo = 'inicial';
+        estadoVista.pestañaActiva = estadoVista.pestañaInicial;
+        pestañas.forEach((elemento) => elemento.setAttribute('aria-selected', String(elemento === estadoVista.pestañaInicial)));
+        document.querySelectorAll('.hotspot.is-highlighted').forEach((zona) => zona.classList.remove('is-highlighted'));
+        resaltar(estadoVista.pestañaInicial.dataset.target, true);
+        detalle.hidden = true;
+        maqueta.hidden = false;
+        estadoVista.pestañaInicial.focus();
+      }
+
+     pestañas.forEach((pestaña) => {
+       pestaña.addEventListener('mouseenter', () => resaltar(pestaña.dataset.target, true));
+       pestaña.addEventListener('mouseleave', () => resaltar(pestaña.dataset.target, false));
+       pestaña.addEventListener('focus', () => resaltar(pestaña.dataset.target, true));
+       pestaña.addEventListener('blur', () => resaltar(pestaña.dataset.target, false));
+        pestaña.addEventListener('click', () => seleccionar(pestaña));
+      });
+      botonVolver.addEventListener('click', mostrarImagenInicial);
+      botonImprimir.addEventListener('click', () => window.print());
+    </script>
+<script>
+    // Garantizar que todos los paneles cerrados se abran justo antes de imprimir
+    let openedForPrint = [];
+    window.addEventListener('beforeprint', () => {
+        document.querySelectorAll('details:not([open])').forEach(d => {
+            d.setAttribute('open', '');
+            openedForPrint.push(d);
+        });
+    });
+    // Y que se vuelvan a cerrar despues de imprimir
+    window.addEventListener('afterprint', () => {
+        openedForPrint.forEach(d => d.removeAttribute('open'));
+        openedForPrint = [];
+    });
+  </script>
+</body>
+</html>
