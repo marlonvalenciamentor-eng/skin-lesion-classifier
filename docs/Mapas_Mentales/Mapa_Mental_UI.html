@@ -174,9 +174,47 @@
       <div class="panel-content concept-map">
          <p class="concept-intro">Tres ramas conectan los retos del software con una entrega iterativa y una operación confiable de soluciones ML-IA.</p>
          <div class="concept-branches">
-            <section class="concept-branch" style="--branch-color:#176b87"><h3>Rama A — Retos del Software (Teoría)</h3><div class="concept-node"><strong>Dificultad esencial vs. accidental</strong>Según Brooks (1986), la dificultad esencial pertenece a la complejidad inherente del problema a resolver. La dificultad accidental proviene de las herramientas, lenguajes o procesos defectuosos que utilizamos para resolverlo.</div><div class="concept-node"><strong>Origen de los bugs</strong>Según Farley, los bugs no son inevitables, sino resultado del proceso humano. El 77% de los fallos pueden prevenirse con Unit Tests en lugar de aplicar parches (Sticking Plaster Anti-Pattern).</div></section>
-            <section class="concept-branch" style="--branch-color:#0f8b8d"><h3>Rama B — Metodologías Ágiles (Teoría)</h3><div class="concept-node"><strong>Gestión de la Incertidumbre</strong>Los requisitos cambian y las soluciones se descubren progresivamente. Por ello, la ingeniería de software moderna abraza la iteración continua en lugar de planes rígidos e inamovibles.</div><div class="concept-node"><strong>Diseño Defensivo</strong>Un buen sistema no confía ciegamente en las entradas; implementa validaciones estrictas y fallos explícitos tempranos (Fail Fast) para proteger su integridad ante comportamientos inesperados.</div></section>
-            <section class="concept-branch" style="--branch-color:#e77765"><h3>Rama C — Implementación del Proyecto</h3><div class="concept-node"><strong>Walking Skeleton (Ejemplo Aplicado)</strong>Una implementación mínima de inicio a fin. En nuestro proyecto: la imagen se carga en Streamlit, pasa por la limpieza de datos, se procesa en el ViT y devuelve el Grad-CAM, validando toda la arquitectura base.</div><div class="concept-node"><strong>Pipeline CI/CD y MLOps</strong>El flujo continuo permite que el modelo y el código convivan de forma observable y automatizada.</div><div class="pipeline" aria-label="Fases del pipeline CI/CD y MLOps"><div class="pipeline-step" style="--pipeline-color:#176b87"><strong>Build</strong>Gestión con uv</div><div class="pipeline-step" style="--pipeline-color:#0f8b8d"><strong>Test</strong>Pruebas Unitarias</div><div class="pipeline-step" style="--pipeline-color:#e77765"><strong>Deploy</strong>Streamlit Web</div><div class="pipeline-step" style="--pipeline-color:#8a5a9e"><strong>Monitor</strong>Logging Clínico</div></div></section>
+            <section class="concept-branch" style="--branch-color:#176b87">
+               <h3>Rama A — Retos del Proyecto</h3>
+               <div class="concept-node">
+                  <strong>Reentrenamiento del Modelo</strong>
+                  Ajustar (fine-tuning) el modelo pre-entrenado ViT para especializarlo en el diagnóstico de las 7 clases de lesiones cutáneas, superando el reto de la complejidad médica.
+               </div>
+               <div class="concept-node">
+                  <strong>Trabajo en Equipo y Versionado</strong>
+                  Aplicar metodologías de desarrollo colaborativo utilizando Git/GitHub para evitar conflictos de integración y mantener un historial limpio (Git Flow).
+               </div>
+            </section>
+            
+            <section class="concept-branch" style="--branch-color:#0f8b8d">
+               <h3>Rama B — Metodologías de Desarrollo</h3>
+               <div class="concept-node">
+                  <strong>Desarrollo Iterativo</strong>
+                  Adaptar los requerimientos a medida que el proyecto avanza, realizando entregas pequeñas y funcionales en lugar de esperar al final para ensamblar el sistema.
+               </div>
+               <div class="concept-node">
+                  <strong>Gestión de Entornos</strong>
+                  Garantizar que todo el equipo (Marlon y Miguel Ángel) trabaje bajo las mismas versiones de librerías mediante el uso del gestor determinista <code>uv</code>.
+               </div>
+            </section>
+            
+            <section class="concept-branch" style="--branch-color:#e77765">
+               <h3>Rama C — Pipeline y Arquitectura</h3>
+               <div class="concept-node">
+                  <strong>Walking Skeleton</strong>
+                  Desplegar desde el primer día una ruta mínima funcional: cargar la imagen en Streamlit, procesarla en el modelo y devolver una predicción, probando toda la arquitectura base.
+               </div>
+               <div class="concept-node">
+                  <strong>Explicabilidad (XAI)</strong>
+                  Integrar Grad-CAM al final del pipeline para que el modelo no sea una caja negra, sino que entregue evidencia visual al médico.
+               </div>
+               <div class="pipeline" aria-label="Fases del pipeline">
+                  <div class="pipeline-step" style="--pipeline-color:#176b87"><strong>Build</strong>Entorno <code>uv</code></div>
+                  <div class="pipeline-step" style="--pipeline-color:#0f8b8d"><strong>Test</strong>Validación</div>
+                  <div class="pipeline-step" style="--pipeline-color:#e77765"><strong>Deploy</strong>Streamlit app</div>
+                  <div class="pipeline-step" style="--pipeline-color:#8a5a9e"><strong>Monitor</strong>Grad-CAM</div>
+               </div>
+            </section>
          </div>
       </div>
     </details>
