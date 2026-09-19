@@ -58,6 +58,26 @@ def test_validate_model_integrity_raises_on_invalid_id2label_indices() -> None:
         validate_model_integrity(fake_model)
 
 
+def test_validate_model_integrity_raises_on_missing_label2id() -> None:
+    fake_model = MagicMock()
+    fake_model.config.num_labels = 7
+    fake_model.config.id2label = {idx: label for idx, label in enumerate(EXPECTED_MODEL_LABELS)}
+    fake_model.config.label2id = None
+
+    with pytest.raises(ModelLoadingError, match="debe incluir el diccionario 'label2id'"):
+        validate_model_integrity(fake_model)
+
+
+def test_validate_model_integrity_raises_on_label2id_mismatched_keys() -> None:
+    fake_model = MagicMock()
+    fake_model.config.num_labels = 7
+    fake_model.config.id2label = {idx: label for idx, label in enumerate(EXPECTED_MODEL_LABELS)}
+    fake_model.config.label2id = {f"otra_clave_{i}": i for i in range(7)}
+
+    with pytest.raises(ModelLoadingError, match="Las claves de 'label2id' no coinciden"):
+        validate_model_integrity(fake_model)
+
+
 def test_validate_model_integrity_raises_on_label2id_inconsistency() -> None:
     fake_model = MagicMock()
     fake_model.config.num_labels = 7

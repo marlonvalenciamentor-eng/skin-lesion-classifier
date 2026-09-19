@@ -168,7 +168,7 @@ class InferenceService:
                 for index, score in enumerate(scores)
             }
 
-            top_label = max(probabilities, key=probabilities.get)
+            top_label = max(probabilities, key=lambda k: probabilities[k])
         except Exception as err:
             logger.error(f"Fallo durante el postprocesamiento de predicciones: {err}")
             raise InferenceError(

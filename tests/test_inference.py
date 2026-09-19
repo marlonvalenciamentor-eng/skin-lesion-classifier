@@ -24,7 +24,7 @@ def make_service(seed: int = 0) -> InferenceService:
         num_attention_heads=2,
         intermediate_size=64,
         image_size=224,
-        num_labels=7,
+        num_labels=7,  # type: ignore[call-arg]
         id2label=MODEL_ID2LABEL,
         label2id={v: k for k, v in MODEL_ID2LABEL.items()},
     )
@@ -56,7 +56,7 @@ def test_predict_label_and_confidence_match_the_highest_probability() -> None:
 
     prediction = service.predict(image)
 
-    best_label = max(prediction.probabilities, key=prediction.probabilities.get)
+    best_label = max(prediction.probabilities, key=lambda k: prediction.probabilities[k])
     assert prediction.label == best_label
     assert prediction.confidence == prediction.probabilities[best_label]
 

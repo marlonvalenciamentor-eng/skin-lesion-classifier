@@ -90,16 +90,29 @@ def validate_model_integrity(model: ViTForImageClassification) -> None:
             f"Faltantes: {missing or 'Ninguna'}, Inesperadas: {unexpected or 'Ninguna'}."
         )
 
-    # Validar correspondencia biyectiva estricta con label2id si existe en config
+    # Validar presencia obligatoria y correspondencia biyectiva estricta de label2id
     label2id = getattr(model.config, "label2id", None)
-    if label2id is not None:
-        for idx_raw, label in id2label.items():
-            idx = int(idx_raw)
-            if label not in label2id or int(label2id[label]) != idx:
-                raise ModelLoadingError(
-                    f"Fallo de integridad clínica: Inconsistencia biyectiva entre "
-                    f"id2label[{idx}]='{label}' y label2id."
-                )
+    if not isinstance(label2id, dict):
+        raise ModelLoadingError(
+            "Fallo de integridad clínica: La configuración del modelo "
+            "debe incluir el diccionario 'label2id'."
+        )
+
+    if set(label2id.keys()) != EXPECTED_MODEL_LABELS:
+        missing_keys = EXPECTED_MODEL_LABELS - set(label2id.keys())
+        extra_keys = set(label2id.keys()) - EXPECTED_MODEL_LABELS
+        raise ModelLoadingError(
+            f"Fallo de integridad clínica: Las claves de 'label2id' no coinciden con HAM10000. "
+            f"Faltantes: {missing_keys or 'Ninguna'}, Inesperadas: {extra_keys or 'Ninguna'}."
+        )
+
+    for idx_raw, label in id2label.items():
+        idx = int(idx_raw)
+        if label not in label2id or int(label2id[label]) != idx:
+            raise ModelLoadingError(
+                f"Fallo de integridad clínica: Inconsistencia biyectiva entre "
+                f"id2label[{idx}]='{label}' y label2id."
+            )
 
 
 def load_inference_service(model_id: str = MODEL_ID) -> InferenceService:
