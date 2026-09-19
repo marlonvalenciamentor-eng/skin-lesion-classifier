@@ -59,3 +59,24 @@ def test_predict_label_and_confidence_match_the_highest_probability() -> None:
     best_label = max(prediction.probabilities, key=prediction.probabilities.get)
     assert prediction.label == best_label
     assert prediction.confidence == prediction.probabilities[best_label]
+
+
+def test_predict_raises_on_invalid_input_type() -> None:
+    import pytest
+
+    from skin_lesion_classifier.inference import InferenceError
+
+    service = make_service()
+    with pytest.raises(InferenceError, match="Entrada inválida"):
+        service.predict("not_an_image_path_or_object")  # type: ignore[arg-type]
+
+
+def test_predict_raises_on_zero_dimension_image() -> None:
+    import pytest
+
+    from skin_lesion_classifier.inference import InferenceError
+
+    service = make_service()
+    empty_image = Image.new("RGB", (0, 0))
+    with pytest.raises(InferenceError, match="dimensiones nulas"):
+        service.predict(empty_image)

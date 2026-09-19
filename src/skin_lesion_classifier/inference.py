@@ -1,11 +1,44 @@
-"""ViT inference service: image in, HAM10000 diagnosis with confidence out."""
+"""
+=============================================================================
+MÓDULO: inference.py
+PROYECTO: SkinLesionClassifier (Detección Temprana de Cáncer de Piel)
+ARQUITECTURA: Clean Architecture / Inyección de Dependencias / SRP
+RESPONSABILIDAD ÚNICA:
+    Transformar imágenes dermatoscópicas en predicciones clínicas estructuradas
+    y probabilísticas para las 7 clases diagnósticas del benchmark HAM10000,
+    garantizando que la interfaz gráfica permanezca completamente desacoplada
+    de PyTorch y Hugging Face.
 
+CLASES DEL BENCHMARK HAM10000:
+    1. mel   -> Melanoma (Maligno)
+    2. nv    -> Nevus melanocítico benigno (Lunar común)
+    3. bcc   -> Carcinoma basocelular (Maligno)
+    4. akiec -> Queratosis actínica y carcinoma intraepitelial
+    5. bkl   -> Queratosis benigna (tipo seborreica)
+    6. df    -> Dermatofibroma
+    7. vasc  -> Lesión vascular
+
+OBJETIVO POR CLASE / FUNCIÓN:
+    - Prediction (dataclass inmutable):
+      Estructura de datos que encapsula el diagnóstico Top-1, su nivel de confianza
+      (0.0 a 1.0) y la distribución completa de probabilidades de las 7 patologías.
+
+    - InferenceService:
+      Servicio desacoplado que recibe el modelo y procesador inyectados,
+      valida la imagen de entrada y ejecuta la inferencia en modo evaluación.
+=============================================================================
+"""
+
+import logging
 from dataclasses import dataclass
+from typing import Any
 
 import torch
 from PIL import Image
 
-# HAM10000 short codes, keyed by the label names the pretrained model was trained with.
+logger = logging.getLogger(__name__)
+
+# Mapeo canónico: de las etiquetas largas de Hugging Face a códigos estándar HAM10000
 MODEL_LABEL_TO_CODE = {
     "actinic_keratoses": "akiec",
     "basal_cell_carcinoma": "bcc",
@@ -15,29 +48,111 @@ MODEL_LABEL_TO_CODE = {
     "melanoma": "mel",
     "vascular_lesions": "vasc",
 }
+
+# Conjunto inmutable con los 7 códigos válidos del benchmark HAM10000
 HAM10000_LABELS = frozenset(MODEL_LABEL_TO_CODE.values())
+
+
+class InferenceError(RuntimeError):
+    """Excepción lanzada cuando ocurre un error durante el preprocesamiento o inferencia."""
+
+    pass
 
 
 @dataclass(frozen=True)
 class Prediction:
+    """
+    Objeto de transferencia de datos (DTO) inmutable con el resultado del diagnóstico.
+
+    Attributes:
+        label (str): Código corto de la patología con mayor probabilidad (ej. 'mel', 'nv').
+        confidence (float): Nivel de certidumbre del diagnóstico Top-1 en rango [0.0, 1.0].
+        probabilities (dict[str, float]): Distribución de probabilidad para las 7 clases.
+    """
+
     label: str
     confidence: float
     probabilities: dict[str, float]
 
 
 class InferenceService:
-    def __init__(self, model, processor) -> None:
+    """
+    Servicio desacoplado de inferencia para clasificación dermatológica.
+
+    Utiliza inyección de dependencias para operar independientemente del origen del modelo
+    (pesos reales de Hugging Face o mocks sintéticos para pruebas unitarias rápidas).
+    """
+
+    def __init__(self, model: Any, processor: Any) -> None:
+        """
+        Inicializa el servicio configurando el modelo en modo de evaluación.
+
+        Args:
+            model: Modelo Vision Transformer (ej. ViTForImageClassification).
+            processor: Procesador de imágenes asociado (ej. ViTImageProcessor).
+        """
         self._model = model.eval()
         self._processor = processor
 
     def predict(self, image: Image.Image) -> Prediction:
-        inputs = self._processor(images=image.convert("RGB"), return_tensors="pt")
-        with torch.inference_mode():
-            logits = self._model(**inputs).logits
+        """
+        Ejecuta la inferencia diagnóstica sobre una imagen dermatoscópica.
+
+        Flujo secuencial:
+            1. Validación defensiva de la imagen de entrada.
+            2. Conversión a espacio de color RGB y extracción de tensores (1, 3, 224, 224).
+            3. Paso hacia adelante (forward pass) en modo 'inference_mode' (sin gradientes).
+            4. Normalización Softmax para obtener la distribución de probabilidad (0 a 1).
+            5. Mapeo a las 7 etiquetas clínicas y selección de la hipótesis diagnóstica Top-1.
+
+        Args:
+            image (Image.Image): Imagen dermatoscópica en formato PIL.
+
+        Returns:
+            Prediction: Diagnóstico estructurado con clase, confianza y probabilidades.
+
+        Raises:
+            InferenceError: Si la imagen es inválida, está corrupta o falla el cálculo tensorial.
+        """
+        # 1. Validación defensiva del tipo de dato de entrada
+        if not isinstance(image, Image.Image):
+            raise InferenceError(
+                f"Entrada inválida: Se esperaba una imagen PIL.Image, recibido {type(image)}."
+            )
+
+        if image.size[0] == 0 or image.size[1] == 0:
+            raise InferenceError("Entrada inválida: La imagen tiene dimensiones nulas (0x0).")
+
+        # 2. Preprocesamiento de la imagen a tensores PyTorch
+        try:
+            inputs = self._processor(images=image.convert("RGB"), return_tensors="pt")
+        except Exception as err:
+            logger.error(f"Fallo durante el preprocesamiento de imagen: {err}")
+            raise InferenceError(f"Error al transformar la imagen en tensor: {err}") from err
+
+        # 3. Inferencia de alta eficiencia sin cálculo de gradientes
+        try:
+            with torch.inference_mode():
+                outputs = self._model(**inputs)
+                logits = outputs.logits
+        except Exception as err:
+            logger.error(f"Fallo durante el forward pass del modelo: {err}")
+            raise InferenceError(f"Error en la ejecución del modelo ViT: {err}") from err
+
+        # 4. Cálculo de probabilidades con Softmax
         scores = torch.softmax(logits, dim=-1)[0].tolist()
+
+        # 5. Mapeo estructurado hacia la nomenclatura HAM10000
         probabilities = {
             MODEL_LABEL_TO_CODE[self._model.config.id2label[index]]: score
             for index, score in enumerate(scores)
         }
-        label = max(probabilities, key=probabilities.get)
-        return Prediction(label=label, confidence=probabilities[label], probabilities=probabilities)
+
+        # 6. Selección de la clase con mayor certidumbre clínica (Top-1)
+        top_label = max(probabilities, key=probabilities.get)
+
+        return Prediction(
+            label=top_label,
+            confidence=probabilities[top_label],
+            probabilities=probabilities,
+        )

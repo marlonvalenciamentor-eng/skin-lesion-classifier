@@ -1,14 +1,18 @@
 [project]
 name = "skin-lesion-classifier"
 version = "0.1.0"
-description = "Add your description here"
+description = "Sistema asistivo para la detección temprana de lesiones dermatológicas mediante Vision Transformers y Grad-CAM"
 readme = "README.md"
 authors = [
-    { name = "marlonvalenciamentor-eng", email = "marlonvalenciamentor@gmail.com" }
+    { name = "Marlon Valencia Velosa", email = "marlonvalenciamentor@gmail.com" },
+    { name = "Miguel Ángel Ortiz Roldán", email = "miguel.ortiz@uao.edu.co" }
 ]
 requires-python = ">=3.13"
 dependencies = [
+    "matplotlib>=3.11.2",
+    "numpy>=2.5.3",
     "pillow>=11.0",
+    "streamlit>=1.64.0",
     "torch>=2.6",
     "torchvision>=0.21",
     "transformers>=4.50",

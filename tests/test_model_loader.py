@@ -1,18 +1,36 @@
 import time
+from unittest.mock import MagicMock
 
 import pytest
 from PIL import Image
 
 from skin_lesion_classifier.inference import HAM10000_LABELS
-from skin_lesion_classifier.model_loader import MODEL_ID, load_inference_service
-
-pytestmark = pytest.mark.integration
+from skin_lesion_classifier.model_loader import (
+    MODEL_ID,
+    ModelLoadingError,
+    load_inference_service,
+    validate_model_integrity,
+)
 
 
 def test_model_id_is_the_pretrained_ham10000_vit() -> None:
     assert MODEL_ID == "Anwarkh1/Skin_Cancer-Image_Classification"
 
 
+def test_validate_model_integrity_raises_on_invalid_num_labels() -> None:
+    fake_model = MagicMock()
+    fake_model.config.num_labels = 3  # HAM10000 requires exactly 7 classes
+
+    with pytest.raises(ModelLoadingError, match="Fallo de integridad arquitectónica"):
+        validate_model_integrity(fake_model)
+
+
+def test_load_inference_service_raises_on_nonexistent_model() -> None:
+    with pytest.raises(ModelLoadingError, match="No fue posible cargar el modelo"):
+        load_inference_service("nonexistent/invalid-model-path-12345")
+
+
+@pytest.mark.integration
 def test_loaded_service_classifies_an_image_on_cpu_under_3_seconds() -> None:
     service = load_inference_service()
     image = Image.new("RGB", (600, 450), color=(180, 120, 100))
