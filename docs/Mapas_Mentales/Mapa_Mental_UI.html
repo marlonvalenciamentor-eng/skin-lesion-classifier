@@ -103,70 +103,119 @@
       @media (max-width:900px) { body { padding:10px; } .sheet { padding:22px 20px; } header, .intro, .dashboard-hero { display:block; } .hero-actions { align-items:flex-start; margin-top:16px; } .hero-meta { margin-top:0; } .authors { margin-top:12px; text-align:left; } .legend { justify-content:flex-start; margin-top:12px; } .map, .concept-branches { grid-template-columns:1fr; } .nodes { padding-bottom:0; } }
       @media (max-width:650px) { .detail-grid, .pipeline { grid-template-columns:1fr; } .detail-view { padding:21px; } .pipeline-step { border-left:0; border-top:4px solid var(--pipeline-color); } .pipeline-step:not(:last-child)::after { right:auto; top:auto; bottom:-11px; left:50%; transform:rotate(90deg); } }
      @media print {
-       @page { size: A4 landscape; margin: 0; }
-       html, body { background: white; -webkit-print-color-adjust: exact; print-color-adjust: exact; padding: 0 10mm; margin: 0; box-sizing: border-box; }
-       
-       /* Reordenamiento mágico del PDF con flexbox (sin tocar el HTML web) */
-       body { display: flex !important; flex-direction: column !important; }
-       main.sheet { display: contents !important; }
-       
-       .dashboard-hero { order: 1; }
-       details.dashboard-panel:nth-of-type(1) { order: 2; }
-       section.detail-sheet { order: 3; }
-       details.dashboard-panel:nth-of-type(2) { order: 4; }
+        /* Medio centimetro (5mm) exacto de margen superior e inferior en TODAS las hojas */
+        @page { size: A4 landscape; margin: 5mm 10mm; }
+        html, body { background: white; -webkit-print-color-adjust: exact; print-color-adjust: exact; padding: 0; margin: 0; box-sizing: border-box; }
+        
+        /* Reordenamiento del PDF con flexbox: 1. Maqueta UI (con Hero) -> 2. Desglose -> 3. Mapa Conceptual */
+        body { display: flex !important; flex-direction: column !important; }
+        main.sheet { display: contents !important; }
+        
+        .dashboard-hero { order: 1; }
+        details.dashboard-panel:nth-of-type(1) { order: 2; }
+        section.detail-sheet { order: 3; }
+        details.dashboard-panel:nth-of-type(2) { order: 4; }
 
-       .sheet { min-height: 0; width: 100%; max-width: 100%; padding: 0; border: 0; box-shadow: none; margin: 0; box-sizing: border-box; }
-       
-       /* Evitar cortes feos en elementos pequeños, pero PERMITIR cortes en los paneles grandes */
-       .node, .result-card, .detail-item, .concept-branch, .pipeline-step { break-inside: avoid; page-break-inside: avoid; }
-       
-       * { box-sizing: border-box; word-wrap: break-word; }
-       /* Forzar que el Mapa Conceptual empiece en una pagina nueva limpia */
-       .dashboard-panel:nth-of-type(2) { page-break-before: always; break-before: page; padding-top: 15mm; margin-top: 0; }
-       .dashboard-panel:nth-of-type(2) > summary { padding: 0 0 10px 0; } /* Ahorrar espacio vertical */
-       
-       /* Evitar que el panel de Maqueta UI se rompa si por alguna razon es muy largo */
-       .dashboard-panel { break-inside: avoid; page-break-inside: avoid; }
+        .sheet { min-height: 0; width: 100%; max-width: 100%; padding: 0; border: 0; box-shadow: none; margin: 0; box-sizing: border-box; }
+        .toolbar { display: none !important; }
+        footer { display: none !important; }
+        * { box-sizing: border-box; word-wrap: break-word; }
 
-       
-       .toolbar { display: none !important; }
-       
-       /* Forzar paneles cerrados a abrirse al imprimir */
-       .dashboard-panel > summary { display: block; padding: 10px 0; border: none; background: transparent; pointer-events: none; }
-       .dashboard-panel > summary::marker, .dashboard-panel > summary::-webkit-details-marker { display: none; content: ''; }
-       details:not([open]) > :not(summary) { display: block !important; }
-       .dashboard-panel:not([open]) > .panel-content, .dashboard-panel[open] > .panel-content { display: block !important; }
-       
-       /* Fix para la Maqueta UI: Mostrar SOLO la pantalla principal, ocultar el panel interactivo */
-       .screen-body { display: grid !important; }
-       .detail-view { display: none !important; } /* Ocultamos el interactivo porque la hoja 2 tiene el desglose */
-       
-       .map { grid-template-columns: minmax(250px, .78fr) minmax(0, 1.5fr); gap: 14px; }
-       .screen { min-height: 0; overflow: hidden; break-inside: avoid; }
-       .screen-main { min-width: 0; padding: 13px; }
-       .results { gap: 8px; }
-       footer { display: none !important; } /* Ocultar footer innecesario en PDF */
-       
-       /* Forzar salto de página para la hoja de detalles */
-       .detail-sheet { 
-           display: block !important; 
-           page-break-before: always; 
-           break-before: page; 
-           margin-top: 0; 
-           padding-top: 15mm; 
-           border-top: none; 
-       }
-       .detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-       .dashboard-hero { padding-top: 15mm; margin-bottom: 20px; break-inside: avoid; }
-       .concept-branches { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
-       .pipeline { grid-template-columns: repeat(4, 1fr); gap: 10px; }
-       /* Forzar que el texto y las cajas se encojan en impresion para que no desborden el grid */
-       .concept-node { font-size: 0.8rem; padding: 8px; margin-bottom: 8px; }
-       .concept-branch h3 { font-size: 0.9rem; }
-       .pipeline { gap: 2px; }
-       .pipeline-step { padding: 5px; font-size: 0.7rem; }
-       .concept-branches { gap: 8px; }
+        /* ==================== HOJA 1: HERO + MAQUETA UI JUNTOS ==================== */
+        .dashboard-hero { 
+            padding: 10px 18px !important; 
+            margin: 0 0 6px 0 !important; 
+            padding-top: 0 !important; 
+            border-radius: 12px !important;
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+        }
+        .dashboard-hero h2 { font-size: 1.3rem !important; margin: 0 0 2px !important; }
+        .dashboard-hero p { font-size: 0.8rem !important; line-height: 1.35 !important; margin: 2px 0 4px !important; }
+        .dashboard-hero .authors { margin-top: 4px !important; }
+        .authors-line { font-size: 0.76rem !important; gap: 10px !important; }
 
+        details.dashboard-panel:nth-of-type(1) { 
+            margin: 0 !important; 
+            padding: 0 !important; 
+            border: none !important; 
+            background: transparent !important; 
+            box-shadow: none !important;
+            break-inside: avoid !important; 
+            page-break-inside: avoid !important;
+            break-before: avoid !important;
+            page-break-before: avoid !important;
+        }
+        details.dashboard-panel:nth-of-type(1) > summary { display: none !important; }
+        details.dashboard-panel:nth-of-type(1) > .panel-content { padding: 0 !important; }
+        
+        .intro { padding: 2px 0 6px !important; }
+        .intro p { font-size: 0.74rem !important; line-height: 1.3 !important; }
+        .legend { font-size: 0.66rem !important; }
+        
+        .map { grid-template-columns: minmax(230px, .75fr) minmax(0, 1.55fr) !important; gap: 10px !important; align-items: start !important; }
+        .nodes { padding: 0 !important; gap: 4px !important; }
+        .node { padding: 5px 10px !important; border-radius: 8px !important; }
+        .node h2 { font-size: 0.76rem !important; margin: 0 0 1px !important; }
+        .node p { font-size: 0.64rem !important; line-height: 1.25 !important; }
+        
+        .mockup-wrap { padding: 0 !important; }
+        .mockup-label { margin: 0 0 3px !important; font-size: 0.64rem !important; }
+        .screen { min-height: 0 !important; border-radius: 10px !important; box-shadow: none !important; overflow: hidden !important; }
+        .screen-top { padding: 5px 10px !important; }
+        .screen-body { display: grid !important; min-height: 0 !important; grid-template-columns: 28% 72% !important; }
+        .detail-view { display: none !important; }
+        .screen-side { padding: 8px 10px !important; }
+        .screen-side h3 { margin: 0 0 6px !important; font-size: 0.7rem !important; }
+        .fake-label { margin: 5px 0 2px !important; font-size: 0.58rem !important; }
+        .fake-control { padding: 4px 6px !important; font-size: 0.56rem !important; }
+        .screen-main { padding: 8px 10px !important; }
+        .screen-main h2 { font-size: 0.88rem !important; margin: 0 0 2px !important; }
+        .screen-main p { font-size: 0.62rem !important; margin: 0 0 5px !important; }
+        .upload { padding: 5px !important; font-size: 0.64rem !important; }
+        .results { gap: 6px !important; }
+        .result-card { min-height: 0 !important; padding: 6px 8px !important; }
+        .result-card h4 { margin: 0 0 3px !important; font-size: 0.63rem !important; }
+        .image-placeholder { height: 62px !important; font-size: 0.54rem !important; }
+        .bar { margin: 3px 0 !important; }
+        .bar label { font-size: 0.56rem !important; }
+        .track { height: 5px !important; margin-top: 2px !important; }
+        .caption { margin: 3px 0 0 !important; font-size: 0.6rem !important; line-height: 1.2 !important; }
+
+        /* ==================== HOJA 2: DESGLOSE TÉCNICO (NUEVA PÁGINA) ==================== */
+        .detail-sheet { 
+            display: block !important; 
+            page-break-before: always !important; 
+            break-before: page !important; 
+            margin-top: 0 !important; 
+            padding-top: 0 !important; 
+            border-top: none !important; 
+        }
+        .detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 10px !important; }
+        .detail-item { padding: 10px 12px !important; }
+        .detail-item h3 { font-size: 0.82rem !important; margin: 0 0 4px !important; }
+        .detail-item p { font-size: 0.72rem !important; line-height: 1.38 !important; }
+
+        /* ==================== HOJA 3: MAPA CONCEPTUAL (NUEVA PÁGINA) ==================== */
+        .dashboard-panel:nth-of-type(2) { 
+            page-break-before: always !important; 
+            break-before: page !important; 
+            padding-top: 0 !important; 
+            margin-top: 0 !important; 
+            border: none !important;
+            box-shadow: none !important;
+        }
+        .dashboard-panel:nth-of-type(2) > summary { display: block !important; padding: 0 0 8px 0 !important; font-size: 1.15rem !important; border: none !important; }
+        .dashboard-panel:nth-of-type(2) > summary::marker, .dashboard-panel:nth-of-type(2) > summary::-webkit-details-marker { display: none !important; }
+        .dashboard-panel:nth-of-type(2) > .panel-content { padding: 0 !important; }
+        .concept-map { gap: 10px !important; }
+        .concept-intro { font-size: 0.78rem !important; margin: 0 0 6px 0 !important; }
+        .concept-branches { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; gap: 8px !important; }
+        .concept-branch { padding: 10px !important; border-top-width: 4px !important; }
+        .concept-branch h3 { font-size: 0.84rem !important; margin: 0 0 6px 0 !important; }
+        .concept-node { font-size: 0.72rem !important; line-height: 1.3 !important; padding: 6px 8px !important; margin-bottom: 6px !important; }
+        .pipeline { grid-template-columns: repeat(4, 1fr) !important; gap: 4px !important; padding: 10px !important; margin-top: 6px !important; }
+        .pipeline-step { padding: 6px 8px !important; font-size: 0.68rem !important; }
       }
   </style>
 </head>
