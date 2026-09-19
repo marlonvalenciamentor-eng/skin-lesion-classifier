@@ -195,8 +195,8 @@
           <div class="screen-main"><h2>Diagnóstico dermatológico</h2><p>Cargá una imagen para revisar el resultado del modelo y la explicación visual.</p>
             <div id="zona-carga" class="upload hotspot">＋ Soltá aquí una imagen JPG o PNG</div>
             <div class="results">
-              <div id="zona-resultados" class="result-card hotspot"><h4>Entrada y atención</h4><div class="image-placeholder">IMAGEN + MAPA DE CALOR</div></div>
-              <div id="zona-probabilidades" class="result-card hotspot"><h4>Probabilidades predichas</h4><div class="bar"><label><span>Clase A</span><span>84%</span></label><div class="track"><div class="fill high"></div></div></div><div class="bar"><label><span>Clase B</span><span>53%</span></label><div class="track"><div class="fill mid"></div></div></div><div class="bar"><label><span>Clase C</span><span>22%</span></label><div class="track"><div class="fill low"></div></div></div></div>
+              <div id="zona-resultados" class="result-card hotspot"><h4>Evidencia Visual Lado a Lado</h4><div class="image-placeholder">Dermatoscopia (224x224) ➔ Mapa de Calor Grad-CAM</div></div>
+              <div id="zona-probabilidades" class="result-card hotspot"><h4>Probabilidades Diagnósticas (HAM10000)</h4><div class="bar"><label><span>Melanoma (MEL) - Alerta</span><span>86%</span></label><div class="track"><div class="fill high"></div></div></div><div class="bar"><label><span>Nevo melanocítico (NV)</span><span>10%</span></label><div class="track"><div class="fill mid"></div></div></div><div class="bar"><label><span>Carcinoma basocelular (BCC)</span><span>4%</span></label><div class="track"><div class="fill low"></div></div></div></div>
             </div>
             <div class="upload hotspot" style="margin-top:12px;margin-bottom:0;background:#fff8f5;border-color:var(--coral);color:var(--ink);">Resultado interpretado · revisión orientativa</div>
           </div>
@@ -257,21 +257,21 @@
       </div>
     </details>
    </main>
-  <section class="sheet detail-sheet" aria-labelledby="detalle-componentes">
-     <header><div><div class="eyebrow">Hoja 2 · documentación funcional</div><h2 id="detalle-componentes">Desglose técnico completo de la interfaz</h2><p class="subtitle">Fuente imprimible de responsabilidades y flujo de integración.</p></div><div class="authors"><strong>Clasificador de lesiones cutáneas</strong>Detalle de componentes del flujo diagnóstico</div></header>
-     <p>Esta hoja describe cómo la interfaz recibe entradas, solicita el procesamiento al backend y presenta resultados explicables. El HTML documenta el flujo, pero no ejecuta PyTorch ni Transformers.</p>
-     <div class="detail-grid">
-       <article class="detail-item"><h3>Streamlit · capa de presentación</h3><p>Construye la pantalla, recibe el archivo mediante sus controles y presenta el estado de carga, el resultado y la explicación visual. Esta página HTML solo representa esa interfaz.</p></article>
-       <article class="detail-item"><h3>Facade · DermatologyDiagnosticFacade</h3><p>Coordina la interfaz con el backend: recibe la imagen validada, coordina preprocesamiento, inferencia y explicación, y devuelve un resultado documentalmente consumible.</p></article>
-       <article class="detail-item"><h3>ViTForImageClassification · inferencia</h3><p>Recibe la imagen preprocesada, produce puntuaciones de clase y permite derivar las probabilidades que Streamlit presenta. El HTML no importa ni ejecuta Transformers.</p></article>
-       <article class="detail-item"><h3>Grad-CAM · explicación</h3><p>Usa activaciones y gradientes de una capa del modelo para generar un mapa de atención que la interfaz superpone sobre la imagen. El HTML documenta el flujo, no calcula el mapa.</p></article>
-       <article class="detail-item"><h3>Encabezado y barra lateral</h3><p>Streamlit presenta el contexto, el formato admitido, el modelo seleccionado, el dispositivo de inferencia y la disponibilidad de Grad-CAM sin ejecutar lógica de modelo desde esta maqueta.</p></article>
-       <article class="detail-item"><h3>Carga e imagen de entrada</h3><p>La interfaz valida JPG/PNG y entrega la imagen a DermatologyDiagnosticFacade. El backend la normaliza para el ViT y devuelve una representación apta para presentar.</p></article>
-       <article class="detail-item"><h3>Resultados y probabilidades</h3><p>La interfaz consume el resultado de DermatologyDiagnosticFacade, ordena clases y probabilidades de ViTForImageClassification y presenta una salida orientativa con sus estados.</p></article>
-       <article class="detail-item"><h3>Flujo de accesibilidad y explicación</h3><p>Desde la carga hasta la interpretación, la vista conserva nombres accesibles y foco de teclado; Grad-CAM aporta la evidencia visual que acompaña la salida del modelo.</p></article>
-    </div>
-    <footer><span>Hoja de detalle · documento complementario del mapa UI</span><span>La predicción es orientativa y no constituye diagnóstico médico.</span></footer>
-  </section>
+   <section class="sheet detail-sheet" aria-labelledby="detalle-componentes">
+      <header><div><div class="eyebrow">Hoja 2 · documentación funcional</div><h2 id="detalle-componentes">Desglose técnico de la estación diagnóstica</h2><p class="subtitle">Integración de componentes, interacción de código y mitigación de retos del dominio.</p></div><div class="authors"><strong>Clasificador de lesiones cutáneas</strong>Flujo clínico asistido por IA</div></header>
+      <p>Esta hoja detalla la arquitectura de integración clínica del sistema: describe cómo Streamlit orquesta la captura de datos, cómo el patrón Facade desacopla la inferencia y cómo el Vision Transformer junto con Grad-CAM entregan un triaje dermatológico confiable, auditable y transparente.</p>
+      <div class="detail-grid">
+        <article class="detail-item"><h3>Streamlit · Capa de Presentación Clínica</h3><p>Construye la estación diagnóstica interactiva con <code>st.file_uploader</code>, <code>st.columns</code> y <code>st.progress</code>. Gestiona el ciclo de vida del usuario, comunica el estado de análisis y asegura una ergonomía visual sobria para médicos y especialistas.</p></article>
+        <article class="detail-item"><h3>Facade · DermatologyDiagnosticFacade</h3><p>Patrón estructural central que aísla la UI de la complejidad de PyTorch. Valida la integridad del archivo, coordina el pipeline de transformación, invoca al clasificador ViT y ensambla la superposición de Grad-CAM en una respuesta estructurada.</p></article>
+        <article class="detail-item"><h3>ViTForImageClassification · Red Neuronal Transformer</h3><p>Modelo pre-entrenado fine-tuneado sobre el dataset HAM10000. Procesa parches de 16x16 píxeles con mecanismos de auto-atención global, produciendo logits calibrados mediante softmax para clasificar con precisión las 7 patologías cutáneas.</p></article>
+        <article class="detail-item"><h3>Grad-CAM · Explicabilidad Médica (XAI)</h3><p>Calcula el gradiente de la clase predicha respecto a los mapas de activación de la última capa del ViT. Genera un mapa de calor que resalta las características morfológicas (bordes irregulares, pigmentación) que motivaron el diagnóstico.</p></article>
+        <article class="detail-item"><h3>Encabezado y Barra Lateral Técnica</h3><p>Centraliza la parametrización operativa: permite seleccionar el checkpoint del modelo, ajustar umbrales de sensibilidad diagnóstica y definir el modo de ejecución (CPU/GPU) mediante <code>st.sidebar</code> sin saturar el flujo de consulta principal.</p></article>
+        <article class="detail-item"><h3>Carga y Pipeline de Preprocesamiento</h3><p>Verifica extensiones (JPG/PNG), dimensiones y consistencia de la imagen dermatoscópica. Transforma la fotografía al espacio RGB con redimensionamiento a 224x224 y normalización estándar ImageNet mediante <code>AutoImageProcessor</code>.</p></article>
+        <article class="detail-item"><h3>Resultados Jerarquizados y Probabilidades</h3><p>Presenta las 7 clases diagnósticas ordenadas por nivel de confianza. Aplica alertas visuales diferenciadas para patologías malignas críticas (Melanoma, Carcinoma Basocelular) versus lesiones benignas frecuentes (Nevos melanocíticos).</p></article>
+        <article class="detail-item"><h3>Mitigación de Retos Clínicos y Técnicos</h3><p>Aborda el desbalance severo de HAM10000 con umbrales clínicos calibrados, reduce la latencia de inferencia en CPU para consultorios locales y garantiza reproducibilidad determinista del entorno de ejecución mediante <code>uv</code>.</p></article>
+     </div>
+     <footer><span>Hoja de detalle · documento complementario del mapa UI</span><span>Sistema de soporte de decisión clínica orientativa para triaje asistido.</span></footer>
+   </section>
    <script>
       const pestañas = [...document.querySelectorAll('[role="tab"]')];
       const maqueta = document.querySelector('#panel-maqueta');
@@ -280,50 +280,70 @@
       const botonVolver = document.querySelector('#boton-volver');
       const botonImprimir = document.querySelector('#boton-imprimir');
       const estadoVista = { modo: 'inicial', pestañaInicial: pestañas[0], pestañaActiva: pestañas[0] };
-      const contenidos = {
+            const contenidos = {
         'zona-encabezado': { 
-            titulo: 'Encabezado', 
-            descripcion: 'Presenta el nombre del clasificador y orienta al usuario desde el primer vistazo.', 
-            items: ['Jerarquía visual clara para el flujo diagnóstico.', 'Título, contexto y nombres accesibles.'], 
+            titulo: 'Encabezado · Contexto Clínico y Triaje', 
+            descripcion: 'Establece la identidad de la estación de triaje dermatológico para la clasificación asistida de 7 lesiones cutáneas mediante Vision Transformers.', 
+            items: [
+                'Comunica el propósito diagnóstico de asistencia clínica y alerta ética orientativa.',
+                'Indica el estado del sistema, checkpoints cargados y disponibilidad del pipeline.'
+            ], 
             puntos: [
-                '<strong>Streamlit:</strong> Uso de st.title y st.markdown para inyectar contexto médico estructurado.',
-                '<strong>UX/UI:</strong> Texto descriptivo que establece la expectativa de uso sin saturar la pantalla principal.'
+                '<strong>UI y Presentación:</strong> Implementado con <code>st.set_page_config()</code> y <code>st.title()</code>, estableciendo una jerarquía médica sobria que guía la atención del facultativo.',
+                '<strong>Propósito del Proyecto:</strong> Sistema de soporte para reducir tiempos de triaje y minimizar falsos negativos en lesiones malignas críticas como Melanoma (MEL) y Carcinoma (BCC).',
+                '<strong>Reto de Diseño:</strong> Proporcionar contexto clínico inmediato y accesible sin saturar el espacio de trabajo con metadatos irrelevantes para la consulta.'
             ] 
         },
         'zona-barra': { 
-            titulo: 'Barra lateral con información técnica', 
-            descripcion: 'Mantiene el modelo, los formatos aceptados y la explicación disponibles sin distraer de la tarea principal.', 
-            items: ['Controles para el modelo y el formato de entrada.', 'Información de Grad-CAM e inferencia en CPU.'], 
+            titulo: 'Barra Lateral · Configuración y Parámetros Técnicos', 
+            descripcion: 'Aísla la parametrización técnica y la metadata del modelo para mantener limpio el panel diagnóstico principal.', 
+            items: [
+                'Control de selección del modelo ViT fine-tuneado y dispositivo de ejecución (CPU/GPU).',
+                'Ajuste del umbral de confianza diagnóstica y visualización de metadatos de las 7 clases.'
+            ], 
             puntos: [
-                '<strong>Streamlit:</strong> Despliegue de st.sidebar aislando parámetros de configuración.',
-                '<strong>Arquitectura:</strong> Separa las decisiones técnicas (modelo, CPU) del flujo clínico principal.'
+                '<strong>Código e Interacción:</strong> Desplegado mediante <code>st.sidebar.selectbox()</code> y <code>st.sidebar.slider()</code>, vinculado dinámicamente al estado de sesión <code>st.session_state</code>.',
+                '<strong>Arquitectura:</strong> Se comunica con la capa de configuración para definir el tamaño de lote, el uso de hilos en PyTorch CPU y la activación de explicabilidad Grad-CAM.',
+                '<strong>Dificultad Técnica:</strong> Optimizar la latencia de inferencia de transformers en procesadores de escritorio (CPU) convencionales de centros de salud primarios.'
             ] 
         },
         'zona-carga': { 
-            titulo: 'Carga de archivos', 
-            descripcion: 'Define el inicio del flujo de la imagen dermatoscópica y comunica de inmediato qué archivos puede usar la persona.', 
-            items: ['Carga y validación de archivos JPG o PNG.', 'Mensajes claros para errores y estados de carga.'], 
+            titulo: 'Carga de Archivos · Ingesta Dermatoscópica', 
+            descripcion: 'Punto de entrada de fotografías dermatoscópicas con validación estricta de formato, resolución e integridad de imagen.', 
+            items: [
+                'Carga interactiva drag & drop para imágenes de alta definición en formato JPG o PNG.',
+                'Validación preliminar de dimensiones y preprocesamiento automático para el Vision Transformer.'
+            ], 
             puntos: [
-                '<strong>Streamlit:</strong> Componente st.file_uploader limitado estrictamente a extensiones permitidas.',
-                '<strong>Facade:</strong> Punto de entrada donde DermatologyDiagnosticFacade valida la integridad de la imagen antes de cualquier inferencia.'
+                '<strong>Código e Interacción:</strong> Usa <code>st.file_uploader()</code> y delega la verificación al método <code>DermatologyDiagnosticFacade.validate_image()</code>.',
+                '<strong>Pipeline de Datos:</strong> Preprocesamiento con <code>AutoImageProcessor</code>: redimensionamiento a 224x224 píxeles, conversión de canales RGB y normalización con medias y desviaciones de ImageNet.',
+                '<strong>Dificultades del Dominio:</strong> Presencia de artefactos dermatoscópicos frecuentes (vellosidades, burbujas de gel, reflejos corneales) que requieren verificación antes de inferencia.'
             ] 
         },
         'zona-resultados': { 
-            titulo: 'Área de resultados en dos columnas', 
-            descripcion: 'Compara la imagen recibida con la evidencia visual generada por el modelo.', 
-            items: ['Presentación de la imagen de entrada.', 'Superposición del mapa de calor Grad-CAM.'], 
+            titulo: 'Resultados en Dos Columnas · Diagnóstico y XAI', 
+            descripcion: 'Contraste visual simultáneo entre la dermatoscopia original y el mapa de calor de atención generado por Grad-CAM.', 
+            items: [
+                'Columna 1: Fotografía dermatoscópica original centrada y recortada a la lesión.',
+                'Columna 2: Mapa de calor explicativo Grad-CAM superpuesto sobre la estructura celular patológica.'
+            ], 
             puntos: [
-                '<strong>Streamlit:</strong> Layout con st.columns para contraste lado a lado entre original y evidencia.',
-                '<strong>Grad-CAM:</strong> Módulo de interpretabilidad que renderiza el mapa de calor sobre la lesión original para fundamentar la predicción.'
+                '<strong>Código e Interacción:</strong> Renderizado con <code>st.columns(2)</code> y <code>st.image()</code>, consumiendo el objeto diagnóstico devuelto por <code>DermatologyDiagnosticFacade.predict_and_explain()</code>.',
+                '<strong>Mecanismo de Explicabilidad:</strong> Grad-CAM extrae activaciones y gradientes de la última capa de atención del ViT (<code>vit.encoder.layer[-1]</code>) para transparentar la decisión de la red.',
+                '<strong>Reto Clínico (Caja Negra):</strong> Los médicos requieren correlacionar la predicción con criterios dermoscópicos reales (red de pigmento, glóbulos, estrías) para confiar en el triaje asistido.'
             ] 
         },
         'zona-probabilidades': { 
-            titulo: 'Barras de probabilidad', 
-            descripcion: 'Resume la confianza del modelo en una lectura rápida, ordenada y comprensible.', 
-            items: ['Orden de clases y porcentajes calculados.', 'Barras visuales con etiquetas accesibles.'], 
+            titulo: 'Barras de Probabilidad · Confianza Multiclase', 
+            descripcion: 'Desglose probabilístico de las 7 patologías cutáneas de HAM10000 ordenadas de mayor a menor certidumbre estadística.', 
+            items: [
+                'Jerarquía de predicciones con porcentajes softmax calculados por el Vision Transformer.',
+                'Alertas de criticidad cromática (rojo/ámbar) para patologías malignas vs diagnósticos benignos.'
+            ], 
             puntos: [
-                '<strong>ViT:</strong> El transformer entrega los logits que se convierten en probabilidades softmax.',
-                '<strong>UX/UI:</strong> Renderizado de barras progresivas que jerarquizan el diagnóstico clínico de mayor a menor.'
+                '<strong>Código e Interacción:</strong> Convierte los logits de salida de <code>ViTForImageClassification</code> mediante <code>torch.softmax()</code> y los renderiza con <code>st.progress()</code>.',
+                '<strong>Mapeo de Patologías:</strong> Identifica Melanoma (MEL), Nevo melanocítico (NV), Carcinoma basocelular (BCC), Queratosis actínica (AKIEC), Queratosis benigna (BKL), Dermatofibroma (DF) y Lesión vascular (VASC).',
+                '<strong>Dificultad de Modelado:</strong> Enfrentar el severo desbalance de clases de HAM10000 (donde NV representa >65% del dataset) mediante ponderación de pérdidas y calibración estricta de umbrales.'
             ] 
         }
       };
