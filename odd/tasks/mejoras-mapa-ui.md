@@ -1,7 +1,7 @@
 # Mejoras del mapa mental de la interfaz
 
 ## Objetivo
-Mejorar el mapa mental HTML de la interfaz con tooltips técnicos interactivos en pantalla y una segunda hoja explicativa completa para impresión.
+Rediseñar la interacción del mapa mental HTML como una navegación tabulada, sin conectores visuales ni tooltips flotantes, manteniendo la segunda hoja explicativa completa para impresión.
 
 ## Alcance autorizado
 - `docs/Mapas_Mentales/Mapa_Mental_UI.html`
@@ -10,14 +10,18 @@ Mejorar el mapa mental HTML de la interfaz con tooltips técnicos interactivos e
 ## Tareas
 - [x] UI-01: agregar detalles interactivos al pasar el cursor sobre los componentes de la maqueta.
 - [x] UI-02: agregar una segunda página imprimible con la explicación textual de cada componente.
-- [x] UI-03: mostrar tooltips flotantes con desglose de tareas y puntos/días Fibonacci al pasar sobre las zonas de la maqueta.
-- [x] UI-04: mantener la segunda hoja oculta en pantalla y mostrarla completa, sin tooltips flotantes, al imprimir.
+- [x] UI-03: retirar tooltips flotantes y conectores SVG/CSS del mapa en pantalla.
+- [x] UI-04: convertir las cajas izquierdas en pestañas accesibles con resaltado hover/foco de la zona correspondiente.
+- [x] UI-05: mostrar una vista detallada del componente seleccionado dentro del panel derecho mediante clic.
+- [x] UI-06: mantener la segunda hoja oculta en pantalla y visible con el desglose completo al imprimir.
 
 ## Criterios de aceptación
-- La maqueta muestra tooltips flotantes con tareas y tiempos Fibonacci al pasar el ratón o enfocarse con teclado.
+- No existen conectores punteados ni tooltips flotantes en la vista web.
+- El hover o foco de cada caja izquierda resalta únicamente su zona correspondiente en la maqueta.
+- El clic en cada caja reemplaza el contenido del panel derecho por una vista detallada de esa sección.
 - La segunda hoja comienza con `page-break-before: always` dentro de `@media print`.
 - La segunda hoja usa `display:none` en pantalla y `display:block` en impresión.
-- Los tooltips se ocultan en `@media print` y el desglose técnico permanece visible en la hoja 2.
+- La maqueta interactiva se conserva como referencia y el desglose técnico permanece visible en la hoja 2 al imprimir.
 - Todo el texto agregado está en español.
 - El HTML conserva su funcionamiento sin dependencias externas.
 
@@ -27,5 +31,6 @@ Mejorar el mapa mental HTML de la interfaz con tooltips técnicos interactivos e
 
 ## Progreso
 - Estado: completado.
-- Evidencia: el HTML incluye seis tooltips flotantes con eventos de ratón y foco, subtareas puntuadas con Fibonacci, y una sección `.detail-sheet` con `display:none` en pantalla y `display:block` más `page-break-before:always` en impresión. Los tooltips y estados visuales se ocultan al imprimir.
-- Verificación: `HTMLParser`, comprobaciones estructurales de visibilidad/tooltips/Fibonacci y `git diff --check` exitosos.
+- Evidencia: las cajas izquierdas usan `role="tab"`, resaltan su zona mediante `data-target` y reemplazan el contenido de `#panel-detalle` con JavaScript basado en `textContent`.
+- Evidencia de impresión: `.detail-sheet` conserva `display:none` en pantalla y `display:block` más `page-break-before:always` en impresión.
+- Verificación: `HTMLParser`, comprobaciones de ausencia de tooltips/conectores, conteo de pestañas, sintaxis JavaScript y `git diff --check` exitosos.

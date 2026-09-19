@@ -19,51 +19,47 @@
     .intro { display:flex; justify-content:space-between; gap:20px; padding:17px 0 12px; }
     .intro p { max-width:720px; margin:0; color:var(--muted); font-size:.9rem; line-height:1.55; }
     .legend { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:8px; align-content:flex-start; font-size:.72rem; color:var(--muted); }
-    .legend span { display:inline-flex; align-items:center; gap:6px; white-space:nowrap; }
-    .legend i { width:11px; height:11px; display:inline-block; border-radius:50%; background:var(--cyan); }
-    .legend .wire i { border:2px solid var(--coral); background:white; }
+     .legend span { display:inline-flex; align-items:center; gap:6px; white-space:nowrap; }
+     .legend i { width:11px; height:11px; display:inline-block; border-radius:50%; background:var(--cyan); }
     .map { position:relative; display:grid; grid-template-columns:minmax(250px,.86fr) minmax(480px,1.55fr); gap:28px; align-items:stretch; }
     .nodes { display:grid; align-content:center; gap:12px; padding:16px 0; }
-    .node { position:relative; z-index:2; padding:14px 16px; background:var(--paper); border:1px solid var(--line); border-left:5px solid var(--teal); border-radius:12px; box-shadow:0 5px 14px rgba(16,42,67,.06); transition:transform .18s ease, border-color .18s ease, box-shadow .18s ease; }
-    .node:hover, .node:focus-within { transform:translateX(5px); border-color:var(--cyan); box-shadow:0 8px 20px rgba(23,107,135,.16); }
+     .node { position:relative; z-index:2; width:100%; padding:14px 16px; background:var(--paper); border:1px solid var(--line); border-left:5px solid var(--teal); border-radius:12px; box-shadow:0 5px 14px rgba(16,42,67,.06); color:inherit; font:inherit; text-align:left; cursor:pointer; transition:transform .18s ease, border-color .18s ease, box-shadow .18s ease, background .18s ease; }
+     .node:hover, .node:focus-visible, .node[aria-selected="true"] { transform:translateX(5px); border-color:var(--cyan); background:#e8f8fa; box-shadow:0 8px 20px rgba(23,107,135,.16); }
     .node h2 { margin:0 0 4px; color:var(--navy); font-size:.98rem; }
     .node p { margin:0; color:var(--muted); font-size:.77rem; line-height:1.4; }
     .node code, .screen code { color:var(--blue); font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.72rem; }
-    .node.accent { border-left-color:var(--coral); }
+     .node.accent { border-left-color:var(--coral); }
     .mockup-wrap { position:relative; z-index:1; padding:16px 0; }
     .mockup-label { margin:0 0 8px; color:var(--teal); font-size:.72rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
-    .screen { min-height:405px; border:1px solid #b9cdd9; border-radius:14px; background:#f3f7f9; box-shadow:0 12px 25px rgba(16,42,67,.14); overflow:visible; }
+     .screen { min-height:405px; border:1px solid #b9cdd9; border-radius:14px; background:#f3f7f9; box-shadow:0 12px 25px rgba(16,42,67,.14); overflow:hidden; }
     .screen-top { display:flex; align-items:center; justify-content:space-between; padding:11px 15px; border-bottom:1px solid #cfdee6; background:white; border-radius:14px 14px 0 0; }
     .brand { color:var(--navy); font-size:.76rem; font-weight:800; }
     .dots { display:flex; gap:5px; } .dots i { width:7px; height:7px; border-radius:50%; background:#b8cad5; }
-    .screen-body { display:grid; grid-template-columns:31% 69%; min-height:360px; }
-    .screen-side { position:relative; padding:16px 13px; border-right:1px solid #cfdee6; background:#eaf4f6; }
+     .screen-body { display:grid; grid-template-columns:31% 69%; min-height:360px; }
+     .screen-side { position:relative; padding:16px 13px; border-right:1px solid #cfdee6; background:#eaf4f6; }
     .screen-side h3 { margin:0 0 14px; color:var(--navy); font-size:.8rem; }
     .fake-label { display:block; margin:11px 0 5px; color:var(--muted); font-size:.66rem; font-weight:700; }
     .fake-control { padding:8px; border:1px solid #c6d8e0; border-radius:6px; background:white; color:#8aa1af; font-size:.62rem; }
     .screen-main { padding:17px; background:#f8fbfc; }
     .screen-main h2 { margin:0 0 4px; color:var(--navy); font-size:1.1rem; }
     .screen-main p { margin:0 0 14px; color:var(--muted); font-size:.68rem; }
-    .upload { margin-bottom:14px; padding:14px; border:1px dashed var(--cyan); border-radius:8px; background:#effbfc; color:var(--blue); font-size:.68rem; text-align:center; }
+     .upload { margin-bottom:14px; padding:14px; border:1px solid var(--cyan); border-radius:8px; background:#effbfc; color:var(--blue); font-size:.68rem; text-align:center; }
     .results { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-    .hotspot { position:relative; cursor:help; transition:background .18s ease, box-shadow .18s ease; }
-    .hotspot:hover, .hotspot:focus-within, .hotspot.is-active { z-index:4; background:#e8f8fa; box-shadow:0 0 0 2px rgba(66,200,213,.55), 0 8px 18px rgba(16,42,67,.12); }
-    .screen-side.hotspot:hover, .screen-side.hotspot:focus-within, .screen-side.hotspot.is-active { background:#dff2f4; }
-    .tooltip { display:none; position:absolute; z-index:20; top:calc(100% + 9px); left:0; width:min(310px,calc(100vw - 32px)); padding:12px 14px; border:1px solid var(--cyan); border-left:4px solid var(--coral); border-radius:9px; background:#fff; color:var(--ink); box-shadow:0 12px 26px rgba(16,42,67,.2); font-size:.72rem; line-height:1.4; text-align:left; }
-    .tooltip strong { display:block; margin-bottom:4px; color:var(--navy); font-size:.78rem; }
-    .tooltip ul { margin:6px 0 0; padding-left:17px; }
-    .tooltip li { margin:2px 0; }
-    .hotspot:hover > .tooltip, .hotspot:focus-within > .tooltip, .hotspot.is-active > .tooltip { display:block; }
-    .screen-top > .tooltip { left:auto; right:0; }
-    .screen-side > .tooltip { top:8px; left:calc(100% + 9px); }
-    .result-card:nth-child(2) > .tooltip { left:auto; right:0; }
+     .hotspot { transition:background .18s ease, box-shadow .18s ease; }
+     .hotspot.is-highlighted { z-index:4; background:#e8f8fa; box-shadow:0 0 0 2px rgba(66,200,213,.55), 0 8px 18px rgba(16,42,67,.12); }
+     .screen-side.hotspot.is-highlighted { background:#dff2f4; }
     .result-card { min-height:158px; padding:12px; border:1px solid #d3e1e7; border-radius:9px; background:white; }
     .result-card h4 { margin:0 0 12px; color:var(--navy); font-size:.7rem; }
     .image-placeholder { display:grid; place-items:center; height:108px; border-radius:6px; background:linear-gradient(135deg,#b8d9d8,#f1c9bf 55%,#5e8c9a); color:white; font-size:.62rem; font-weight:800; }
     .bar { margin:9px 0; } .bar label { display:flex; justify-content:space-between; color:var(--muted); font-size:.62rem; } .track { height:7px; margin-top:4px; border-radius:9px; background:#e6eef2; } .fill { height:100%; border-radius:9px; background:linear-gradient(90deg,var(--teal),var(--cyan)); } .fill.high { width:84%; } .fill.mid { width:53%; } .fill.low { width:22%; }
-    .connectors { position:absolute; z-index:3; inset:0; width:100%; height:100%; pointer-events:none; }
-    .connectors path { fill:none; stroke:var(--coral); stroke-width:2.5; stroke-dasharray:6 5; vector-effect:non-scaling-stroke; }
-    .connectors circle { fill:white; stroke:var(--coral); stroke-width:2; }
+     .detail-view { min-height:360px; padding:28px; background:linear-gradient(135deg,#f8fbfc,#e8f8fa); }
+     .detail-view[hidden], .screen-body[hidden] { display:none; }
+     .detail-kicker { margin:0 0 8px; color:var(--teal); font-size:.68rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
+     .detail-view h2 { margin:0 0 10px; color:var(--navy); font-size:1.55rem; }
+     .detail-view p { max-width:650px; margin:0 0 18px; color:var(--muted); font-size:.82rem; line-height:1.55; }
+     .detail-list { display:grid; gap:9px; max-width:680px; margin:0; padding:0; list-style:none; }
+     .detail-list li { padding:11px 13px; border:1px solid #c8e1e6; border-radius:8px; background:white; color:var(--ink); font-size:.75rem; }
+     .detail-estimate { display:inline-block; margin-top:20px; padding:7px 10px; border-radius:999px; background:#fff1ed; color:var(--coral); font-size:.72rem; font-weight:800; }
     .caption { margin:9px 0 0; color:var(--muted); font-size:.72rem; line-height:1.4; }
     footer { display:flex; justify-content:space-between; gap:20px; margin-top:15px; padding-top:12px; border-top:1px solid #d9e5eb; color:var(--muted); font-size:.7rem; }
     .detail-sheet { display:none; margin-top:24px; padding-top:26px; border-top:2px solid var(--cyan); }
@@ -74,16 +70,17 @@
     .detail-item h3 { margin:0 0 5px; color:var(--navy); font-size:.9rem; }
     .detail-item p { margin:0; color:var(--muted); font-size:.77rem; line-height:1.48; }
     .estimate { display:block; margin-top:8px; color:var(--coral); font-weight:800; }
-    @media (max-width:900px) { body { padding:10px; } .sheet { padding:22px 20px; } header, .intro { display:block; } .authors { margin-top:12px; text-align:left; } .legend { justify-content:flex-start; margin-top:12px; } .map { grid-template-columns:1fr; } .connectors { display:none; } .nodes { padding-bottom:0; } }
-    @media (max-width:650px) { .detail-grid { grid-template-columns:1fr; } .tooltip, .screen-side > .tooltip { left:0; right:auto; top:calc(100% + 9px); } }
+     @media (max-width:900px) { body { padding:10px; } .sheet { padding:22px 20px; } header, .intro { display:block; } .authors { margin-top:12px; text-align:left; } .legend { justify-content:flex-start; margin-top:12px; } .map { grid-template-columns:1fr; } .nodes { padding-bottom:0; } }
+     @media (max-width:650px) { .detail-grid { grid-template-columns:1fr; } .detail-view { padding:21px; } }
     @media print {
       @page { size:A4 landscape; margin:10mm; }
       html { background:white; } body { padding:0; }
       .sheet { min-height:0; max-width:none; padding:0; border:0; box-shadow:none; }
       .node, .screen, .result-card, .detail-item { break-inside:avoid; }
       .map { grid-template-columns:32% 68%; gap:18px; } .screen { min-height:350px; } .screen-body { min-height:305px; } .screen-main { padding:13px; } .image-placeholder { height:88px; } footer { margin-top:9px; }
-      .tooltip { display:none !important; }
-      .hotspot:hover, .hotspot:focus-within, .hotspot.is-active, .screen-side.hotspot:hover, .screen-side.hotspot:focus-within, .screen-side.hotspot.is-active { z-index:auto; background:inherit; box-shadow:none; }
+       .detail-view { display:none !important; }
+       .screen-body { display:grid !important; }
+       .hotspot.is-highlighted { z-index:auto; background:inherit; box-shadow:none; }
       .detail-sheet { display:block; page-break-before:always; margin-top:0; padding-top:0; border-top:0; }
       .detail-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
     }
@@ -95,30 +92,30 @@
       <div><div class="eyebrow">Arquitectura de la interfaz · mapa mental interactivo</div><h1>Clasificador de lesiones cutáneas</h1><p class="subtitle">Guía visual de la pantalla de diagnóstico en Streamlit.</p></div>
       <div class="authors"><strong>Autores del proyecto</strong>Miguel Angel Ortiz Roldan<br>Marlon Valencia Velosa</div>
     </header>
-    <section class="intro"><p>El panel izquierdo nombra la estructura de Streamlit visible para el usuario; el panel derecho traduce esos nodos a una maqueta de pantalla. Pasá el cursor o enfocá cada zona para consultar sus tareas técnicas y tiempos. Un punto equivale a un día.</p><div class="legend"><span><i></i> Estructura de Streamlit</span><span class="wire"><i></i> Relación de la interfaz</span></div></section>
+    <section class="intro"><p>El panel izquierdo organiza la estructura de Streamlit visible para el usuario; el panel derecho traduce cada nodo a una maqueta de pantalla. Pasá el cursor para resaltar su zona o hacé clic para abrir una vista detallada. Un punto equivale a un día.</p><div class="legend"><span><i></i> Estructura de Streamlit</span></div></section>
     <section class="map" aria-label="Mapa híbrido de la interfaz de Streamlit">
-      <div class="nodes">
-        <article class="node"><h2>Encabezado</h2><p>Título del proyecto, contexto diagnóstico conciso y punto de entrada claro.</p></article>
-        <article class="node"><h2>Barra lateral con información técnica</h2><p>El contexto técnico y la información de apoyo permanecen disponibles junto a la tarea principal.</p></article>
-        <article class="node accent"><h2>Carga de archivos</h2><p>Área de entrada de imágenes dermatoscópicas en formato JPG/PNG.</p></article>
-        <article class="node"><h2>Área de resultados en dos columnas</h2><p>Espacio de comparación para la evidencia visual y la salida del modelo.</p></article>
-        <article class="node"><h2>Barras de probabilidad</h2><p>Distribución legible de la confianza para las clases predichas.</p></article>
+      <div class="nodes" role="tablist" aria-label="Secciones de la interfaz">
+        <button class="node" type="button" role="tab" aria-selected="true" aria-controls="panel-detalle" data-target="zona-encabezado"><h2>Encabezado</h2><p>Título del proyecto, contexto diagnóstico conciso y punto de entrada claro.</p></button>
+        <button class="node" type="button" role="tab" aria-selected="false" aria-controls="panel-detalle" data-target="zona-barra"><h2>Barra lateral con información técnica</h2><p>El contexto técnico y la información de apoyo permanecen disponibles junto a la tarea principal.</p></button>
+        <button class="node accent" type="button" role="tab" aria-selected="false" aria-controls="panel-detalle" data-target="zona-carga"><h2>Carga de archivos</h2><p>Área de entrada de imágenes dermatoscópicas en formato JPG/PNG.</p></button>
+        <button class="node" type="button" role="tab" aria-selected="false" aria-controls="panel-detalle" data-target="zona-resultados"><h2>Área de resultados en dos columnas</h2><p>Espacio de comparación para la evidencia visual y la salida del modelo.</p></button>
+        <button class="node" type="button" role="tab" aria-selected="false" aria-controls="panel-detalle" data-target="zona-probabilidades"><h2>Barras de probabilidad</h2><p>Distribución legible de la confianza para las clases predichas.</p></button>
       </div>
       <div class="mockup-wrap"><p class="mockup-label">Pantalla de Streamlit · maqueta CSS</p><div class="screen" aria-label="Maqueta interactiva de la pantalla de Streamlit">
-        <div class="screen-top hotspot" tabindex="0" aria-describedby="tooltip-encabezado" aria-expanded="false"><span class="brand">Clasificador de lesiones cutáneas</span><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><div class="tooltip" id="tooltip-encabezado" role="tooltip"><strong>Encabezado · 5 puntos · 5 días</strong><ul><li>Crear interfaz y jerarquía visual: 3 puntos.</li><li>Agregar título, contexto y accesibilidad: 2 puntos.</li></ul></div></div>
-        <div class="screen-body">
-          <aside class="screen-side hotspot" tabindex="0" aria-describedby="tooltip-barra" aria-expanded="false"><h3>Información técnica</h3><span class="fake-label">Modelo</span><div class="fake-control">ViT · inferencia en CPU</div><span class="fake-label">Formato de entrada</span><div class="fake-control">JPG / PNG</div><span class="fake-label">Explicación</span><div class="fake-control">Grad-CAM habilitado</div><div class="tooltip" id="tooltip-barra" role="tooltip"><strong>Barra lateral · 3 puntos · 3 días</strong><ul><li>Configurar controles y modelo: 2 puntos.</li><li>Documentar formatos y Grad-CAM: 1 punto.</li></ul></div></aside>
+        <div id="zona-encabezado" class="screen-top hotspot is-highlighted"><span class="brand">Clasificador de lesiones cutáneas</span><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span></div>
+        <div id="panel-maqueta" class="screen-body">
+          <aside id="zona-barra" class="screen-side hotspot"><h3>Información técnica</h3><span class="fake-label">Modelo</span><div class="fake-control">ViT · inferencia en CPU</div><span class="fake-label">Formato de entrada</span><div class="fake-control">JPG / PNG</div><span class="fake-label">Explicación</span><div class="fake-control">Grad-CAM habilitado</div></aside>
           <div class="screen-main"><h2>Diagnóstico dermatológico</h2><p>Cargá una imagen para revisar el resultado del modelo y la explicación visual.</p>
-            <div class="upload hotspot" tabindex="0" aria-describedby="tooltip-carga" aria-expanded="false">＋ Soltá aquí una imagen JPG o PNG<div class="tooltip" id="tooltip-carga" role="tooltip"><strong>Carga de archivos · 5 puntos · 5 días</strong><ul><li>Crear interfaz de carga y validación: 3 puntos.</li><li>Gestionar JPG/PNG y mensajes de error: 2 puntos.</li></ul></div></div>
+            <div id="zona-carga" class="upload hotspot">＋ Soltá aquí una imagen JPG o PNG</div>
             <div class="results">
-              <div class="result-card hotspot" tabindex="0" aria-describedby="tooltip-imagen" aria-expanded="false"><h4>Entrada y atención</h4><div class="image-placeholder">IMAGEN + MAPA DE CALOR</div><div class="tooltip" id="tooltip-imagen" role="tooltip"><strong>Imagen y Grad-CAM · 8 puntos · 8 días</strong><ul><li>Mostrar la imagen de entrada: 3 puntos.</li><li>Generar y superponer el mapa de calor: 5 puntos.</li></ul></div></div>
-              <div class="result-card hotspot" tabindex="0" aria-describedby="tooltip-probabilidades" aria-expanded="false"><h4>Probabilidades predichas</h4><div class="bar"><label><span>Clase A</span><span>84%</span></label><div class="track"><div class="fill high"></div></div></div><div class="bar"><label><span>Clase B</span><span>53%</span></label><div class="track"><div class="fill mid"></div></div></div><div class="bar"><label><span>Clase C</span><span>22%</span></label><div class="track"><div class="fill low"></div></div></div><div class="tooltip" id="tooltip-probabilidades" role="tooltip"><strong>Probabilidades · 5 puntos · 5 días</strong><ul><li>Ordenar clases y calcular porcentajes: 3 puntos.</li><li>Construir barras y etiquetas accesibles: 2 puntos.</li></ul></div></div>
+              <div id="zona-resultados" class="result-card hotspot"><h4>Entrada y atención</h4><div class="image-placeholder">IMAGEN + MAPA DE CALOR</div></div>
+              <div id="zona-probabilidades" class="result-card hotspot"><h4>Probabilidades predichas</h4><div class="bar"><label><span>Clase A</span><span>84%</span></label><div class="track"><div class="fill high"></div></div></div><div class="bar"><label><span>Clase B</span><span>53%</span></label><div class="track"><div class="fill mid"></div></div></div><div class="bar"><label><span>Clase C</span><span>22%</span></label><div class="track"><div class="fill low"></div></div></div></div>
             </div>
-            <div class="upload hotspot" tabindex="0" aria-describedby="tooltip-resultados" aria-expanded="false" style="margin-top:12px;margin-bottom:0;background:#fff8f5;border-color:var(--coral);color:var(--ink);">Resultado interpretado · revisión orientativa<div class="tooltip" id="tooltip-resultados" role="tooltip"><strong>Resultados · 5 puntos · 5 días</strong><ul><li>Integrar la salida del modelo: 3 puntos.</li><li>Presentar advertencia clínica y estado: 2 puntos.</li></ul></div></div>
+            <div class="upload hotspot" style="margin-top:12px;margin-bottom:0;background:#fff8f5;border-color:var(--coral);color:var(--ink);">Resultado interpretado · revisión orientativa</div>
           </div>
         </div>
-      </div><p class="caption">Las zonas resaltadas explican el trabajo técnico de cada parte; la hoja 2 conserva el desglose completo para impresión.</p></div>
-      <svg class="connectors" viewBox="0 0 1000 520" preserveAspectRatio="none" aria-hidden="true"><path d="M245 115 C390 115 460 105 590 105"></path><path d="M245 210 C410 210 430 225 535 225"></path><path d="M245 300 C390 300 430 315 650 315"></path><path d="M245 390 C420 390 490 390 650 390"></path><circle cx="245" cy="115" r="5"></circle><circle cx="590" cy="105" r="5"></circle><circle cx="245" cy="210" r="5"></circle><circle cx="535" cy="225" r="5"></circle><circle cx="245" cy="300" r="5"></circle><circle cx="650" cy="315" r="5"></circle></svg>
+        <div id="panel-detalle" class="detail-view" role="tabpanel" aria-live="polite" hidden></div>
+      </div><p class="caption">El hover resalta la zona relacionada y el clic cambia todo el contenido del panel a una vista detallada; la hoja 2 conserva el desglose completo para impresión.</p></div>
     </section>
     <footer><span>Artefacto independiente · diseño de pantalla adaptable · listo para imprimir</span><span>Pasá el cursor o enfocá una zona para ver tareas y tiempos.</span></footer>
   </main>
@@ -137,15 +134,60 @@
     </div>
     <footer><span>Hoja de detalle · documento complementario del mapa UI</span><span>La predicción es orientativa y no constituye diagnóstico médico.</span></footer>
   </section>
-  <script>
-    document.querySelectorAll('.hotspot').forEach((zona) => {
-      const activar = () => { zona.classList.add('is-active'); zona.setAttribute('aria-expanded', 'true'); };
-      const desactivar = () => { zona.classList.remove('is-active'); zona.setAttribute('aria-expanded', 'false'); };
-      zona.addEventListener('mouseenter', activar);
-      zona.addEventListener('mouseleave', desactivar);
-      zona.addEventListener('focus', activar);
-      zona.addEventListener('blur', desactivar);
-    });
-  </script>
+   <script>
+     const pestañas = [...document.querySelectorAll('[role="tab"]')];
+     const maqueta = document.querySelector('#panel-maqueta');
+     const detalle = document.querySelector('#panel-detalle');
+     const contenidos = {
+       'zona-encabezado': { titulo: 'Encabezado', descripcion: 'Presenta el nombre del clasificador y orienta al usuario desde el primer vistazo.', puntos: '5 puntos · 5 días', items: ['Jerarquía visual clara para el flujo diagnóstico.', 'Título, contexto y nombres accesibles.'] },
+       'zona-barra': { titulo: 'Barra lateral con información técnica', descripcion: 'Mantiene el modelo, los formatos aceptados y la explicación disponibles sin distraer de la tarea principal.', puntos: '3 puntos · 3 días', items: ['Controles para el modelo y el formato de entrada.', 'Información de Grad-CAM e inferencia en CPU.'] },
+       'zona-carga': { titulo: 'Carga de archivos', descripcion: 'Define el punto de entrada de la imagen dermatoscópica y comunica de inmediato qué archivos puede usar la persona.', puntos: '5 puntos · 5 días', items: ['Carga y validación de archivos JPG o PNG.', 'Mensajes claros para errores y estados de carga.'] },
+       'zona-resultados': { titulo: 'Área de resultados en dos columnas', descripcion: 'Compara la imagen recibida con la evidencia visual generada por el modelo.', puntos: '5 puntos · 5 días', items: ['Presentación de la imagen de entrada.', 'Superposición del mapa de calor Grad-CAM.'] },
+       'zona-probabilidades': { titulo: 'Barras de probabilidad', descripcion: 'Resume la confianza del modelo en una lectura rápida, ordenada y comprensible.', puntos: '5 puntos · 5 días', items: ['Orden de clases y porcentajes calculados.', 'Barras visuales con etiquetas accesibles.'] }
+     };
+
+     function resaltar(target, activo) {
+       const zona = document.getElementById(target);
+       if (zona) zona.classList.toggle('is-highlighted', activo);
+     }
+
+     function construirDetalle(target) {
+       const contenido = contenidos[target];
+       detalle.replaceChildren();
+       const kicker = document.createElement('p');
+       kicker.className = 'detail-kicker';
+       kicker.textContent = 'Vista detallada de la sección';
+       const titulo = document.createElement('h2');
+       titulo.textContent = contenido.titulo;
+       const descripcion = document.createElement('p');
+       descripcion.textContent = contenido.descripcion;
+       const lista = document.createElement('ul');
+       lista.className = 'detail-list';
+       contenido.items.forEach((item) => {
+         const elemento = document.createElement('li');
+         elemento.textContent = item;
+         lista.append(elemento);
+       });
+       const estimacion = document.createElement('span');
+       estimacion.className = 'detail-estimate';
+       estimacion.textContent = contenido.puntos;
+       detalle.append(kicker, titulo, descripcion, lista, estimacion);
+     }
+
+     function seleccionar(pestaña) {
+       pestañas.forEach((elemento) => elemento.setAttribute('aria-selected', String(elemento === pestaña)));
+       construirDetalle(pestaña.dataset.target);
+       maqueta.hidden = true;
+       detalle.hidden = false;
+     }
+
+     pestañas.forEach((pestaña) => {
+       pestaña.addEventListener('mouseenter', () => resaltar(pestaña.dataset.target, true));
+       pestaña.addEventListener('mouseleave', () => resaltar(pestaña.dataset.target, false));
+       pestaña.addEventListener('focus', () => resaltar(pestaña.dataset.target, true));
+       pestaña.addEventListener('blur', () => resaltar(pestaña.dataset.target, false));
+       pestaña.addEventListener('click', () => seleccionar(pestaña));
+     });
+   </script>
 </body>
 </html>
