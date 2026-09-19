@@ -33,4 +33,4 @@ La cabecera consume espacio con tarjetas redundantes, los paneles cargan abierto
 
 - Estado: completado.
 - Evidencia: `git diff --check`; parseo HTML; búsqueda de ramas, conceptos, paneles cerrados y regla de impresión.
-- Commit: pendiente de creación con el mensaje solicitado.
+- Commit: `2a439e2 docs: rediseño profundo de mapa conceptual y fix ui`.
