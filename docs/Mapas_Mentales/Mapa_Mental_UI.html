@@ -78,19 +78,26 @@
     .detail-item p { margin:0; color:var(--muted); font-size:.77rem; line-height:1.48; }
      @media (max-width:900px) { body { padding:10px; } .sheet { padding:22px 20px; } header, .intro { display:block; } .authors { margin-top:12px; text-align:left; } .legend { justify-content:flex-start; margin-top:12px; } .map { grid-template-columns:1fr; } .nodes { padding-bottom:0; } }
      @media (max-width:650px) { .detail-grid { grid-template-columns:1fr; } .detail-view { padding:21px; } }
-    @media print {
-      @page { size:A4 landscape; margin:10mm; }
-      html { background:white; } body { padding:0; }
-      .sheet { min-height:0; max-width:none; padding:0; border:0; box-shadow:none; }
+     @media print {
+       @page { size:A4 landscape; margin:8mm; }
+       html { background:white; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+       body { padding:0; }
+       .sheet { min-height:0; max-width:none; padding:0; border:0; box-shadow:none; }
        .node, .screen, .result-card, .detail-item { break-inside:avoid; }
        .toolbar { display:none !important; }
-      .map { grid-template-columns:32% 68%; gap:18px; } .screen { min-height:350px; } .screen-body { min-height:305px; } .screen-main { padding:13px; } .image-placeholder { height:88px; } footer { margin-top:9px; }
-       .detail-view { display:none !important; }
-       .screen-body { display:grid !important; }
+       .map { grid-template-columns:minmax(220px,.78fr) minmax(0,1.5fr); gap:14px; }
+       .screen { min-height:350px; overflow:visible; }
+       .screen-body { display:grid !important; grid-template-columns:28% 72%; min-height:305px; }
+       .screen-body[hidden] { display:grid !important; }
+       .screen-main { min-width:0; padding:13px; }
+       .results { gap:8px; }
+       .image-placeholder { height:88px; }
+       footer { margin-top:9px; }
+       .detail-view:not([hidden]) { display:block !important; break-inside:avoid; }
        .hotspot.is-highlighted { z-index:auto; background:inherit; box-shadow:none; }
-      .detail-sheet { display:block; page-break-before:always; margin-top:0; padding-top:0; border-top:0; }
-      .detail-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
-    }
+       .detail-sheet { display:block; page-break-before:always; break-before:page; margin-top:0; padding-top:0; border-top:0; }
+       .detail-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+     }
   </style>
 </head>
 <body>
