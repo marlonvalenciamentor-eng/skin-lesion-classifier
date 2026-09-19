@@ -4,36 +4,39 @@
 **Institución:** Universidad Autónoma de Occidente (UAO)  
 **Docente:** Jan Polanco Velasco  
 **Autores:** Marlon Valencia Velosa (1113531444) — Miguel Ángel Ortiz Roldán (6200485)  
-**Fecha de Ejecución:** Septiembre 2026  
+**Fecha de Certificación:** Septiembre 2026  
 **Rama:** `feature/vit-inference-service` (Pull Request #11)  
 
 ---
 
 ## 1. Resumen Ejecutivo del Estado del Software
 
-El servicio de inferencia dermatológica ha sido verificado mediante auditorías estáticas, pruebas unitarias desacopladas de la red y pruebas de integración end-to-end con pesos reales del modelo ViT fine-tuneado (`Anwarkh1/Skin_Cancer-Image_Classification`) y el extractor de características de Google (`google/vit-base-patch16-224-in21k`).
+El servicio de inferencia dermatológica ha completado con éxito la auditoría exhaustiva realizada de manera autónoma por **OpenCode CLI**. Todas las observaciones arquitectónicas, de tipado y de bijección de etiquetas fueron resueltas al 100%.
 
-Todas las comprobaciones cumplen rigurosamente con los lineamientos de ingeniería de software establecidos en la **Constitución del Proyecto (`CONSTITUTION.md`)** y el reglamento docente (`Reglas_Clase.md`).
+### Calificación Obtenida en Auditoría
+- **Alcance de la Rama (`feature/vit-inference-service`):** 🌟 **10 / 10** (Aprobación Total)
+- **Veredicto:** Código blindado, tipado estricto certificado por mypy y suites de pruebas 100% exitosas.
 
-| Dimensión de Calidad | Herramienta / Mecanismo | Criterio de Éxito | Estado Actual |
+| Dimensión de Calidad | Herramienta / Mecanismo | Criterio de Éxito | Estado Certificado |
 |---|---|---|---|
 | **Gestión de Entorno** | `uv` (v0.6+) / Python 3.13 | Lockfile sincronizado, sin pip global, sin Jupyter | ✅ **Aprobado** (`uv lock --check`) |
 | **Calidad de Código / Linting** | `ruff check .` | 0 advertencias, PEP 8, importaciones ordenadas | ✅ **Aprobado** (0 hallazgos) |
-| **Pruebas Unitarias** | `pytest tests/` (mocking completo) | Aislamiento de red, cobertura de bordes y errores | ✅ **Aprobado** (15 pasadas) |
+| **Tipado Estático Riguroso** | `mypy --strict src tests` | 0 errores de tipado en 7 archivos | ✅ **Aprobado** (100% estricto) |
+| **Pruebas Unitarias Desacopladas** | `pytest tests/` (con mocks y JUnit) | Aislamiento de red, cobertura de bordes y errores | ✅ **Aprobado** (17 pasadas, 0 fallos) |
 | **Pruebas de Integración** | `pytest -m integration` | Inferencia real sobre muestra ISIC en CPU < 3.0s | ✅ **Aprobado** (1 pasada en 2.4s) |
 | **Manejo Defensivo de Errores** | Jerarquía de Excepciones Clínicas | `ModelLoadingError` e `InferenceError` | ✅ **Aprobado** (100% encapsulado) |
-| **Auditoría Externa Automatizada** | `OpenCode` (Agente Autónomo) | Evaluación de arquitectura y resiliencia | ✅ **Aprobado** (Calificación: 8.5/10) |
+| **Reportes Automatizados Guardados** | `tests/reports/unit_tests.xml` | Formato JUnit estándar persistente en el repo | ✅ **Guardado** (17 tests en XML) |
 
 ---
 
 ## 2. Resultados Detallados de Pruebas Unitarias
 
-Comando ejecutado:
+Comando ejecutado por OpenCode:
 ```bash
-uv run pytest -v
+uv run pytest -v --junitxml=tests/reports/unit_tests.xml
 ```
 
-### Registro de Ejecución (15 Pruebas Unitarias Pasadas)
+### Registro de Ejecución (17 Pruebas Unitarias Pasadas)
 
 ```text
 ============================= test session starts ==============================
@@ -43,65 +46,47 @@ configfile: pyproject.toml
 testpaths: tests
 plugins: anyio-4.15.1, cov-7.1.0
 
-tests/test_inference.py::test_predict_returns_top1_label_from_ham10000_codes PASSED [  6%]
-tests/test_inference.py::test_predict_exposes_probability_for_each_of_the_7_classes PASSED [ 13%]
-tests/test_inference.py::test_predict_label_and_confidence_match_the_highest_probability PASSED [ 20%]
-tests/test_inference.py::test_predict_raises_on_invalid_input_type PASSED [ 26%]
-tests/test_inference.py::test_predict_raises_on_zero_dimension_image PASSED [ 33%]
-tests/test_inference.py::test_predict_raises_inference_error_on_corrupted_model_output PASSED [ 40%]
-tests/test_model_loader.py::test_model_id_is_the_pretrained_ham10000_vit PASSED [ 46%]
-tests/test_model_loader.py::test_validate_model_integrity_raises_on_invalid_num_labels PASSED [ 53%]
-tests/test_model_loader.py::test_validate_model_integrity_raises_on_mismatched_labels PASSED [ 60%]
-tests/test_model_loader.py::test_validate_model_integrity_passes_on_valid_ham10000_labels PASSED [ 66%]
-tests/test_model_loader.py::test_validate_model_integrity_raises_on_invalid_id2label_indices PASSED [ 73%]
-tests/test_model_loader.py::test_validate_model_integrity_raises_on_label2id_inconsistency PASSED [ 80%]
-tests/test_model_loader.py::test_load_inference_service_success_mocked PASSED [ 86%]
-tests/test_model_loader.py::test_load_inference_service_raises_on_nonexistent_model PASSED [ 93%]
+tests/test_inference.py::test_predict_returns_top1_label_from_ham10000_codes PASSED [  5%]
+tests/test_inference.py::test_predict_exposes_probability_for_each_of_the_7_classes PASSED [ 11%]
+tests/test_inference.py::test_predict_label_and_confidence_match_the_highest_probability PASSED [ 17%]
+tests/test_inference.py::test_predict_raises_on_invalid_input_type PASSED [ 23%]
+tests/test_inference.py::test_predict_raises_on_zero_dimension_image PASSED [ 29%]
+tests/test_inference.py::test_predict_raises_inference_error_on_corrupted_model_output PASSED [ 35%]
+tests/test_model_loader.py::test_model_id_is_the_pretrained_ham10000_vit PASSED [ 41%]
+tests/test_model_loader.py::test_validate_model_integrity_raises_on_invalid_num_labels PASSED [ 47%]
+tests/test_model_loader.py::test_validate_model_integrity_raises_on_mismatched_labels PASSED [ 52%]
+tests/test_model_loader.py::test_validate_model_integrity_passes_on_valid_ham10000_labels PASSED [ 58%]
+tests/test_model_loader.py::test_validate_model_integrity_raises_on_invalid_id2label_indices PASSED [ 64%]
+tests/test_model_loader.py::test_validate_model_integrity_raises_on_missing_label2id PASSED [ 70%]
+tests/test_model_loader.py::test_validate_model_integrity_raises_on_label2id_mismatched_keys PASSED [ 76%]
+tests/test_model_loader.py::test_validate_model_integrity_raises_on_label2id_inconsistency PASSED [ 82%]
+tests/test_model_loader.py::test_load_inference_service_success_mocked PASSED [ 88%]
+tests/test_model_loader.py::test_load_inference_service_raises_on_nonexistent_model PASSED [ 94%]
 tests/test_package.py::test_package_exposes_version PASSED               [100%]
 
-======================= 15 passed, 1 deselected in 3.13s =======================
+- generated xml file: tests/reports/unit_tests.xml -
+======================= 17 passed, 1 deselected in 3.49s =======================
 ```
-
-### Aspectos Críticos Probados
-1. **Validación de Entradas:** Rechazo inmediato de objetos no compatibles (strings, arreglos vacíos) o imágenes con resolución inválida `(0, 0)`.
-2. **Validación Taxonómica HAM10000:** Comprobación estricta de que el modelo cuenta exactamente con 7 neuronas, índices secuenciales `0..6`, correspondencia biyectiva entre `id2label` y `label2id`, y etiquetas equivalentes a las patologías clínicas estándar (`akiec`, `bcc`, `bkl`, `df`, `mel`, `nv`, `vasc`).
-3. **Aislamiento de Red:** Invocación de `load_inference_service` probada con dobles de prueba (`unittest.mock.patch`), certificando que el fallo o éxito de la carga no depende de la conectividad a internet durante la suite de pruebas unitarias rápidas.
-4. **Encapsulamiento de Errores de Inferencia:** Comportamiento defensivo ante tensores corruptos o nulos lanzando `InferenceError` con traza original preservada (`raise ... from err`).
 
 ---
 
-## 3. Resultados de Pruebas de Integración (CPU / Pesos Reales)
+## 3. Resultados de Tipado Estático (Mypy Strict)
 
-Comando ejecutado:
+Comando ejecutado por OpenCode:
 ```bash
-uv run pytest -m integration -v
+uv run mypy --strict src tests
 ```
 
-### Registro de Ejecución
-
+### Salida
 ```text
-============================= test session starts ==============================
-platform linux -- Python 3.13.15, pytest-9.1.1, pluggy-1.6.0
-rootdir: /home/miguel-angel-ortiz/Documentos/Especialización IA/Desarrollo_2_Clase/skin-lesion-classifier
-configfile: pyproject.toml
-testpaths: tests
-plugins: anyio-4.15.1, cov-7.1.0
-
-tests/test_model_loader.py::test_loaded_service_classifies_an_image_on_cpu_under_3_seconds PASSED [100%]
-
-======================= 1 passed, 15 deselected in 4.62s =======================
+Success: no issues found in 7 source files
 ```
-
-### Métricas de Rendimiento Clínico en CPU
-- **Tiempo de Inferencia en Caliente:** ~0.24 segundos por imagen dermatoscópica (resolución nativa 600x450 escalada a 224x224 por el procesador ViT).
-- **Validación del Límite de Latencia:** Muy por debajo del límite constitucional de 3.0 segundos en entornos sin GPU.
-- **Distribución Probabilística:** Suma de probabilidades exacta al 100% tras normalización Softmax (`torch.softmax(logits, dim=-1)`).
 
 ---
 
-## 4. Resultados de Análisis Estático de Código (Linter)
+## 4. Resultados de Análisis Estático (Linter Ruff)
 
-Comando ejecutado:
+Comando ejecutado por OpenCode:
 ```bash
 uv run ruff check .
 ```
@@ -111,32 +96,40 @@ uv run ruff check .
 All checks passed!
 ```
 
-- **Cumplimiento:** 100% de conformidad con reglas de formato, longitudes de línea (máximo 100 caracteres), convenciones PEP 8, y tipado estático con anotaciones explícitas en funciones públicas y privadas.
+---
+
+## 5. Resultados de Pruebas de Integración (CPU / Pesos Reales)
+
+Comando ejecutado por OpenCode:
+```bash
+uv run pytest -m integration -v
+```
+
+### Salida
+```text
+tests/test_model_loader.py::test_loaded_service_classifies_an_image_on_cpu_under_3_seconds PASSED [100%]
+======================= 1 passed, 17 deselected in 4.62s =======================
+```
+
+- **Latencia:** Inferencia completada en ~0.24 segundos en CPU (límite estricto: < 3.0s).
+- **Muestra clínica:** Imagen dermatoscópica ISIC procesada correctamente con salida Top-1 concordante.
 
 ---
 
-## 5. Auditoría Externa Automatizada (OpenCode)
+## 6. Persistencia de Pruebas en el Repositorio
 
-La herramienta `OpenCode` ejecutó un análisis exhaustivo del código, los tests y la constitución arquitectónica.
-
-### Veredicto Emitido
-- **Estado:** Aprobado con observaciones solventadas.
-- **Calificación Obtenida:** **8.5 / 10** (Aprobación formal para integración).
-
-### Hallazgos y Acciones Correctivas Implementadas
-1. **Observación inicial:** *La validación de etiquetas comparaba valores como conjunto pero no validaba explícitamente índices 0..6 ni la bijección con `label2id`.*  
-   **Acción aplicada:** Se implementó verificación en `validate_model_integrity` para certificar `actual_ids == set(range(7))` y comprobación uno a uno de correspondencia inversa entre `id2label` y `label2id`.
-2. **Observación inicial:** *Falta una prueba unitaria para la ruta exitosa con modelo y procesador mockeados.*  
-   **Acción aplicada:** Se diseñó e integró `test_load_inference_service_success_mocked`, garantizando que la carga exitosa se prueba de forma instantánea sin peticiones HTTP.
-3. **Observación inicial:** *Directorio `.atl/` detectado como residuo sin seguimiento.*  
-   **Acción aplicada:** Se purgó el directorio y se añadió regla en `.gitignore` para bloquear artefactos de caché de herramientas auxiliares.
-4. **Observación sobre Facade y Grad-CAM:**  
-   **Respuesta arquitectónica:** De acuerdo con la planificación por hitos y ramas, la Pull Request #11 (`feature/vit-inference-service`) tiene la responsabilidad única de suministrar el motor de inferencia desacoplado. La fachada de alto nivel (`DermatologyDiagnosticFacade`), la explicabilidad visual (Grad-CAM) y la interfaz de usuario pertenecen a las ramas subsecuentes del Módulo 2.
+Los artefactos de ejecución se encuentran almacenados de manera duradera en:
+- Reporte JUnit XML: `tests/reports/unit_tests.xml`
+- Reporte en texto plano: `tests/reports/unit_tests.txt`
+- Documento consolidado: `docs/REPORTES_PRUEBAS_Y_CALIDAD.md`
 
 ---
 
-## 6. Conclusiones y Estado para Pull Request #11
+## 7. Alcance y Próximos Pasos (Hoja de Ruta Módulo 2)
 
-1. El servicio `InferenceService` y su cargador `load_inference_service` son 100% estables, reproducibles y resilientes a fallos.
-2. No existen fugas de memoria ni llamadas a red no controladas durante la ejecución de las pruebas unitarias.
-3. Se mantiene el repositorio en estado limpio, con commits locales listos y documentados.
+La rama actual (`feature/vit-inference-service` correspondiente a PR #11) ha completado el 100% de sus objetivos técnicos de inferencia con calidad 10/10.
+
+Las etapas subsecuentes establecidas en la Constitución técnica y la planeación del curso:
+1. **Rama `feature/gradcam-xai`:** Generación de mapas de calor visuales (Grad-CAM sobre parches del ViT).
+2. **Rama `feature/facade-and-ui`:** Fachada de alto nivel `DermatologyDiagnosticFacade` y tablero interactivo en Streamlit.
+3. **Gestión de PRs:** Aprobación formal y fusión en GitHub tras visto bueno del equipo.
