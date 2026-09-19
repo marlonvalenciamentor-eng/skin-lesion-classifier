@@ -3,36 +3,216 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Clasificador de lesiones cutáneas — recorrido diagnóstico</title>
+  <title>Pipeline de Despliegue y Detección de Bugs</title>
   <style>
-    :root { --navy:#102a43; --blue:#176b87; --cyan:#42c8d5; --teal:#0f8b8d; --ink:#243b53; --muted:#627d98; --line:#c7d8e4; --paper:#f7fbfd; --coral:#e77765; --shadow:0 12px 28px rgba(16,42,67,.10); }
-    * { box-sizing:border-box; } html { background:#dfeaf0; color:var(--ink); font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif; } body { margin:0; padding:24px; }
-    .sheet { max-width:1500px; min-height:calc(100vh - 48px); margin:auto; padding:30px 34px 24px; background:white; border:1px solid #d5e3eb; box-shadow:var(--shadow); }
-    header { display:flex; justify-content:space-between; align-items:flex-end; gap:24px; padding-bottom:18px; border-bottom:2px solid var(--cyan); } .eyebrow { color:var(--teal); font-size:.72rem; font-weight:800; letter-spacing:.16em; text-transform:uppercase; } h1 { margin:5px 0 4px; color:var(--navy); font-size:clamp(1.7rem,3vw,2.55rem); letter-spacing:-.04em; } .subtitle { margin:0; color:var(--muted); font-size:.98rem; } .authors { max-width:315px; color:var(--navy); font-size:.84rem; line-height:1.5; text-align:right; } .authors strong { display:block; color:var(--teal); font-size:.68rem; letter-spacing:.12em; text-transform:uppercase; }
-    .intro { display:flex; justify-content:space-between; gap:20px; padding:17px 0 14px; } .intro p { max-width:780px; margin:0; color:var(--muted); font-size:.9rem; line-height:1.55; } .badge { align-self:flex-start; padding:8px 11px; border:1px solid #a7dfe2; border-radius:20px; color:var(--teal); background:#effbfc; font-size:.7rem; font-weight:800; white-space:nowrap; }
-    .phases { display:grid; grid-template-columns:repeat(6,1fr); gap:7px; margin-bottom:9px; } .phase { padding:8px 7px; border-top:4px solid var(--cyan); color:var(--muted); background:#edf6f8; text-align:center; font-size:.66rem; font-weight:800; line-height:1.2; } .phase:nth-child(4), .phase:nth-child(5) { border-color:var(--teal); } .phase:nth-child(6) { border-color:var(--coral); }
-    .journey { display:grid; grid-template-columns:repeat(6,1fr); gap:10px; align-items:stretch; } .stage { position:relative; display:flex; flex-direction:column; min-width:0; padding:14px 12px 13px; border:1px solid var(--line); border-radius:12px; background:var(--paper); box-shadow:0 6px 14px rgba(16,42,67,.07); transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease; } .stage:hover, .stage:focus-within { transform:translateY(-4px); border-color:var(--cyan); box-shadow:0 10px 22px rgba(23,107,135,.16); } .stage:not(:last-child)::after { content:"→"; position:absolute; z-index:3; right:-17px; top:50%; color:var(--coral); font-size:1.25rem; font-weight:800; } .num { display:grid; place-items:center; width:25px; height:25px; margin-bottom:12px; border-radius:50%; color:white; background:var(--teal); font-size:.72rem; font-weight:800; } .stage:last-child .num { background:var(--coral); } .stage h2 { min-height:42px; margin:0 0 9px; color:var(--navy); font-size:.9rem; line-height:1.2; } .stage p { flex:1; margin:0; color:var(--muted); font-size:.72rem; line-height:1.47; } code { color:var(--blue); font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.69rem; overflow-wrap:anywhere; } .tag { display:inline-block; align-self:flex-start; margin-top:14px; padding:4px 6px; border-radius:4px; color:var(--blue); background:#e0f3f5; font-size:.62rem; font-weight:800; }
-    .notes { display:grid; grid-template-columns:1.1fr 1fr; gap:12px; margin-top:15px; } .note { padding:12px 14px; border-left:4px solid var(--coral); background:#fff7f4; } .note.teal { border-color:var(--teal); background:#f0faf9; } .note h3 { margin:0 0 4px; color:var(--navy); font-size:.75rem; } .note p { margin:0; color:var(--muted); font-size:.7rem; line-height:1.42; } footer { display:flex; justify-content:space-between; gap:20px; margin-top:15px; padding-top:12px; border-top:1px solid #d9e5eb; color:var(--muted); font-size:.7rem; }
-    @media (max-width:1050px) { body { padding:10px; } .sheet { padding:22px 20px; } .journey { grid-template-columns:repeat(3,1fr); row-gap:18px; } .stage:not(:last-child)::after { display:none; } .phases { grid-template-columns:repeat(3,1fr); row-gap:5px; } }
-    @media (max-width:650px) { header, .intro, footer { display:block; } .authors { margin-top:12px; text-align:left; } .badge { display:inline-block; margin-top:12px; } .journey, .phases, .notes { grid-template-columns:1fr; } .stage h2 { min-height:0; } footer span { display:block; margin-top:6px; } }
-    @media print { @page { size:A4 landscape; margin:10mm; } html { background:white; } body { padding:0; } .sheet { min-height:0; max-width:none; padding:0; border:0; box-shadow:none; } .stage, .note, .phase { break-inside:avoid; } .journey { gap:7px; } .stage { padding:10px 9px; } .stage h2 { font-size:.8rem; } .stage p { font-size:.64rem; } code { font-size:.61rem; } .notes { margin-top:11px; } footer { margin-top:9px; } }
+    :root { --navy:#102a43; --blue:#176b87; --cyan:#42c8d5; --teal:#0f8b8d; --ink:#243b53; --muted:#627d98; --line:#c7d8e4; --paper:#f7fbfd; --coral:#e77765; --purple:#7759a6; --shadow:0 12px 28px rgba(16,42,67,.10); }
+    * { box-sizing:border-box; }
+    html { background:#dfeaf0; color:var(--ink); font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif; }
+    body { margin:0; padding:24px; }
+    .sheet { max-width:1500px; min-height:calc(100vh - 48px); margin:auto; padding:30px 34px 24px; background:#fff; border:1px solid #d5e3eb; box-shadow:var(--shadow); }
+    .dashboard-hero { display:grid; grid-template-columns:1fr auto; gap:20px; align-items:center; margin-bottom:18px; padding:22px 26px; border:1px solid #c8e1e6; border-radius:16px; background:linear-gradient(120deg,#effbfc,#f8fbfc 62%,#fff8f5); }
+    .eyebrow { color:var(--teal); font-size:.72rem; font-weight:800; letter-spacing:.16em; text-transform:uppercase; }
+    h1, h2, h3, p { margin-top:0; }
+    .dashboard-hero h1 { margin:6px 0 8px; color:var(--navy); font-size:clamp(1.45rem,2.4vw,2.1rem); letter-spacing:-.03em; }
+    .dashboard-hero p { margin:4px 0 10px; color:var(--muted); font-size:.92rem; line-height:1.5; }
+    .authors strong { display:block; color:var(--teal); font-size:.68rem; letter-spacing:.12em; text-transform:uppercase; }
+    .authors-line { display:flex; flex-wrap:nowrap; align-items:center; gap:10px; margin-top:4px; color:var(--navy); font-size:.85rem; white-space:nowrap; }
+    .author-sep { color:var(--teal); font-weight:700; }
+    .hero-actions { display:flex; flex-direction:column; align-items:flex-end; gap:10px; }
+    .native-button { padding:9px 13px; border:1px solid var(--blue); border-radius:7px; background:var(--blue); color:#fff; font:inherit; font-size:.76rem; font-weight:800; cursor:pointer; }
+    .native-button:hover, .native-button:focus-visible { background:var(--navy); }
+    .dashboard-panel { margin-top:18px; border:1px solid var(--line); border-radius:14px; background:#fff; overflow:hidden; }
+    .dashboard-panel > summary { padding:16px 20px; color:var(--navy); font-size:1.05rem; font-weight:800; cursor:pointer; list-style-position:inside; }
+    .dashboard-panel > summary:hover, .dashboard-panel > summary:focus-visible { background:#effbfc; color:var(--teal); }
+    .panel-content { padding:0 20px 20px; }
+    .journey-intro { display:flex; justify-content:space-between; gap:20px; padding:2px 0 12px; }
+    .journey-intro p { max-width:930px; margin:0; color:var(--muted); font-size:.84rem; line-height:1.45; }
+    .journey { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:9px; }
+    .phase-button { position:relative; min-height:145px; padding:13px 11px; border:1px solid var(--line); border-top:5px solid var(--cyan); border-radius:11px; background:var(--paper); color:inherit; font:inherit; text-align:left; cursor:pointer; transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease; }
+    .phase-button:nth-child(4), .phase-button:nth-child(5) { border-top-color:var(--teal); }
+    .phase-button:nth-child(6) { border-top-color:var(--coral); }
+    .phase-button:hover, .phase-button:focus-visible, .phase-button[aria-selected="true"] { transform:translateY(-4px); border-color:var(--cyan); background:#e8f8fa; box-shadow:0 8px 20px rgba(23,107,135,.16); outline:none; }
+    .phase-number { display:grid; place-items:center; width:25px; height:25px; margin-bottom:10px; border-radius:50%; background:var(--teal); color:#fff; font-size:.72rem; font-weight:800; }
+    .phase-button:last-child .phase-number { background:var(--coral); }
+    .phase-button h3 { min-height:38px; margin:0 0 7px; color:var(--navy); font-size:.84rem; line-height:1.2; }
+    .phase-button p { margin:0; color:var(--muted); font-size:.69rem; line-height:1.4; }
+    .phase-tag { display:block; margin-top:10px; color:var(--blue); font-size:.61rem; font-weight:800; }
+    .detail-view { margin-top:14px; padding:20px; border:1px solid #c8e1e6; border-radius:11px; background:linear-gradient(135deg,#f8fbfc,#e8f8fa); }
+    .detail-view[hidden] { display:none; }
+    .detail-kicker { margin-bottom:6px; color:var(--teal); font-size:.68rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
+    .detail-view h2 { margin-bottom:7px; color:var(--navy); font-size:1.25rem; }
+    .detail-view > p { max-width:1000px; margin-bottom:13px; color:var(--muted); font-size:.8rem; line-height:1.45; }
+    .detail-columns { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:9px; margin-bottom:14px; }
+    .detail-card { padding:10px 12px; border-left:3px solid var(--cyan); border-radius:7px; background:#fff; font-size:.73rem; line-height:1.4; }
+    .detail-card strong { display:block; margin-bottom:3px; color:var(--navy); }
+    code { color:var(--blue); font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.72rem; overflow-wrap:anywhere; }
+    .close-detail { background:#fff; color:var(--blue); }
+    .summary { display:grid; grid-template-columns:1.1fr 1fr; gap:12px; margin-top:15px; }
+    .summary-card { padding:12px 14px; border-left:4px solid var(--coral); background:#fff7f4; }
+    .summary-card.teal { border-color:var(--teal); background:#f0faf9; }
+    .summary-card h3 { margin-bottom:4px; color:var(--navy); font-size:.75rem; }
+    .summary-card p { margin:0; color:var(--muted); font-size:.7rem; line-height:1.42; }
+    .detail-sheet { display:none; margin-top:24px; padding-top:26px; border-top:2px solid var(--cyan); }
+    .detail-sheet h2 { margin-bottom:7px; color:var(--navy); font-size:1.45rem; }
+    .detail-sheet > p { max-width:1000px; margin-bottom:18px; color:var(--muted); font-size:.86rem; line-height:1.5; }
+    .detail-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:13px; }
+    .detail-item { padding:13px 15px; border:1px solid var(--line); border-left:4px solid var(--teal); border-radius:10px; background:var(--paper); }
+    .detail-item h3 { margin:0 0 5px; color:var(--navy); font-size:.9rem; }
+    .detail-item p { margin:0; color:var(--muted); font-size:.77rem; line-height:1.48; }
+    .concept-map { display:grid; gap:12px; }
+    .concept-intro { margin:0; color:var(--muted); font-size:.82rem; line-height:1.5; }
+    .concept-branches { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:11px; }
+    .concept-branch { display:grid; gap:8px; align-content:start; padding:13px; border:1px solid var(--branch-color); border-top:5px solid var(--branch-color); border-radius:11px; background:#fff; }
+    .concept-branch h3 { margin:0; color:var(--navy); font-size:.86rem; line-height:1.25; }
+    .concept-node { padding:9px 10px; border:1px solid #d5e3eb; border-radius:8px; background:var(--paper); color:var(--ink); font-size:.72rem; line-height:1.36; }
+    .concept-node strong { display:block; margin-bottom:2px; color:var(--branch-color); }
+    .pipeline { display:grid; grid-template-columns:repeat(4,1fr); gap:3px; padding:11px; border:1px solid var(--line); border-radius:10px; background:#f8fbfc; }
+    .pipeline-step { padding:7px 5px; border-left:3px solid var(--pipeline-color); color:var(--ink); font-size:.68rem; text-align:center; }
+    .pipeline-step strong { display:block; color:var(--pipeline-color); }
+    footer { display:flex; justify-content:space-between; gap:20px; margin-top:15px; padding-top:12px; border-top:1px solid #d9e5eb; color:var(--muted); font-size:.7rem; }
+    @media (max-width:1050px) { body { padding:10px; } .sheet { padding:22px 20px; } .journey { grid-template-columns:repeat(3,1fr); } .concept-branches { grid-template-columns:repeat(2,1fr); } }
+    @media (max-width:700px) { .dashboard-hero { display:block; } .hero-actions { align-items:flex-start; margin-top:16px; } .authors-line { flex-wrap:wrap; white-space:normal; } .journey, .detail-columns, .detail-grid, .concept-branches, .pipeline, .summary { grid-template-columns:1fr; } footer { display:block; } footer span { display:block; margin-top:5px; } }
+    @media print {
+      @page { size: A4 landscape; margin: 0; }
+      html, body { padding: 5mm 10mm; margin: 0; background: white; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      body { display:flex !important; flex-direction:column !important; }
+      main.sheet { display:contents !important; }
+      .sheet { width:100%; max-width:100%; min-height:0; margin:0; padding:0; border:0; box-shadow:none; }
+      .dashboard-hero { order:1; margin:0 0 6px !important; padding:0 14px 7px !important; border-radius:10px; break-inside:avoid; page-break-inside:avoid; }
+      .dashboard-hero h1 { margin:0 0 2px; font-size:1.3rem; }
+      .dashboard-hero p { margin:2px 0 4px; font-size:.74rem; line-height:1.3; }
+      .authors-line { font-size:.7rem; gap:8px; }
+      .hero-actions { display:none; }
+      details.dashboard-panel:nth-of-type(1) { order:2; margin:0; border:0; background:transparent; break-inside:avoid; page-break-inside:avoid; }
+      details.dashboard-panel:nth-of-type(1) > summary { display:none; }
+      details.dashboard-panel:nth-of-type(1) > .panel-content { padding:0; }
+      .journey-intro { padding:2px 0 6px; }
+      .journey-intro p { font-size:.68rem; line-height:1.3; }
+      .journey { grid-template-columns:repeat(6,1fr); gap:5px; }
+      .phase-button { min-height:105px; padding:7px 7px; border-radius:7px; }
+      .phase-number { width:19px; height:19px; margin-bottom:5px; font-size:.6rem; }
+      .phase-button h3 { min-height:28px; margin-bottom:3px; font-size:.68rem; }
+      .phase-button p { font-size:.56rem; line-height:1.25; }
+      .phase-tag { margin-top:5px; font-size:.5rem; }
+      .detail-view { margin-top:7px; padding:8px; }
+      .detail-view h2 { margin-bottom:3px; font-size:.88rem; }
+      .detail-view > p { margin-bottom:5px; font-size:.6rem; line-height:1.25; }
+      .detail-columns { grid-template-columns:repeat(3,1fr); gap:5px; margin-bottom:5px; }
+      .detail-card { padding:5px 6px; font-size:.54rem; line-height:1.2; }
+      .detail-card strong { margin-bottom:1px; }
+      .close-detail, .summary, footer { display:none !important; }
+      .detail-sheet { order:3; display:block; page-break-before:always; break-before:page; margin-top:0; padding-top:5mm; border-top:0; }
+      .detail-sheet h2 { margin-bottom:4px; font-size:1.15rem; }
+      .detail-sheet > p { margin-bottom:10px; font-size:.7rem; line-height:1.3; }
+      .detail-grid { grid-template-columns:repeat(2,1fr); gap:7px; }
+      .detail-item { padding:7px 9px; }
+      .detail-item h3 { margin-bottom:3px; font-size:.72rem; }
+      .detail-item p { font-size:.62rem; line-height:1.28; }
+      details.dashboard-panel:nth-of-type(2) { order:4; page-break-before:always; break-before:page; margin-top:0; padding-top:5mm; border:0; box-shadow:none; }
+      details.dashboard-panel:nth-of-type(2) > summary { display:block; padding:0 0 6px; font-size:1.05rem; }
+      details.dashboard-panel:nth-of-type(2) > summary::marker, details.dashboard-panel:nth-of-type(2) > summary::-webkit-details-marker { display:none; }
+      details.dashboard-panel:nth-of-type(2) > .panel-content { padding:0; }
+      .concept-map { gap:7px; }
+      .concept-intro { font-size:.64rem; }
+      .concept-branches { grid-template-columns:repeat(4,1fr); gap:6px; }
+      .concept-branch { padding:7px; border-top-width:3px; gap:5px; }
+      .concept-branch h3 { font-size:.68rem; }
+      .concept-node { padding:5px 6px; font-size:.57rem; line-height:1.2; }
+      .pipeline { padding:6px; gap:2px; }
+      .pipeline-step { padding:4px 2px; font-size:.53rem; }
+    }
   </style>
 </head>
 <body>
   <main class="sheet">
-    <header><div><div class="eyebrow">CRISP-DM × arquitectura del sistema · mapa de recorrido</div><h1>Clasificador de lesiones cutáneas</h1><p class="subtitle">Desde la entrada de la imagen hasta un resultado explicable en Streamlit.</p></div><div class="authors"><strong>Autores del proyecto</strong>Miguel Angel Ortiz Roldan<br>Marlon Valencia Velosa</div></header>
-    <section class="intro"><p>Esta vista por etapas vuelve legible el recorrido diagnóstico sin agregar detalles de implementación más allá del resumen del proyecto: preparación, inferencia en CPU, explicación visual y un resultado tipado presentado mediante Streamlit.</p><span class="badge">Recorrido diagnóstico de izquierda a derecha</span></section>
-    <div class="phases" aria-label="Fases de CRISP-DM"><div class="phase">Comprensión del negocio</div><div class="phase">Comprensión de los datos</div><div class="phase">Preparación de los datos</div><div class="phase">Modelado</div><div class="phase">Evaluación</div><div class="phase">Despliegue</div></div>
-    <section class="journey" aria-label="Etapas del recorrido diagnóstico">
-      <article class="stage" tabindex="0"><span class="num">1</span><h2>Entrada</h2><p>Cargá una imagen dermatoscópica en formato <code>JPG</code> o <code>PNG</code> como entrada del caso diagnóstico.</p><span class="tag">Comprensión de los datos</span></article>
-      <article class="stage" tabindex="0"><span class="num">2</span><h2><code>DermatologyDiagnosticFacade</code></h2><p>Punto de coordinación de cara a la aplicación para la solicitud de diagnóstico y su resultado posterior.</p><span class="tag">Comprensión del negocio</span></article>
-      <article class="stage" tabindex="0"><span class="num">3</span><h2><code>src/preprocessing.py</code></h2><p>La validación, el redimensionamiento a <code>224x224</code> y la normalización de <code>ImageNet</code> preparan el tensor de imagen.</p><span class="tag">Preparación de los datos</span></article>
-      <article class="stage" tabindex="0"><span class="num">4</span><h2>Modelo ViT en CPU</h2><p>La inferencia produce una predicción principal junto con las probabilidades de cada clase.</p><span class="tag">Modelado</span></article>
-      <article class="stage" tabindex="0"><span class="num">5</span><h2>Mapa de calor de gradientes de atención Grad-CAM</h2><p>La evidencia de los gradientes de atención proporciona una explicación visual asociada con la decisión del modelo.</p><span class="tag">Evaluación</span></article>
-      <article class="stage" tabindex="0"><span class="num">6</span><h2>Salida <code>DiagnosticResult</code> de Streamlit</h2><p>La interfaz presenta el resultado principal, las probabilidades y el mapa de calor explicativo para su revisión.</p><span class="tag">Despliegue</span></article>
+    <section class="dashboard-hero" aria-labelledby="titulo-principal">
+      <div><div class="eyebrow">Entregable 2 · mapa mental de despliegue</div><h1 id="titulo-principal">Pipeline de Despliegue y Detección de Bugs</h1><p>Relación entre el pipeline de datos del clasificador dermatológico, CI/CD, SDD, empaquetado y entrega continua en Streamlit.</p><div class="authors"><strong>Integrantes</strong><div class="authors-line"><span>Marlon Valencia Velosa (ID: 1113531444)</span><span class="author-sep">—</span><span>Miguel Angel Ortiz Roldan (Código: 6200485)</span></div></div></div>
+      <div class="hero-actions"><button id="boton-imprimir" class="native-button" type="button">Imprimir a PDF</button></div>
     </section>
-    <section class="notes"><div class="note"><h3>Cómo leer el mapa</h3><p>Las etiquetas de CRISP-DM son anotaciones de fase, no una afirmación de que la aplicación ejecute la metodología completa durante su funcionamiento.</p></div><div class="note teal"><h3>Límite técnico</h3><p>La inferencia en CPU y las operaciones de preprocesamiento nombradas se muestran exactamente como se solicitaron; se omiten intencionalmente los nombres de modelos, conjuntos de datos, métricas e infraestructura de despliegue no verificados.</p></div></section>
-    <footer><span>Artefacto independiente · diseño de pantalla adaptable · listo para imprimir</span><span>Pasá el cursor o enfocá una etapa para resaltar el recorrido.</span></footer>
+
+    <details class="dashboard-panel" open>
+      <summary>Hoja 1 · Journey Map interactivo</summary>
+      <div class="panel-content">
+        <div class="journey-intro"><p>Cada fase conecta una responsabilidad de entrega con código verificable, herramientas reproducibles y una mitigación temprana de bugs. Seleccioná una fase para consultar su vista detallada.</p></div>
+        <section class="journey" role="tablist" aria-label="Fases del pipeline de despliegue">
+          <button class="phase-button" role="tab" aria-selected="true" aria-controls="detalle-journey" data-phase="commit"><span class="phase-number">1</span><h3>Commit</h3><p>Entrada versionada y trazable para el cambio.</p><span class="phase-tag">Git · SDD</span></button>
+          <button class="phase-button" role="tab" aria-selected="false" aria-controls="detalle-journey" data-phase="build"><span class="phase-number">2</span><h3>Build</h3><p>Entorno determinista con dependencias reproducibles.</p><span class="phase-tag"><code>uv sync</code></span></button>
+          <button class="phase-button" role="tab" aria-selected="false" aria-controls="detalle-journey" data-phase="testing"><span class="phase-number">3</span><h3>Testing</h3><p>Pruebas AAA para datos, tensores e integración.</p><span class="phase-tag">PyTest · Ruff</span></button>
+          <button class="phase-button" role="tab" aria-selected="false" aria-controls="detalle-journey" data-phase="staging"><span class="phase-number">4</span><h3>Staging</h3><p>Walking Skeleton integrado en un entorno controlado.</p><span class="phase-tag">CI/CD · SDD</span></button>
+          <button class="phase-button" role="tab" aria-selected="false" aria-controls="detalle-journey" data-phase="deploy"><span class="phase-number">5</span><h3>Deploy Streamlit</h3><p>Entrega continua de una aplicación explicable.</p><span class="phase-tag">Streamlit · ViT</span></button>
+          <button class="phase-button" role="tab" aria-selected="false" aria-controls="detalle-journey" data-phase="monitor"><span class="phase-number">6</span><h3>Monitor y feedback</h3><p>Observación de calidad, sesgos y explicabilidad.</p><span class="phase-tag">Grad-CAM · HAM10000</span></button>
+        </section>
+        <section id="detalle-journey" class="detail-view" role="tabpanel" aria-live="polite" aria-labelledby="fase-activa">
+          <p class="detail-kicker">Vista detallada de la fase</p><h2 id="fase-activa">Commit · especificación trazable</h2><p id="fase-descripcion">El cambio inicia con una intención explícita y una ruta verificable desde el código hasta el despliegue.</p>
+          <div class="detail-columns"><div class="detail-card"><strong>Código</strong><span id="fase-codigo"><code>git commit</code> con contrato de cambio y casos de aceptación.</span></div><div class="detail-card"><strong>Herramientas</strong><span id="fase-herramientas">Git, GitHub y <code>Explore → Propose → Spec</code>.</span></div><div class="detail-card"><strong>Mitigación de bugs</strong><span id="fase-mitigacion">La especificación orienta pruebas pequeñas y una integración progresiva.</span></div></div>
+          <button id="boton-cerrar-detalle" class="native-button close-detail" type="button">Mantener fase seleccionada</button>
+        </section>
+        <div class="summary"><div class="summary-card"><h3>Ruta a producción</h3><p>Dave Farley plantea una única ruta automatizada: Commit → Build → Test → Staging → Deploy, con feedback que fortalece cada entrega.</p></div><div class="summary-card teal"><h3>Entorno y calidad</h3><p>Python 3.13, <code>uv</code>, PyTest, Ruff y Streamlit forman una base reproducible para el clasificador ViT.</p></div></div>
+      </div>
+    </details>
+
+    <details class="dashboard-panel">
+      <summary>Hoja 3 · Mapa conceptual del pipeline</summary>
+      <div class="panel-content concept-map">
+        <p class="concept-intro">Cuatro ramas conectan el pensamiento de entrega continua con la calidad del pipeline de datos, la arquitectura modular y la detección temprana de bugs.</p>
+        <div class="concept-branches">
+          <section class="concept-branch" style="--branch-color:#176b87"><h3>Rama A · Concepto del Pipeline</h3><div class="concept-node"><strong>Dave Farley</strong>Entrega continua como flujo de cambios pequeños, automatizados y observables.</div><div class="concept-node"><strong>Única ruta a producción</strong>El mismo camino verificable conduce desde Commit hasta Deploy Streamlit.</div></section>
+          <section class="concept-branch" style="--branch-color:#0f8b8d"><h3>Rama B · Etapas de Despliegue</h3><div class="concept-node"><strong>Commit → Build</strong>El cambio versionado activa <code>uv sync</code> con Python 3.13.</div><div class="concept-node"><strong>Testing AAA</strong>Arrange, Act, Assert validan preprocesamiento, tensores 224x224 y normalización ImageNet.</div><div class="concept-node"><strong>Staging → Deploy</strong>El Walking Skeleton llega a Streamlit con integración progresiva.</div></section>
+          <section class="concept-branch" style="--branch-color:#7759a6"><h3>Rama C · CI/CD &amp; Spec-Driven Development</h3><div class="concept-node"><strong>SDD</strong>La transición Vibe Coding → <code>Explore → Propose → Spec → Implement &amp; Verify</code> guía el trabajo.</div><div class="concept-node"><strong>Walking Skeleton</strong>Una ruta mínima integra carga, <code>DermatologyDiagnosticFacade</code>, ViT, Grad-CAM y Streamlit.</div><div class="concept-node"><strong>Entregas continuas</strong>CI/CD conserva feedback frecuente, modularidad, alta cohesión y bajo acoplamiento.</div></section>
+          <section class="concept-branch" style="--branch-color:#e77765"><h3>Rama D · Detección Temprana de Bugs</h3><div class="concept-node"><strong>Shift-Left</strong>La calidad se valida desde el commit y acompaña cada etapa del pipeline.</div><div class="concept-node"><strong>PyTest en tensores</strong><code>test_preprocess_img.py</code> comprueba dimensiones 224x224 y normalización ImageNet con AAA.</div><div class="concept-node"><strong>Sesgos en HAM10000</strong>Las pruebas y métricas orientan una lectura responsable del desbalance de clases.</div></section>
+        </div>
+        <div class="pipeline" aria-label="Resumen visual de etapas"><div class="pipeline-step" style="--pipeline-color:#176b87"><strong>Build</strong><code>uv sync</code></div><div class="pipeline-step" style="--pipeline-color:#0f8b8d"><strong>Test</strong><code>uv run pytest</code></div><div class="pipeline-step" style="--pipeline-color:#e77765"><strong>Deploy</strong>Streamlit</div><div class="pipeline-step" style="--pipeline-color:#7759a6"><strong>Verify</strong><code>uv run ruff</code></div></div>
+      </div>
+    </details>
   </main>
+
+  <section class="sheet detail-sheet" aria-labelledby="detalle-tecnico">
+    <header><div><div class="eyebrow">Hoja 2 · ocho artículos técnicos</div><h2 id="detalle-tecnico">Pipeline de datos, arquitectura y entrega</h2><p class="subtitle">Relación entre el código del clasificador y las decisiones de calidad que acompañan el despliegue.</p></div></header>
+    <p>La arquitectura reúne un pipeline de datos explicable, un entorno reproducible y una ruta CI/CD orientada por especificaciones. Cada artículo presenta una responsabilidad cohesiva y una integración desacoplada.</p>
+    <div class="detail-grid">
+      <article class="detail-item"><h3>1. Entorno determinista con uv</h3><p>Python 3.13 y el lockfile de <code>uv</code> sincronizan dependencias mediante <code>uv sync</code>. <code>uv run pytest</code> y <code>uv run ruff</code> proporcionan comprobaciones repetibles para cada entrega.</p></article>
+      <article class="detail-item"><h3>2. Pipeline de datos 224x224</h3><p><code>src/preprocessing.py</code> valida la imagen, convierte a RGB, redimensiona a 224x224 y aplica la normalización ImageNet para construir el tensor esperado por ViT.</p></article>
+      <article class="detail-item"><h3>3. Pruebas AAA en PyTest</h3><p><code>test_preprocess_img.py</code> organiza Arrange, Act, Assert para verificar dimensiones, canales y valores normalizados. El contrato de tensor queda visible desde la primera etapa.</p></article>
+      <article class="detail-item"><h3>4. Inferencia ViT y Grad-CAM</h3><p>El ViT transforma el tensor en logits y probabilidades para HAM10000. Grad-CAM agrega evidencia visual y fortalece la revisión de la decisión del modelo.</p></article>
+      <article class="detail-item"><h3>5. DermatologyDiagnosticFacade</h3><p>La Facade coordina validación, preprocesamiento, inferencia y explicación. La UI recibe un resultado cohesivo, mientras cada componente mantiene un acoplamiento bajo.</p></article>
+      <article class="detail-item"><h3>6. Modularidad y diseño sostenible</h3><p>Alta cohesión en módulos de datos, modelo, explicabilidad y presentación permite evolución independiente. El flujo modular conecta <code>Streamlit</code> con servicios tipados y responsabilidades claras.</p></article>
+      <article class="detail-item"><h3>7. CI/CD, empaquetado y Streamlit</h3><p>El build empaqueta el entorno con <code>uv</code>, el testing valida contratos y staging prueba el Walking Skeleton. El deploy publica una experiencia Streamlit con predicción y Grad-CAM.</p></article>
+      <article class="detail-item"><h3>8. Shift-Left, SDD y sesgos</h3><p>La secuencia <code>Explore → Propose → Spec → Implement &amp; Verify</code> convierte Vibe Coding en entregas guiadas. Las pruebas tempranas y la revisión de HAM10000 hacen visibles dimensiones, calidad y sesgos.</p></article>
+    </div>
+  </section>
+
+  <script>
+    const fases = {
+      commit: { titulo: 'Commit · especificación trazable', descripcion: 'El cambio inicia con una intención explícita y una ruta verificable desde el código hasta el despliegue.', codigo: '<code>git commit</code> con contrato de cambio y casos de aceptación.', herramientas: 'Git, GitHub y <code>Explore → Propose → Spec</code>.', mitigacion: 'La especificación orienta pruebas pequeñas y una integración progresiva.' },
+      build: { titulo: 'Build · entorno reproducible', descripcion: 'El proyecto construye una base determinista para que cada integrante ejecute el mismo pipeline.', codigo: '<code>uv sync</code> instala el lockfile con Python 3.13.', herramientas: '<code>uv</code>, <code>pyproject.toml</code> y CI.', mitigacion: 'La sincronización determinista estabiliza versiones y reduce variaciones del entorno.' },
+      testing: { titulo: 'Testing · contratos del tensor', descripcion: 'Las pruebas AAA comprueban el recorrido de la imagen desde la entrada hasta el tensor listo para ViT.', codigo: '<code>test_preprocess_img.py</code> valida 224x224, canales RGB y normalización ImageNet.', herramientas: '<code>uv run pytest</code> y <code>uv run ruff</code>.', mitigacion: 'Shift-Left hace visibles dimensiones y valores antes de la inferencia.' },
+      staging: { titulo: 'Staging · Walking Skeleton', descripcion: 'Una ruta mínima integra carga, Facade, preprocesamiento, ViT y respuesta explicable en un entorno controlado.', codigo: '<code>DermatologyDiagnosticFacade</code> ensambla el resultado tipado.', herramientas: 'CI/CD, staging y pruebas de integración.', mitigacion: 'La integración temprana confirma los contratos entre módulos de alta cohesión.' },
+      deploy: { titulo: 'Deploy Streamlit · entrega explicable', descripcion: 'La aplicación presenta predicción, probabilidades y Grad-CAM como una experiencia orientativa para revisión dermatológica.', codigo: '<code>st.file_uploader</code>, inferencia ViT y <code>st.image</code>.', herramientas: 'Streamlit, empaquetado <code>uv</code> y pipeline CI/CD.', mitigacion: 'La ruta automatizada conserva una versión probada y trazable en cada publicación.' },
+      monitor: { titulo: 'Monitor y feedback · calidad continua', descripcion: 'La observación reúne evidencia visual, métricas y distribución de clases para orientar la siguiente iteración.', codigo: 'Grad-CAM, métricas de HAM10000 y registros de resultados.', herramientas: 'Feedback CI/CD, PyTest y revisión de datos.', mitigacion: 'La revisión periódica de sesgos y explicaciones fortalece decisiones responsables.' }
+    };
+    const botones = [...document.querySelectorAll('.phase-button')];
+    const detalle = document.querySelector('#detalle-journey');
+    const titulo = document.querySelector('#fase-activa');
+    const descripcion = document.querySelector('#fase-descripcion');
+    const codigo = document.querySelector('#fase-codigo');
+    const herramientas = document.querySelector('#fase-herramientas');
+    const mitigacion = document.querySelector('#fase-mitigacion');
+    function seleccionar(boton) {
+      const fase = fases[boton.dataset.phase];
+      botones.forEach((elemento) => elemento.setAttribute('aria-selected', String(elemento === boton)));
+      titulo.textContent = fase.titulo;
+      descripcion.textContent = fase.descripcion;
+      codigo.innerHTML = fase.codigo;
+      herramientas.innerHTML = fase.herramientas;
+      mitigacion.innerHTML = fase.mitigacion;
+      detalle.setAttribute('aria-labelledby', 'fase-activa');
+    }
+    botones.forEach((boton) => boton.addEventListener('click', () => seleccionar(boton)));
+    document.querySelector('#boton-cerrar-detalle').addEventListener('click', () => botones.find((boton) => boton.getAttribute('aria-selected') === 'true').focus());
+    document.querySelector('#boton-imprimir').addEventListener('click', () => window.print());
+    let detallesAbiertos = [];
+    window.addEventListener('beforeprint', () => { document.querySelectorAll('details:not([open])').forEach((elemento) => { elemento.open = true; detallesAbiertos.push(elemento); }); });
+    window.addEventListener('afterprint', () => { detallesAbiertos.forEach((elemento) => { elemento.open = false; }); detallesAbiertos = []; });
+  </script>
 </body>
 </html>
