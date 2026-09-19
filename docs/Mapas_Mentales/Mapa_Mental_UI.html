@@ -104,8 +104,8 @@
       @media (max-width:650px) { .detail-grid, .pipeline { grid-template-columns:1fr; } .detail-view { padding:21px; } .pipeline-step { border-left:0; border-top:4px solid var(--pipeline-color); } .pipeline-step:not(:last-child)::after { right:auto; top:auto; bottom:-11px; left:50%; transform:rotate(90deg); } }
      @media print {
         /* Medio centimetro (5mm) exacto de margen superior e inferior en TODAS las hojas */
-        @page { size: A4 landscape; margin: 5mm 10mm; }
-        html, body { background: white; -webkit-print-color-adjust: exact; print-color-adjust: exact; padding: 0; margin: 0; box-sizing: border-box; }
+        @page { size: A4 landscape; margin: 0; }
+        html, body { background: white; -webkit-print-color-adjust: exact; print-color-adjust: exact; padding: 5mm 10mm; margin: 0; box-sizing: border-box; }
         
         /* Reordenamiento del PDF con flexbox: 1. Maqueta UI (con Hero) -> 2. Desglose -> 3. Mapa Conceptual */
         body { display: flex !important; flex-direction: column !important; }
@@ -188,7 +188,7 @@
             page-break-before: always !important; 
             break-before: page !important; 
             margin-top: 0 !important; 
-            padding-top: 0 !important; 
+            padding-top: 5mm !important; 
             border-top: none !important; 
         }
         .detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 10px !important; }
@@ -200,7 +200,7 @@
         .dashboard-panel:nth-of-type(2) { 
             page-break-before: always !important; 
             break-before: page !important; 
-            padding-top: 0 !important; 
+            padding-top: 5mm !important; 
             margin-top: 0 !important; 
             border: none !important;
             box-shadow: none !important;
