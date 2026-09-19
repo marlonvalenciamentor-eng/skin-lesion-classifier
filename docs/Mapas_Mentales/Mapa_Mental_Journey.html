@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Skin Lesion Classifier — Diagnostic Journey</title>
+  <title>Clasificador de lesiones cutáneas — recorrido diagnóstico</title>
   <style>
     :root { --navy:#102a43; --blue:#176b87; --cyan:#42c8d5; --teal:#0f8b8d; --ink:#243b53; --muted:#627d98; --line:#c7d8e4; --paper:#f7fbfd; --coral:#e77765; --shadow:0 12px 28px rgba(16,42,67,.10); }
     * { box-sizing:border-box; } html { background:#dfeaf0; color:var(--ink); font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif; } body { margin:0; padding:24px; }
@@ -20,19 +20,19 @@
 </head>
 <body>
   <main class="sheet">
-    <header><div><div class="eyebrow">CRISP-DM × system architecture · journey map</div><h1>Skin Lesion Classifier</h1><p class="subtitle">From image input to an explainable Streamlit result.</p></div><div class="authors"><strong>Project authors</strong>Miguel Angel Ortiz Roldan<br>Marlon Valencia Velosa</div></header>
-    <section class="intro"><p>This staged view makes the diagnostic path legible without adding implementation details beyond the project brief: preparation, CPU inference, visual explanation, and a typed result presented through Streamlit.</p><span class="badge">Left → right diagnostic journey</span></section>
-    <div class="phases" aria-label="CRISP-DM phases"><div class="phase">Business Understanding</div><div class="phase">Data Understanding</div><div class="phase">Data Preparation</div><div class="phase">Modeling</div><div class="phase">Evaluation</div><div class="phase">Deployment</div></div>
-    <section class="journey" aria-label="Diagnostic journey stages">
-      <article class="stage" tabindex="0"><span class="num">1</span><h2>Input</h2><p>Upload a dermoscopic image in <code>JPG</code> or <code>PNG</code> format as the diagnostic case input.</p><span class="tag">Data Understanding</span></article>
-      <article class="stage" tabindex="0"><span class="num">2</span><h2><code>DermatologyDiagnosticFacade</code></h2><p>Application-facing coordination point for the diagnostic request and its downstream result.</p><span class="tag">Business Understanding</span></article>
-      <article class="stage" tabindex="0"><span class="num">3</span><h2><code>src/preprocessing.py</code></h2><p>Validation, resize to <code>224x224</code>, and <code>ImageNet</code> normalization prepare the image tensor.</p><span class="tag">Data Preparation</span></article>
-      <article class="stage" tabindex="0"><span class="num">4</span><h2>ViT Model on CPU</h2><p>Inference produces a top-1 prediction together with class probabilities.</p><span class="tag">Modeling</span></article>
-      <article class="stage" tabindex="0"><span class="num">5</span><h2>Grad-CAM attention-gradient heatmap</h2><p>Attention-gradient evidence provides a visual explanation associated with the model decision.</p><span class="tag">Evaluation</span></article>
-      <article class="stage" tabindex="0"><span class="num">6</span><h2>Streamlit <code>DiagnosticResult</code> output</h2><p>The interface presents the top-1 result, probabilities, and explanatory heatmap for review.</p><span class="tag">Deployment</span></article>
+    <header><div><div class="eyebrow">CRISP-DM × arquitectura del sistema · mapa de recorrido</div><h1>Clasificador de lesiones cutáneas</h1><p class="subtitle">Desde la entrada de la imagen hasta un resultado explicable en Streamlit.</p></div><div class="authors"><strong>Autores del proyecto</strong>Miguel Angel Ortiz Roldan<br>Marlon Valencia Velosa</div></header>
+    <section class="intro"><p>Esta vista por etapas vuelve legible el recorrido diagnóstico sin agregar detalles de implementación más allá del resumen del proyecto: preparación, inferencia en CPU, explicación visual y un resultado tipado presentado mediante Streamlit.</p><span class="badge">Recorrido diagnóstico de izquierda a derecha</span></section>
+    <div class="phases" aria-label="Fases de CRISP-DM"><div class="phase">Comprensión del negocio</div><div class="phase">Comprensión de los datos</div><div class="phase">Preparación de los datos</div><div class="phase">Modelado</div><div class="phase">Evaluación</div><div class="phase">Despliegue</div></div>
+    <section class="journey" aria-label="Etapas del recorrido diagnóstico">
+      <article class="stage" tabindex="0"><span class="num">1</span><h2>Entrada</h2><p>Cargá una imagen dermatoscópica en formato <code>JPG</code> o <code>PNG</code> como entrada del caso diagnóstico.</p><span class="tag">Comprensión de los datos</span></article>
+      <article class="stage" tabindex="0"><span class="num">2</span><h2><code>DermatologyDiagnosticFacade</code></h2><p>Punto de coordinación de cara a la aplicación para la solicitud de diagnóstico y su resultado posterior.</p><span class="tag">Comprensión del negocio</span></article>
+      <article class="stage" tabindex="0"><span class="num">3</span><h2><code>src/preprocessing.py</code></h2><p>La validación, el redimensionamiento a <code>224x224</code> y la normalización de <code>ImageNet</code> preparan el tensor de imagen.</p><span class="tag">Preparación de los datos</span></article>
+      <article class="stage" tabindex="0"><span class="num">4</span><h2>Modelo ViT en CPU</h2><p>La inferencia produce una predicción principal junto con las probabilidades de cada clase.</p><span class="tag">Modelado</span></article>
+      <article class="stage" tabindex="0"><span class="num">5</span><h2>Mapa de calor de gradientes de atención Grad-CAM</h2><p>La evidencia de los gradientes de atención proporciona una explicación visual asociada con la decisión del modelo.</p><span class="tag">Evaluación</span></article>
+      <article class="stage" tabindex="0"><span class="num">6</span><h2>Salida <code>DiagnosticResult</code> de Streamlit</h2><p>La interfaz presenta el resultado principal, las probabilidades y el mapa de calor explicativo para su revisión.</p><span class="tag">Despliegue</span></article>
     </section>
-    <section class="notes"><div class="note"><h3>Reading the map</h3><p>CRISP-DM labels are phase annotations, not a claim that the application executes the full methodology at runtime.</p></div><div class="note teal"><h3>Technical boundary</h3><p>CPU inference and the named preprocessing operations are shown exactly as requested; unverified model names, datasets, metrics, and deployment infrastructure are intentionally omitted.</p></div></section>
-    <footer><span>Standalone artifact · responsive screen layout · print-ready</span><span>Hover or focus a stage to emphasize the path.</span></footer>
+    <section class="notes"><div class="note"><h3>Cómo leer el mapa</h3><p>Las etiquetas de CRISP-DM son anotaciones de fase, no una afirmación de que la aplicación ejecute la metodología completa durante su funcionamiento.</p></div><div class="note teal"><h3>Límite técnico</h3><p>La inferencia en CPU y las operaciones de preprocesamiento nombradas se muestran exactamente como se solicitaron; se omiten intencionalmente los nombres de modelos, conjuntos de datos, métricas e infraestructura de despliegue no verificados.</p></div></section>
+    <footer><span>Artefacto independiente · diseño de pantalla adaptable · listo para imprimir</span><span>Pasá el cursor o enfocá una etapa para resaltar el recorrido.</span></footer>
   </main>
 </body>
 </html>

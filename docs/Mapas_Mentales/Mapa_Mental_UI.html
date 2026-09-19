@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Skin Lesion Classifier — UI Mind Map</title>
+  <title>Clasificador de lesiones cutáneas — mapa mental de la interfaz</title>
   <style>
     :root { --navy:#102a43; --blue:#176b87; --cyan:#42c8d5; --teal:#0f8b8d; --ink:#243b53; --muted:#627d98; --line:#c7d8e4; --paper:#f7fbfd; --coral:#e77765; --shadow:0 12px 28px rgba(16,42,67,.10); }
     * { box-sizing:border-box; }
@@ -62,22 +62,22 @@
 <body>
   <main class="sheet">
     <header>
-      <div><div class="eyebrow">Interface architecture · interactive mind map</div><h1>Skin Lesion Classifier</h1><p class="subtitle">A visual guide to the Streamlit diagnostic screen.</p></div>
-      <div class="authors"><strong>Project authors</strong>Miguel Angel Ortiz Roldan<br>Marlon Valencia Velosa</div>
+      <div><div class="eyebrow">Arquitectura de la interfaz · mapa mental interactivo</div><h1>Clasificador de lesiones cutáneas</h1><p class="subtitle">Guía visual de la pantalla de diagnóstico en Streamlit.</p></div>
+      <div class="authors"><strong>Autores del proyecto</strong>Miguel Angel Ortiz Roldan<br>Marlon Valencia Velosa</div>
     </header>
-    <section class="intro"><p>The left rail names the user-facing Streamlit structure; the right panel translates those nodes into a screen-level wireframe. Coral dashed lines are explanatory connectors, not application data flows.</p><div class="legend"><span><i></i> Streamlit structure</span><span class="wire"><i></i> UI relationship</span></div></section>
-    <section class="map" aria-label="Hybrid Streamlit UI map">
+    <section class="intro"><p>El panel izquierdo nombra la estructura de Streamlit visible para el usuario; el panel derecho traduce esos nodos a una maqueta de pantalla. Las líneas discontinuas coral son conectores explicativos, no flujos de datos de la aplicación.</p><div class="legend"><span><i></i> Estructura de Streamlit</span><span class="wire"><i></i> Relación de la interfaz</span></div></section>
+    <section class="map" aria-label="Mapa híbrido de la interfaz de Streamlit">
       <div class="nodes">
-        <article class="node"><h2>Header</h2><p>Project title, concise diagnostic context, and clear entry point.</p></article>
-        <article class="node"><h2>Sidebar with technical information</h2><p>Technical context and supporting information remain available beside the main task.</p></article>
-        <article class="node accent"><h2>File Upload</h2><p>Image input area for JPG/PNG dermoscopic imagery.</p></article>
-        <article class="node"><h2>Two-column Results Area</h2><p>Comparison space for visual evidence and model output.</p></article>
-        <article class="node"><h2>Probability Bars</h2><p>Readable confidence distribution for the predicted classes.</p></article>
+        <article class="node"><h2>Encabezado</h2><p>Título del proyecto, contexto diagnóstico conciso y punto de entrada claro.</p></article>
+        <article class="node"><h2>Barra lateral con información técnica</h2><p>El contexto técnico y la información de apoyo permanecen disponibles junto a la tarea principal.</p></article>
+        <article class="node accent"><h2>Carga de archivos</h2><p>Área de entrada de imágenes dermatoscópicas en formato JPG/PNG.</p></article>
+        <article class="node"><h2>Área de resultados en dos columnas</h2><p>Espacio de comparación para la evidencia visual y la salida del modelo.</p></article>
+        <article class="node"><h2>Barras de probabilidad</h2><p>Distribución legible de la confianza para las clases predichas.</p></article>
       </div>
-      <div class="mockup-wrap"><p class="mockup-label">Streamlit screen · CSS wireframe</p><div class="screen" aria-label="Static wireframe of the Streamlit screen"><div class="screen-top"><span class="brand">Skin Lesion Classifier</span><span class="dots"><i></i><i></i><i></i></span></div><div class="screen-body"><aside class="screen-side"><h3>Technical information</h3><span class="fake-label">Model</span><div class="fake-control">ViT · CPU inference</div><span class="fake-label">Input format</span><div class="fake-control">JPG / PNG</div><span class="fake-label">Explanation</span><div class="fake-control">Grad-CAM enabled</div></aside><div class="screen-main"><h2>Dermatology diagnostic</h2><p>Upload an image to review the model result and visual explanation.</p><div class="upload">＋ Drop a JPG or PNG image here</div><div class="results"><div class="result-card"><h4>Input &amp; attention</h4><div class="image-placeholder">IMAGE + HEATMAP</div></div><div class="result-card"><h4>Predicted probabilities</h4><div class="bar"><label><span>Class A</span><span>84%</span></label><div class="track"><div class="fill high"></div></div></div><div class="bar"><label><span>Class B</span><span>53%</span></label><div class="track"><div class="fill mid"></div></div></div><div class="bar"><label><span>Class C</span><span>22%</span></label><div class="track"><div class="fill low"></div></div></div></div></div></div></div></div></div><p class="caption">Relationship cue: the technical-information node lands on the mockup sidebar; the remaining nodes point to their corresponding screen regions.</p></div>
+      <div class="mockup-wrap"><p class="mockup-label">Pantalla de Streamlit · maqueta CSS</p><div class="screen" aria-label="Maqueta estática de la pantalla de Streamlit"><div class="screen-top"><span class="brand">Clasificador de lesiones cutáneas</span><span class="dots"><i></i><i></i><i></i></span></div><div class="screen-body"><aside class="screen-side"><h3>Información técnica</h3><span class="fake-label">Modelo</span><div class="fake-control">ViT · inferencia en CPU</div><span class="fake-label">Formato de entrada</span><div class="fake-control">JPG / PNG</div><span class="fake-label">Explicación</span><div class="fake-control">Grad-CAM habilitado</div></aside><div class="screen-main"><h2>Diagnóstico dermatológico</h2><p>Cargá una imagen para revisar el resultado del modelo y la explicación visual.</p><div class="upload">＋ Soltá aquí una imagen JPG o PNG</div><div class="results"><div class="result-card"><h4>Entrada y atención</h4><div class="image-placeholder">IMAGEN + MAPA DE CALOR</div></div><div class="result-card"><h4>Probabilidades predichas</h4><div class="bar"><label><span>Clase A</span><span>84%</span></label><div class="track"><div class="fill high"></div></div></div><div class="bar"><label><span>Clase B</span><span>53%</span></label><div class="track"><div class="fill mid"></div></div></div><div class="bar"><label><span>Clase C</span><span>22%</span></label><div class="track"><div class="fill low"></div></div></div></div></div></div></div></div></div><p class="caption">Clave de relación: el nodo de información técnica se conecta con la barra lateral de la maqueta; los nodos restantes apuntan a sus regiones correspondientes de la pantalla.</p></div>
       <svg class="connectors" viewBox="0 0 1000 520" preserveAspectRatio="none" aria-hidden="true"><path d="M245 115 C390 115 460 105 590 105"></path><path d="M245 210 C410 210 430 225 535 225"></path><path d="M245 300 C390 300 430 315 650 315"></path><path d="M245 390 C420 390 490 390 650 390"></path><circle cx="245" cy="115" r="5"></circle><circle cx="590" cy="105" r="5"></circle><circle cx="245" cy="210" r="5"></circle><circle cx="535" cy="225" r="5"></circle><circle cx="245" cy="300" r="5"></circle><circle cx="650" cy="315" r="5"></circle></svg>
     </section>
-    <footer><span>Standalone artifact · responsive screen layout · print-ready</span><span>Hover a node to emphasize its role.</span></footer>
+    <footer><span>Artefacto independiente · diseño de pantalla adaptable · listo para imprimir</span><span>Pasá el cursor sobre un nodo para resaltar su función.</span></footer>
   </main>
 </body>
 </html>
