@@ -68,9 +68,12 @@
       .toolbar .native-button { background:white; color:var(--blue); }
       .toolbar .native-button:hover, .toolbar .native-button:focus-visible { background:#e8f8fa; }
      .caption { margin:9px 0 0; color:var(--muted); font-size:.72rem; line-height:1.4; }
-     .dashboard-hero { display:grid; grid-template-columns:minmax(0,1.6fr) minmax(250px,.8fr); gap:20px; align-items:stretch; margin-bottom:20px; padding:24px; border:1px solid #c8e1e6; border-radius:16px; background:linear-gradient(120deg,#effbfc,#f8fbfc 62%,#fff8f5); }
-     .dashboard-hero h2 { margin:6px 0 8px; color:var(--navy); font-size:clamp(1.45rem,2.4vw,2.1rem); letter-spacing:-.03em; }
-     .dashboard-hero p { max-width:720px; margin:0; color:var(--muted); line-height:1.55; }
+      .dashboard-hero { display:grid; grid-template-columns:minmax(0,1.6fr) minmax(250px,.8fr); gap:20px; align-items:stretch; margin-bottom:20px; padding:24px; border:1px solid #c8e1e6; border-radius:16px; background:linear-gradient(120deg,#effbfc,#f8fbfc 62%,#fff8f5); }
+      .hero-copy { min-width:0; }
+      .dashboard-hero h2 { margin:6px 0 8px; color:var(--navy); font-size:clamp(1.45rem,2.4vw,2.1rem); letter-spacing:-.03em; }
+      .dashboard-hero p { width:100%; max-width:none; margin:0; color:var(--muted); line-height:1.55; }
+      .dashboard-hero .authors { max-width:none; margin-top:14px; text-align:left; }
+      .hero-actions { display:flex; flex-direction:column; align-items:flex-end; justify-content:flex-start; gap:12px; }
       .hero-meta { display:inline-flex; flex-wrap:wrap; gap:6px 14px; margin-top:10px; color:var(--navy); font-size:.78rem; font-weight:700; }
       .hero-meta span { white-space:nowrap; }
       .hero-meta strong { color:var(--teal); font-size:.68rem; letter-spacing:.08em; text-transform:uppercase; }
@@ -97,7 +100,7 @@
     .detail-item { padding:13px 15px; border:1px solid var(--line); border-left:4px solid var(--teal); border-radius:10px; background:var(--paper); }
     .detail-item h3 { margin:0 0 5px; color:var(--navy); font-size:.9rem; }
     .detail-item p { margin:0; color:var(--muted); font-size:.77rem; line-height:1.48; }
-     @media (max-width:900px) { body { padding:10px; } .sheet { padding:22px 20px; } header, .intro, .dashboard-hero { display:block; } .authors { margin-top:12px; text-align:left; } .legend { justify-content:flex-start; margin-top:12px; } .map, .concept-branches { grid-template-columns:1fr; } .nodes { padding-bottom:0; } }
+      @media (max-width:900px) { body { padding:10px; } .sheet { padding:22px 20px; } header, .intro, .dashboard-hero { display:block; } .hero-actions { align-items:flex-start; margin-top:16px; } .hero-meta { margin-top:0; } .authors { margin-top:12px; text-align:left; } .legend { justify-content:flex-start; margin-top:12px; } .map, .concept-branches { grid-template-columns:1fr; } .nodes { padding-bottom:0; } }
       @media (max-width:650px) { .detail-grid, .pipeline { grid-template-columns:1fr; } .detail-view { padding:21px; } .pipeline-step { border-left:0; border-top:4px solid var(--pipeline-color); } .pipeline-step:not(:last-child)::after { right:auto; top:auto; bottom:-11px; left:50%; transform:rotate(90deg); } }
      @media print {
        @page { size:A4 landscape; margin:8mm; }
@@ -132,8 +135,8 @@
 <body>
   <main class="sheet">
     <section class="dashboard-hero" aria-labelledby="primera-vista">
-      <div><div class="eyebrow">Dashboard Unificado · Primera Vista</div><h2 id="primera-vista">Clasificador de lesiones cutáneas</h2><p>Propuesta visual para una experiencia de diagnóstico explicable: un modelo ViT produce la predicción y Grad-CAM aporta la evidencia visual para interpretarla.</p><div class="authors"><strong>Integrantes</strong>Ortiz · Valencia</div></div>
-       <div class="hero-meta" aria-label="Metadatos del modelo"><span><strong>Modelo:</strong> ViT</span><span><strong>Explicación:</strong> Grad-CAM</span></div>
+      <div class="hero-copy"><div class="eyebrow">Dashboard Unificado · Primera Vista</div><h2 id="primera-vista">Clasificador de lesiones cutáneas</h2><p>Propuesta visual para una experiencia de diagnóstico explicable: un modelo ViT produce la predicción y Grad-CAM aporta la evidencia visual para interpretarla.</p><div class="authors"><strong>Integrantes</strong>Ortiz · Valencia</div></div>
+       <div class="hero-actions"><div class="hero-meta" aria-label="Metadatos del modelo"><span><strong>Modelo:</strong> ViT</span><span><strong>Explicación:</strong> Grad-CAM</span></div><div class="toolbar" aria-label="Acciones del documento"><button id="boton-imprimir" class="native-button" type="button">Imprimir a PDF</button></div></div>
     </section>
     <details class="dashboard-panel">
       <summary>Maqueta UI</summary>
@@ -163,8 +166,7 @@
          <div id="panel-detalle" class="detail-view" role="tabpanel" aria-live="polite" hidden><div id="detalle-contenido"></div><button id="boton-volver" class="native-button" type="button">Volver a la imagen inicial</button></div>
       </div><p class="caption">El hover resalta la zona relacionada y el clic cambia todo el contenido del panel a una vista detallada; la hoja 2 conserva el desglose completo para impresión.</p></div>
         </section>
-        <div class="toolbar" aria-label="Acciones del documento"><button id="boton-imprimir" class="native-button" type="button">Imprimir a PDF</button></div>
-        <footer><span>Artefacto independiente · diseño de pantalla adaptable · listo para imprimir</span><span>Pasá el cursor o enfocá una zona para revisar responsabilidades.</span></footer>
+         <footer><span>Artefacto independiente · diseño de pantalla adaptable · listo para imprimir</span><span>Pasá el cursor o enfocá una zona para revisar responsabilidades.</span></footer>
       </div>
     </details>
     <details class="dashboard-panel">
