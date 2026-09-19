@@ -104,7 +104,7 @@
       @media (max-width:650px) { .detail-grid, .pipeline { grid-template-columns:1fr; } .detail-view { padding:21px; } .pipeline-step { border-left:0; border-top:4px solid var(--pipeline-color); } .pipeline-step:not(:last-child)::after { right:auto; top:auto; bottom:-11px; left:50%; transform:rotate(90deg); } }
      @media print {
        @page { size: A4 landscape; margin: 0; }
-       html, body { background: white; -webkit-print-color-adjust: exact; print-color-adjust: exact; padding: 15mm 10mm; margin: 0; box-sizing: border-box; }
+       html, body { background: white; -webkit-print-color-adjust: exact; print-color-adjust: exact; padding: 0 10mm; margin: 0; box-sizing: border-box; }
        .sheet { min-height: 0; width: 100%; max-width: 100%; padding: 0; border: 0; box-shadow: none; margin: 0; box-sizing: border-box; }
        
        /* Evitar cortes feos en elementos pequeños, pero PERMITIR cortes en los paneles grandes */
@@ -112,7 +112,8 @@
        
        * { box-sizing: border-box; word-wrap: break-word; }
        /* Forzar que el Mapa Conceptual empiece en una pagina nueva limpia */
-       .dashboard-panel:nth-of-type(2) { page-break-before: always; break-before: page; margin-top: 15mm; }
+       .dashboard-panel:nth-of-type(2) { page-break-before: always; break-before: page; padding-top: 15mm; margin-top: 0; }
+       .dashboard-panel:nth-of-type(2) > summary { padding: 0 0 10px 0; } /* Ahorrar espacio vertical */
        
        /* Evitar que el panel de Maqueta UI se rompa si por alguna razon es muy largo */
        .dashboard-panel { break-inside: avoid; page-break-inside: avoid; }
@@ -146,11 +147,11 @@
            border-top: none; 
        }
        .detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-       .dashboard-hero { margin-bottom: 20px; break-inside: avoid; }
+       .dashboard-hero { padding-top: 15mm; margin-bottom: 20px; break-inside: avoid; }
        .concept-branches { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
        .pipeline { grid-template-columns: repeat(4, 1fr); gap: 10px; }
        /* Forzar que el texto y las cajas se encojan en impresion para que no desborden el grid */
-       .concept-node { font-size: 0.8rem; padding: 10px; }
+       .concept-node { font-size: 0.8rem; padding: 8px; margin-bottom: 8px; }
        .concept-branch h3 { font-size: 0.9rem; }
        .pipeline { gap: 2px; }
        .pipeline-step { padding: 5px; font-size: 0.7rem; }
