@@ -103,32 +103,45 @@
       @media (max-width:900px) { body { padding:10px; } .sheet { padding:22px 20px; } header, .intro, .dashboard-hero { display:block; } .hero-actions { align-items:flex-start; margin-top:16px; } .hero-meta { margin-top:0; } .authors { margin-top:12px; text-align:left; } .legend { justify-content:flex-start; margin-top:12px; } .map, .concept-branches { grid-template-columns:1fr; } .nodes { padding-bottom:0; } }
       @media (max-width:650px) { .detail-grid, .pipeline { grid-template-columns:1fr; } .detail-view { padding:21px; } .pipeline-step { border-left:0; border-top:4px solid var(--pipeline-color); } .pipeline-step:not(:last-child)::after { right:auto; top:auto; bottom:-11px; left:50%; transform:rotate(90deg); } }
      @media print {
-       @page { size:A4 landscape; margin:8mm; }
-       html { background:white; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
-       body { padding:0; }
-       .sheet { min-height:0; max-width:none; padding:0; border:0; box-shadow:none; }
-        .node, .screen, .result-card, .detail-item, .dashboard-panel, .concept-branch, .pipeline { break-inside:avoid; }
-        .toolbar { display:none !important; }
-        .dashboard-panel > summary { display:block; padding:10px 0; }
-        .dashboard-panel > summary::marker { content:''; }
-         details:not([open]) > :not(summary) { display:block !important; }
-         .dashboard-panel:not([open]) > .panel-content, .dashboard-panel[open] > .panel-content { display:block !important; }
-       .map { grid-template-columns:minmax(220px,.78fr) minmax(0,1.5fr); gap:14px; }
-       .screen { min-height:350px; overflow:visible; }
-       .screen-body { display:grid !important; grid-template-columns:28% 72%; min-height:305px; }
-        .screen-body[hidden] { display:grid !important; }
-        .detail-view[hidden] { display:block !important; }
-       .screen-main { min-width:0; padding:13px; }
-       .results { gap:8px; }
-       .image-placeholder { height:88px; }
-       footer { margin-top:9px; }
-        .detail-view:not([hidden]) { display:block !important; break-inside:avoid; }
-       .hotspot.is-highlighted { z-index:auto; background:inherit; box-shadow:none; }
-        .detail-sheet { display:block; margin-top:22px; padding-top:18px; border-top:2px solid var(--cyan); }
-        .detail-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
-        .dashboard-hero { margin-bottom:12px; }
-        .concept-branches { grid-template-columns:repeat(3,minmax(0,1fr)); }
-        .pipeline { grid-template-columns:repeat(4,1fr); }
+       @page { size: A4 landscape; margin: 10mm; }
+       html, body { background: white; -webkit-print-color-adjust: exact; print-color-adjust: exact; padding: 0; margin: 0; }
+       .sheet { min-height: 0; max-width: none; padding: 0; border: 0; box-shadow: none; margin: 0; }
+       
+       /* Evitar cortes feos en elementos pequeños, pero PERMITIR cortes en los paneles grandes */
+       .node, .result-card, .detail-item, .concept-branch, .pipeline-step { break-inside: avoid; page-break-inside: avoid; }
+       .dashboard-panel { break-inside: auto; page-break-inside: auto; margin-bottom: 20px; }
+       
+       .toolbar { display: none !important; }
+       
+       /* Forzar paneles cerrados a abrirse al imprimir */
+       .dashboard-panel > summary { display: block; padding: 10px 0; border: none; background: transparent; pointer-events: none; }
+       .dashboard-panel > summary::marker, .dashboard-panel > summary::-webkit-details-marker { display: none; content: ''; }
+       details:not([open]) > :not(summary) { display: block !important; }
+       .dashboard-panel:not([open]) > .panel-content, .dashboard-panel[open] > .panel-content { display: block !important; }
+       
+       /* Fix para la Maqueta UI: Mostrar SOLO la pantalla principal, ocultar el panel interactivo */
+       .screen-body { display: grid !important; }
+       .detail-view { display: none !important; } /* Ocultamos el interactivo porque la hoja 2 tiene el desglose */
+       
+       .map { grid-template-columns: minmax(250px, .78fr) minmax(0, 1.5fr); gap: 14px; }
+       .screen { min-height: 0; overflow: hidden; break-inside: avoid; }
+       .screen-main { min-width: 0; padding: 13px; }
+       .results { gap: 8px; }
+       footer { display: none !important; } /* Ocultar footer innecesario en PDF */
+       
+       /* Forzar salto de página para la hoja de detalles */
+       .detail-sheet { 
+           display: block !important; 
+           page-break-before: always; 
+           break-before: page; 
+           margin-top: 0; 
+           padding-top: 0; 
+           border-top: none; 
+       }
+       .detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+       .dashboard-hero { margin-bottom: 20px; break-inside: avoid; }
+       .concept-branches { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 15px; }
+       .pipeline { grid-template-columns: repeat(4, 1fr); gap: 10px; }
       }
   </style>
 </head>
