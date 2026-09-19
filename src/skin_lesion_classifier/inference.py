@@ -88,6 +88,7 @@ class ClassificationModelProtocol(Protocol):
 
     def eval(self) -> Any: ...
     def __call__(self, **kwargs: Any) -> Any: ...
+
     config: Any
 
 
