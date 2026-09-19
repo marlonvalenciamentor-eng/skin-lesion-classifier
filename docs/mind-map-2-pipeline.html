@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Mapa Mental Entrega 2</title>
+<style>
+  @page { size: 420mm 260mm; margin: 0; }
+  :root {
+    --ink: #1a1d29; --muted: #5b6072; --line: #dfe3ec; --bg: #f5f7fb;
+    --blue: #2f6fed; --green: #1f9d55; --orange: #e0891b; --purple: #8b45d6; --red: #d64545;
+    --project: #0e7c86;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #fff; color: var(--ink);
+    font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .page { width: 420mm; height: 260mm; padding: 9mm 10mm; page-break-after: always; position: relative; display: flex; flex-direction: column; }
+  .page:last-child { page-break-after: auto; }
+
+  /* Header */
+  .header { display: flex; justify-content: space-between; align-items: flex-start; }
+  .tag { display: inline-block; font-size: 9pt; font-weight: 700; letter-spacing: .04em; color: var(--blue);
+    border: 1px solid var(--blue); border-radius: 6px; padding: 2px 8px; background: #eef3ff; }
+  .tag.p2 { color: var(--purple); border-color: var(--purple); background: #f5edff; }
+  h1 { font-size: 19pt; margin: 6px 0 4px; }
+  .objective { font-size: 9.5pt; color: var(--muted); background: var(--bg); border: 1px solid var(--line);
+    border-radius: 8px; padding: 6px 10px; margin: 6px 0 0; line-height: 1.35; }
+  .objective b { color: var(--ink); }
+  .team { text-align: right; border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px; font-size: 9.5pt; min-width: 78mm; }
+  .team .label { font-size: 8pt; font-weight: 700; letter-spacing: .05em; color: var(--muted); }
+  .team div b { display: block; }
+  .team span { color: var(--blue); font-size: 8.5pt; }
+
+  /* Four theory columns */
+  .columns { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7mm; margin-top: 7mm; flex: 1; }
+  .col { border: 1.5px solid var(--c); border-radius: 12px; padding: 0 0 4mm; background: #fff; }
+  .col h2 { margin: 0; padding: 5mm 4mm 3mm; font-size: 12pt; border-bottom: 1.5px solid var(--c); text-align: center; }
+  .col h2 small { display: block; font-size: 8.5pt; font-weight: 400; color: var(--muted); margin-top: 2px; }
+  .block { margin: 3.5mm 3.5mm 0; border-left: 3px solid var(--c); padding-left: 3mm; }
+  .block .kicker { font-size: 7.5pt; font-weight: 700; color: var(--c); text-transform: uppercase; letter-spacing: .04em; }
+  .block h3 { margin: 1px 0 3px; font-size: 10pt; color: var(--c); }
+  .block ul { margin: 0; padding-left: 4mm; font-size: 8.5pt; line-height: 1.35; }
+  .block li { margin-bottom: 2px; }
+  .block li b { color: var(--ink); }
+
+  /* Project band */
+  .band { margin-top: 6mm; border: 2px solid var(--project); border-radius: 12px; padding: 4mm 5mm; background: #eefafb; }
+  .band h2 { margin: 0 0 3mm; font-size: 12pt; color: var(--project); }
+  .band h2 small { font-weight: 400; color: var(--muted); font-size: 9pt; margin-left: 6px; }
+  .flow { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3mm; }
+  .step { background: #fff; border: 1px solid #bfe3e6; border-radius: 9px; padding: 3mm; font-size: 8.3pt; line-height: 1.3; position: relative; }
+  .step .n { display: inline-block; background: var(--project); color: #fff; border-radius: 999px; width: 16px; height: 16px;
+    font-size: 8pt; text-align: center; line-height: 16px; font-weight: 700; margin-right: 4px; }
+  .step b.t { display: block; color: var(--project); font-size: 9pt; margin-bottom: 2px; }
+  .step:not(:last-child)::after { content: "→"; position: absolute; right: -3.2mm; top: 40%; color: var(--project); font-weight: 700; }
+  code { font-family: Consolas, "Courier New", monospace; font-size: 8pt; background: #eef1f6; padding: 0 3px; border-radius: 3px; }
+
+  /* Synergies */
+  .syn { margin-top: 5mm; border: 1.5px dashed var(--line); border-radius: 12px; padding: 3.5mm 5mm; }
+  .syn h2 { margin: 0 0 3mm; font-size: 10pt; letter-spacing: .04em; color: var(--muted); }
+  .syn .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4mm; }
+  .syn .item { border-left: 3px solid var(--c); padding-left: 3mm; font-size: 8.3pt; line-height: 1.3; }
+  .syn .item b { display: block; color: var(--c); font-size: 9pt; margin-bottom: 1px; }
+
+  /* Page 2: radial mind map */
+  .map-wrap { flex: 1; margin-top: 5mm; border: 1px solid var(--line); border-radius: 12px; position: relative; background: #fff; }
+  .map { position: absolute; inset: 0; }
+  .node { position: absolute; border-radius: 8px; padding: 5px 10px; font-size: 9pt; font-weight: 700; border: 1.5px solid; white-space: nowrap; background: #fff; }
+  .node.center { background: var(--ink); color: #fff; border-color: var(--ink); font-size: 12pt; padding: 10px 18px; }
+  .leaf { position: absolute; border: 1px solid var(--line); border-radius: 6px; padding: 3px 8px; font-size: 8pt; background: #fff; white-space: nowrap; }
+  .leaf.project { border-color: #9ad4d9; background: #f2fbfc; }
+  svg.links { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .footer { display: flex; justify-content: space-between; font-size: 8.5pt; color: var(--muted); margin-top: 3mm; }
+</style>
+</head>
+<body>
+
+<!-- ============================ PAGE 1 ============================ -->
+<section class="page">
+  <div class="header">
+    <div>
+      <span class="tag p2">ENTREGA DE APRENDIZAJE 2</span>
+      <h1>Mapa Mental Entrega 2: Pipeline de Despliegue y Detección de Bugs</h1>
+      <p class="objective"><b>Objetivo:</b> Ahora que has leído el material sobre integración continua, despliegue continuo, concepto de pipeline, la importancia de un pipeline y su relación con la detección de bugs, debes hacer el envío del mapa mental que relacione el pipeline con las etapas de despliegue del proyecto propuesto durante la actividad.</p>
+    </div>
+    <div class="team">
+      <div class="label">INTEGRANTES DEL EQUIPO</div>
+      <div><b>Marlon Valencia Velosa <span>(ID: 1113531444)</span></b></div>
+      <div><b>Miguel Ángel Ortiz Roldán <span>(Cód: 6200485)</span></b></div>
+    </div>
+  </div>
+
+  <div class="columns">
+    <div class="col" style="--c: var(--blue)">
+      <h2>🚀 Concepto del Pipeline <small>Dave Farley · Fundamentos de Ingeniería</small></h2>
+      <div class="block"><div class="kicker">Propósito esencial</div><h3>Única ruta a producción</h3>
+        <ul><li><b>Ruta exclusiva:</b> cualquier cambio debe pasar por el pipeline; garantiza trazabilidad y auditoría total.</li>
+            <li><b>Determinante automatizado:</b> define de forma objetiva si el software está listo para liberarse (<i>releasable state</i>).</li>
+            <li><b>Regla de oro:</b> si requiere pruebas o firmas manuales post-pipeline, no es un pipeline genuino.</li></ul></div>
+      <div class="block"><div class="kicker">Analogía de hardware</div><h3>Segmentación en paralelo (CPU)</h3>
+        <ul><li><b>Pipelining tipo Intel 486:</b> evaluación de instrucciones en etapas superpuestas.</li>
+            <li><b>Flujo de trabajo:</b> el desarrollador espera ~5 min el commit y continúa; las fases largas corren en paralelo.</li></ul></div>
+      <div class="block"><div class="kicker">Estrategia de arranque</div><h3>Walking Skeleton desde el día 1</h3>
+        <ul><li><b>Rebanada mínima:</b> conecta UI, lógica y persistencia de punta a punta.</li>
+            <li><b>Fuerza la automatización:</b> obliga a configurar control de versiones, IaC y despliegue inicial.</li></ul></div>
+    </div>
+
+    <div class="col" style="--c: var(--green)">
+      <h2>⚙️ Etapas de Despliegue <small>Flujo secuencial del artefacto</small></h2>
+      <div class="block"><div class="kicker">Fuente &amp; commit</div><h3>Control de versiones y Commit Stage</h3>
+        <ul><li><b>Fuente única:</b> repositorio central trazable y vinculado a tareas del proyecto.</li>
+            <li><b>Commit Stage (&lt; 5 min):</b> compilación, análisis estático y pruebas unitarias rápidas.</li>
+            <li><b>Pregunta clave:</b> "¿El código hace lo que el desarrollador cree que hace?"</li></ul></div>
+      <div class="block"><div class="kicker">Gestión de artefactos</div><h3>Artefactos inmutables</h3>
+        <ul><li><b>Empaquetado único:</b> imágenes Docker o binarios versionados (JAR, DLL).</li>
+            <li><b>Inmutabilidad:</b> el mismo artefacto probado es el que viaja a los entornos siguientes.</li></ul></div>
+      <div class="block"><div class="kicker">Validación integral</div><h3>Pruebas de aceptación y despliegue</h3>
+        <ul><li><b>Production-like environment:</b> entorno idéntico a producción aprovisionado con IaC.</li>
+            <li><b>Pruebas no funcionales:</b> seguridad, rendimiento, resiliencia y evaluación de usuario.</li></ul></div>
+    </div>
+
+    <div class="col" style="--c: var(--orange)">
+      <h2>🔄 CI / CD &amp; Despliegue <small>Niveles de automatización y filosofía Lean</small></h2>
+      <div class="block"><div class="kicker">Niveles de madurez</div><h3>CI vs. Delivery vs. Deployment</h3>
+        <ul><li><b>Continuous Integration (CI):</b> fusión diaria de cambios respaldada por validación de commit.</li>
+            <li><b>Continuous Delivery (CD):</b> software siempre liberable; pase a producción manual o de negocio.</li>
+            <li><b>Continuous Deployment:</b> despliegue a producción 100% automático sin intervención humana.</li></ul></div>
+      <div class="block"><div class="kicker">Filosofía de flujo</div><h3>Pensamiento Lean &amp; Lead Time</h3>
+        <ul><li><b>Reducción de tiempo de ciclo:</b> minimizar el lapso entre idea, commit y validación real.</li>
+            <li><b>Eliminar desperdicio:</b> automatizar tareas repetitivas y suprimir esperas innecesarias.</li></ul></div>
+      <div class="block"><div class="kicker">Impacto organizacional</div><h3>Cultura DevOps compartida</h3>
+        <ul><li><b>Fronteras difuminadas:</b> Dev observa monitoreo en producción; Ops participa en diseño.</li>
+            <li><b>Frecuencia elevada:</b> entregas seguras y continuas múltiples veces al día.</li></ul></div>
+    </div>
+
+    <div class="col" style="--c: var(--purple)">
+      <h2>🛡️ Detección de Bugs <small>TDD, prevención y calidad en la fuente</small></h2>
+      <div class="block"><div class="kicker">Origen del problema</div><h3>De dónde vienen los errores</h3>
+        <ul><li><b>Causa raíz:</b> desarrolladores bajo presión o sobreconfianza introducen los defectos.</li>
+            <li><b>Antipatrón "curita":</b> parches apresurados (<i>sticking plaster</i>) que colapsan en producción.</li>
+            <li><b>Excepciones triviales:</b> 35% de fallos graves son violaciones básicas en catch/try.</li></ul></div>
+      <div class="block"><div class="kicker">Evidencia empírica</div><h3>La estadística del 77%</h3>
+        <ul><li><b>Reproducibilidad:</b> 77% de bugs en producción son reproducibles con unit tests.</li>
+            <li><b>Fallo rápido (fast failure):</b> el pipeline intercepta el defecto en minutos en la máquina local.</li></ul></div>
+      <div class="block"><div class="kicker">Prevención y ética</div><h3>TDD y calidad sin pedir permiso</h3>
+        <ul><li><b>TDD como diseño:</b> pruebas antes del código generan bajo acoplamiento y alta cohesión.</li>
+            <li><b>Antipatrón QA tardío:</b> esperar semanas a UAT eleva exponencialmente el costo de corrección.</li>
+            <li><b>Deber profesional:</b> no pedir permiso a gerencia para aplicar pruebas y excelencia técnica.</li></ul></div>
+    </div>
+  </div>
+
+  <div class="band">
+    <h2>🧬 Aplicación al proyecto propuesto: <code>skin-lesion-classifier</code> <small>Clasificador de lesiones de piel (ViT + Grad-CAM + Streamlit) · cómo cada etapa del pipeline teórico se materializa en el repositorio</small></h2>
+    <div class="flow">
+      <div class="step"><b class="t"><span class="n">1</span>Fuente única</b>Repositorio GitHub; ramas <code>feature/*</code>; PR obligatorio hacia <code>main</code>; cada PR enlazado a un ticket del Kanban (<code>Closes #N</code>).</div>
+      <div class="step"><b class="t"><span class="n">2</span>Commit Stage</b>GitHub Actions ejecuta <code>ruff check</code>, <code>ruff format --check</code> y <code>pytest</code> en cada PR. Feedback en ~30 s (&lt; 5 min).</div>
+      <div class="step"><b class="t"><span class="n">3</span>Calidad en la fuente</b>TDD con <code>pytest</code>: pruebas antes del código. Unitarias con un ViT pequeño, sin descargar el modelo, para feedback rápido.</div>
+      <div class="step"><b class="t"><span class="n">4</span>Aceptación</b>Pruebas de integración (<code>-m integration</code>) con el modelo real de Hugging Face; inferencia en CPU &lt; 3 s.</div>
+      <div class="step"><b class="t"><span class="n">5</span>Artefacto inmutable</b>Imagen Docker construida con <code>uv</code> y el modelo versionado; el mismo artefacto viaja a todos los entornos.</div>
+      <div class="step"><b class="t"><span class="n">6</span>Despliegue</b>Aplicación Streamlit detrás de una fachada; la UI nunca importa <code>torch</code> ni <code>transformers</code>.</div>
+      <div class="step"><b class="t"><span class="n">7</span>Monitoreo</b>Distribución de predicciones y confianza en producción → detección de <i>data drift</i> → reentrenamiento.</div>
+    </div>
+  </div>
+
+  <div class="syn">
+    <h2>🔗 SINERGIAS Y CONEXIONES TRANSVERSALES DEL PIPELINE DE DESPLIEGUE</h2>
+    <div class="grid">
+      <div class="item" style="--c: var(--blue)"><b>⚡ Commit Stage (CI) ⟷ Prevención del 77% de bugs</b>La retroalimentación en &lt; 5 min de la etapa de commit intercepta en la fuente el 77% de los errores unitarios antes de empaquetar cualquier artefacto.</div>
+      <div class="item" style="--c: var(--green)"><b>⚡ Walking Skeleton ⟷ Infrastructure as Code</b>Construir la primera rebanada arquitectónica funcional obliga al equipo a automatizar entornos idénticos a producción y validar el pipeline desde el día 1.</div>
+      <div class="item" style="--c: var(--orange)"><b>⚡ Continuous Delivery ⟷ Continuous Deployment</b>Ambas disciplinas mantienen el software siempre liberable; la diferencia está en si el paso a producción es una decisión de negocio o una automatización 100%.</div>
+      <div class="item" style="--c: var(--project)"><b>⚡ Pipeline teórico ⟷ Pipeline del proyecto</b>El servicio de inferencia ViT ya se integró vía PR con TDD y CI en verde: el Walking Skeleton del proyecto valida el pipeline de extremo a extremo desde la primera funcionalidad.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ PAGE 2 ============================ -->
+<section class="page">
+  <div class="header">
+    <div>
+      <span class="tag p2">PÁGINA 2 · DIAGRAMA DE IDEAS CONECTADAS</span>
+      <h1>Síntesis Visual: Pipeline de Despliegue y Prevención de Bugs</h1>
+      <p class="objective"><b>Mapa de ideas clave:</b> estructura radial que sintetiza el flujo del pipeline de despliegue, la entrega continua, la erradicación temprana de defectos y su aterrizaje concreto en las etapas de despliegue del proyecto <code>skin-lesion-classifier</code>.</p>
+    </div>
+    <div class="team">
+      <div class="label">INTEGRANTES DEL EQUIPO</div>
+      <div><b>Marlon Valencia Velosa <span>(ID: 1113531444)</span></b></div>
+      <div><b>Miguel Ángel Ortiz Roldán <span>(Cód: 6200485)</span></b></div>
+    </div>
+  </div>
+
+  <div class="map-wrap">
+    <div class="map" id="map">
+      <svg class="links" id="links"></svg>
+      <div class="node center" id="center">Pipeline de Despliegue &amp; Detección de Bugs</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div><b>Síntesis final:</b> el pipeline de despliegue no es solo una herramienta de automatización, sino una disciplina de ingeniería que convierte la calidad en la fuente (TDD) en un software siempre liberable; en <code>skin-lesion-classifier</code> esa disciplina ya corre en cada pull request.</div>
+    <div>Mapa Mental Entrega 2 · Marlon Valencia Velosa (1113531444) · Miguel Ángel Ortiz Roldán (6200485)</div>
+  </div>
+</section>
+
+<script>
+  // Radial mind map: branches on the left and right of the center node, leaves fanning out from each branch.
+  const BRANCHES = [
+    { side: "right", color: "#2f6fed", title: "🚀 Concepto del Pipeline (Farley)", leaves: [
+      "Única ruta auditable y trazable a producción",
+      "Determinante objetivo de liberabilidad",
+      "Segmentación en paralelo (analogía CPU 486)",
+      "Walking Skeleton: arquitectura mínima día 1" ] },
+    { side: "right", color: "#1f9d55", title: "⚙️ Etapas de Despliegue", leaves: [
+      "Control de versiones (fuente única de verdad)",
+      "Commit Stage (< 5 min: compilación y TDD)",
+      "Repositorio de artefactos inmutables (Docker/JAR)",
+      "Acceptance tests (entorno idéntico a producción)",
+      "Pruebas no funcionales (rendimiento y seguridad)" ] },
+    { side: "right", color: "#0e7c86", project: true, title: "🧬 Pipeline del proyecto skin-lesion-classifier", leaves: [
+      "Fuente única: GitHub, ramas feature/*, PR obligatorio a main",
+      "Commit Stage: GitHub Actions con ruff y pytest por PR (~30 s)",
+      "Calidad en la fuente: TDD con pytest sin descargar el modelo",
+      "Aceptación: integración con el modelo real de HF, CPU < 3 s",
+      "Artefacto inmutable: imagen Docker con uv y modelo versionado",
+      "Despliegue: Streamlit tras una fachada, la UI nunca importa torch",
+      "Monitoreo: confianza → data drift → reentrenamiento" ] },
+    { side: "left", color: "#e0891b", title: "🔄 Integración & Despliegue Continuo", leaves: [
+      "Integración continua (CI: commit stage rápido)",
+      "Continuous Delivery (software siempre liberable)",
+      "Continuous Deployment (pase 100% automático a prod)",
+      "Pensamiento Lean: reducción del tiempo de ciclo" ] },
+    { side: "left", color: "#8b45d6", title: "🛡️ Detección de Bugs (calidad en la fuente)", leaves: [
+      "Origen: desarrollador bajo presión (antipatrón curita)",
+      "77% de fallos de producción reproducibles con unit tests",
+      "35% de fallos catastróficos por excepciones triviales",
+      "TDD: pruebas antes del código (bajo acoplamiento)",
+      "Responsabilidad técnica sin pedir permiso a gerencia" ] },
+  ];
+
+  const map = document.getElementById("map");
+  const svg = document.getElementById("links");
+  const center = document.getElementById("center");
+  const W = map.clientWidth, H = map.clientHeight;
+  const LEAF_GAP = 30, LEAF_OFFSET = 28, BRANCH_OFFSET = 120;
+
+  function place(el, x, y, anchor) {
+    el.style.top = (y - el.offsetHeight / 2) + "px";
+    el.style.left = (anchor === "left" ? x : x - el.offsetWidth) + "px";
+  }
+  function link(x1, y1, x2, y2, color, width) {
+    const dx = (x2 - x1) / 2;
+    const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    p.setAttribute("d", `M ${x1} ${y1} C ${x1 + dx} ${y1}, ${x2 - dx} ${y2}, ${x2} ${y2}`);
+    p.setAttribute("stroke", color); p.setAttribute("stroke-width", width); p.setAttribute("fill", "none");
+    svg.appendChild(p);
+  }
+
+  center.style.left = (W / 2 - center.offsetWidth / 2) + "px";
+  center.style.top = (H / 2 - center.offsetHeight / 2) + "px";
+
+  // Both sides share the same vertical extent so the map stays balanced around the center node.
+  const spanOf = group => group.reduce((n, b) => n + b.leaves.length * LEAF_GAP, 0);
+  const sides = { left: BRANCHES.filter(b => b.side === "left"), right: BRANCHES.filter(b => b.side === "right") };
+  const targetSpan = Math.max(spanOf(sides.left), spanOf(sides.right)) + 2 * 34;
+
+  for (const side of ["left", "right"]) {
+    const group = sides[side];
+    const gap = (targetSpan - spanOf(group)) / (group.length - 1);
+    let y = H / 2 - targetSpan / 2;
+    const dir = side === "right" ? 1 : -1;
+    const branchX = W / 2 + dir * BRANCH_OFFSET;
+    for (const b of group) {
+      const span = b.leaves.length * LEAF_GAP;
+      const by = y + span / 2;
+      const node = document.createElement("div");
+      node.className = "node"; node.textContent = b.title;
+      node.style.borderColor = b.color; node.style.color = b.color;
+      if (b.project) node.style.background = "#eefafb";
+      map.appendChild(node);
+      place(node, branchX, by, side === "right" ? "left" : "right");
+      link(W / 2 + dir * center.offsetWidth / 2, H / 2, branchX, by, b.color, 2.2);
+      const nodeEdgeX = branchX + dir * node.offsetWidth;
+      const leafX = nodeEdgeX + dir * LEAF_OFFSET;
+      b.leaves.forEach((text, i) => {
+        const leaf = document.createElement("div");
+        leaf.className = "leaf" + (b.project ? " project" : ""); leaf.textContent = text;
+        map.appendChild(leaf);
+        const ly = y + i * LEAF_GAP + LEAF_GAP / 2;
+        place(leaf, leafX, ly, side === "right" ? "left" : "right");
+        link(nodeEdgeX, by, leafX, ly, b.color, 1.3);
+      });
+      y += span + gap;
+    }
+  }
+</script>
+</body>
+</html>
