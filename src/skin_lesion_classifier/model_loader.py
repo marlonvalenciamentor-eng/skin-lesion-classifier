@@ -72,6 +72,15 @@ def validate_model_integrity(model: ViTForImageClassification) -> None:
         )
 
     id2label = getattr(model.config, "id2label", {})
+    # Validar que los identificadores numéricos cubran exactamente 0..6
+    expected_ids = set(range(EXPECTED_LABELS_COUNT))
+    actual_ids = {int(k) for k in id2label.keys()} if id2label else set()
+    if actual_ids != expected_ids:
+        raise ModelLoadingError(
+            f"Fallo de integridad arquitectónica: Los índices de id2label {actual_ids} "
+            f"no cubren la secuencia esperada 0..{EXPECTED_LABELS_COUNT - 1}."
+        )
+
     model_labels = set(id2label.values())
     if model_labels != EXPECTED_MODEL_LABELS:
         missing = EXPECTED_MODEL_LABELS - model_labels
@@ -80,6 +89,17 @@ def validate_model_integrity(model: ViTForImageClassification) -> None:
             f"Fallo de integridad clínica: Las etiquetas del modelo no coinciden con HAM10000. "
             f"Faltantes: {missing or 'Ninguna'}, Inesperadas: {unexpected or 'Ninguna'}."
         )
+
+    # Validar correspondencia biyectiva estricta con label2id si existe en config
+    label2id = getattr(model.config, "label2id", None)
+    if label2id is not None:
+        for idx_raw, label in id2label.items():
+            idx = int(idx_raw)
+            if label not in label2id or int(label2id[label]) != idx:
+                raise ModelLoadingError(
+                    f"Fallo de integridad clínica: Inconsistencia biyectiva entre "
+                    f"id2label[{idx}]='{label}' y label2id."
+                )
 
 
 def load_inference_service(model_id: str = MODEL_ID) -> InferenceService:

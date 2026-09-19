@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 from PIL import Image
 
-from skin_lesion_classifier.inference import HAM10000_LABELS
+from skin_lesion_classifier.inference import HAM10000_LABELS, InferenceService
 from skin_lesion_classifier.model_loader import (
     EXPECTED_MODEL_LABELS,
     MODEL_ID,
@@ -40,9 +40,52 @@ def test_validate_model_integrity_passes_on_valid_ham10000_labels() -> None:
     fake_model = MagicMock()
     fake_model.config.num_labels = 7
     fake_model.config.id2label = {idx: label for idx, label in enumerate(EXPECTED_MODEL_LABELS)}
+    fake_model.config.label2id = {label: idx for idx, label in enumerate(EXPECTED_MODEL_LABELS)}
 
     # Must pass without raising any exception
     validate_model_integrity(fake_model)
+
+
+def test_validate_model_integrity_raises_on_invalid_id2label_indices() -> None:
+    fake_model = MagicMock()
+    fake_model.config.num_labels = 7
+    # Indices are 10..16 instead of 0..6
+    fake_model.config.id2label = {
+        idx + 10: label for idx, label in enumerate(EXPECTED_MODEL_LABELS)
+    }
+
+    with pytest.raises(ModelLoadingError, match="Fallo de integridad arquitectónica"):
+        validate_model_integrity(fake_model)
+
+
+def test_validate_model_integrity_raises_on_label2id_inconsistency() -> None:
+    fake_model = MagicMock()
+    fake_model.config.num_labels = 7
+    fake_model.config.id2label = {idx: label for idx, label in enumerate(EXPECTED_MODEL_LABELS)}
+    # Inconsistent label2id mapping
+    labels_list = list(EXPECTED_MODEL_LABELS)
+    fake_model.config.label2id = {labels_list[i]: (i + 1) % 7 for i in range(7)}
+
+    with pytest.raises(ModelLoadingError, match="Inconsistencia biyectiva"):
+        validate_model_integrity(fake_model)
+
+
+@patch("skin_lesion_classifier.model_loader.ViTImageProcessor.from_pretrained")
+@patch("skin_lesion_classifier.model_loader.ViTForImageClassification.from_pretrained")
+def test_load_inference_service_success_mocked(
+    mock_model_from_pretrained: MagicMock,
+    mock_proc_from_pretrained: MagicMock,
+) -> None:
+    fake_model = MagicMock()
+    fake_model.config.num_labels = 7
+    fake_model.config.id2label = {idx: label for idx, label in enumerate(EXPECTED_MODEL_LABELS)}
+    fake_model.config.label2id = {label: idx for idx, label in enumerate(EXPECTED_MODEL_LABELS)}
+    mock_model_from_pretrained.return_value = fake_model
+    mock_proc_from_pretrained.return_value = MagicMock()
+
+    service = load_inference_service("fake-repo/fake-model")
+    assert isinstance(service, InferenceService)
+    assert service._processor is not None
 
 
 @patch("skin_lesion_classifier.model_loader.ViTForImageClassification.from_pretrained")
