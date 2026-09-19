@@ -61,7 +61,7 @@
     .caption { margin:9px 0 0; color:var(--muted); font-size:.72rem; line-height:1.4; }
     footer { display:flex; justify-content:space-between; gap:20px; margin-top:15px; padding-top:12px; border-top:1px solid #d9e5eb; color:var(--muted); font-size:.7rem; }
     @media (max-width:900px) { body { padding:10px; } .sheet { padding:22px 20px; } header, .intro { display:block; } .authors { margin-top:12px; text-align:left; } .legend { justify-content:flex-start; margin-top:12px; } .map { grid-template-columns:1fr; } .connectors { display:none; } .nodes { padding-bottom:0; } }
-     .detail-sheet { margin-top:24px; padding-top:26px; border-top:2px solid var(--cyan); }
+      .detail-sheet { display:none; margin-top:24px; padding-top:26px; border-top:2px solid var(--cyan); }
      .detail-sheet h2 { margin:0 0 8px; color:var(--navy); font-size:1.45rem; }
      .detail-sheet > p { max-width:900px; margin:0 0 18px; color:var(--muted); font-size:.88rem; line-height:1.55; }
      .detail-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:13px; }
@@ -69,7 +69,7 @@
      .detail-item h3 { margin:0 0 5px; color:var(--navy); font-size:.9rem; }
      .detail-item p { margin:0; color:var(--muted); font-size:.77rem; line-height:1.48; }
      @media (max-width:650px) { .detail-grid { grid-template-columns:1fr; } }
-     @media print { @page { size:A4 landscape; margin:10mm; } html { background:white; } body { padding:0; } .sheet { min-height:0; max-width:none; padding:0; border:0; box-shadow:none; } .node, .screen, .result-card, .detail-item { break-inside:avoid; } .map { grid-template-columns:32% 68%; gap:18px; } .screen { min-height:350px; } .screen-body { min-height:305px; } .screen-main { padding:13px; } .image-placeholder { height:88px; } footer { margin-top:9px; } .detail-sheet { page-break-before:always; margin-top:0; padding-top:0; border-top:0; } .detail-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .screen-detail { min-height:0; } }
+      @media print { @page { size:A4 landscape; margin:10mm; } html { background:white; } body { padding:0; } .sheet { min-height:0; max-width:none; padding:0; border:0; box-shadow:none; } .node, .screen, .result-card, .detail-item { break-inside:avoid; } .map { grid-template-columns:32% 68%; gap:18px; } .screen { min-height:350px; } .screen-body { min-height:305px; } .screen-main { padding:13px; } .image-placeholder { height:88px; } footer { margin-top:9px; } .detail-sheet { display:block; page-break-before:always; margin-top:0; padding-top:0; border-top:0; } .detail-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .screen-detail { min-height:0; } }
   </style>
 </head>
 <body>
