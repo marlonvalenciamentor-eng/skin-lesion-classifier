@@ -102,9 +102,16 @@ class ViTGradCAM:
 
     def _target_layer(self) -> Any:
         try:
-            return self._model.vit.encoder.layer[-1].layernorm_before
+            if hasattr(self._model, "vit"):
+                vit = self._model.vit
+                if hasattr(vit, "layers") and len(vit.layers) > 0:
+                    return vit.layers[-1].layernorm_before
+                has_encoder = hasattr(vit, "encoder") and hasattr(vit.encoder, "layer")
+                if has_encoder and len(vit.encoder.layer) > 0:
+                    return vit.encoder.layer[-1].layernorm_before
         except (AttributeError, IndexError, TypeError) as error:
             raise GradCAMError("No se encontró una capa ViT válida para Grad-CAM.") from error
+        raise GradCAMError("No se encontró una capa ViT válida para Grad-CAM.")
 
     @staticmethod
     def _pixel_values(processed: Any) -> torch.Tensor:

@@ -125,3 +125,19 @@ def test_explain_rejects_unknown_class_and_invalid_tokens() -> None:
     invalid_explainer = ViTGradCAM(invalid_model, SyntheticProcessor())
     with pytest.raises(GradCAMError, match="grilla espacial"):
         invalid_explainer.explain(image)
+
+
+@pytest.mark.integration
+def test_real_vit_gradcam_on_sample_image() -> None:
+    from skin_lesion_classifier.model_loader import load_inference_service
+
+    service = load_inference_service()
+    explainer = ViTGradCAM(service._model, service._processor)
+    image = Image.new("RGB", (600, 450), color=(180, 120, 100))
+
+    result = explainer.explain(image)
+    assert isinstance(result, GradCAMResult)
+    assert result.heatmap.shape == (224, 224)
+    assert 0.0 <= float(result.heatmap.min()) <= float(result.heatmap.max()) <= 1.0
+    assert result.superimposed_image.size == (224, 224)
+    assert result.target_class in service._model.config.id2label.values()
