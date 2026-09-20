@@ -55,5 +55,5 @@ El servicio de inferencia produce una clase HAM10000, pero todavía no expone qu
 - Evidencia de pruebas: `uv run pytest -q tests/test_gradcam.py` → 6 passed; `uv run pytest -q` → 23 passed, 1 deselected.
 - Evidencia de calidad: `uv run ruff check src/skin_lesion_classifier/gradcam.py tests/test_gradcam.py` → All checks passed; `uv run ruff format --check src/skin_lesion_classifier/gradcam.py tests/test_gradcam.py` → 2 files already formatted; `uv run mypy --strict src tests` → Success: no issues found in 9 source files.
 - Integración `uv run pytest -m integration -v` → 1 passed, 23 deselected.
-- No se creó commit; el coordinador conserva la responsabilidad de commits work-unit.
-- Próximo paso: inspección del coordinador y commit work-unit.
+- Commit work-unit: `6d64660 feat(xai): add ViT Grad-CAM explanations`.
+- Próximo paso: entrega del resultado bajo la política ordinaria del repositorio.
