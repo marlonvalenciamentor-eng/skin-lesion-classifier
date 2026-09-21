@@ -6,7 +6,7 @@
 
 # PROPUESTA FORMAL DE PROYECTO: SISTEMA INTELIGENTE DE CLASIFICACIÓN DE LESIONES DERMATOLÓGICAS MEDIANTE VISION TRANSFORMERS Y EXPLICABILIDAD VISUAL (XAI)
 
-**Equipo de Trabajo (Grupo Único):**
+**Equipo de Trabajo:**
 * **Marlon Valencia Velosa** — Código Estudiantil: `1113531444`
 * **Miguel Ángel Ortiz Roldán** — Código Estudiantil: `6200485`
 

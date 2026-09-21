@@ -43,7 +43,7 @@ uv run ruff format .
 ```
 src/skin_lesion_classifier/   # package: image loading, preprocessing, model, Grad-CAM
 tests/                        # pytest suite
-PROPUESTA_PROYECTO.md         # formal project proposal (M2 deliverable)
+docs/propuesta.md             # formal project proposal (M2 deliverable, PDF in docs/)
 CONSTITUTION.md               # architecture principles and dependency rules
 docs/                         # mind maps and other deliverables
 .github/                      # PR template and CI pipeline
@@ -58,5 +58,5 @@ docs/                         # mind maps and other deliverables
 
 - [Kanban board (GitHub Projects)](https://github.com/users/miguelortizR/projects/2)
 - [Model card: Anwarkh1/Skin_Cancer-Image_Classification](https://huggingface.co/Anwarkh1/Skin_Cancer-Image_Classification)
-- [Project proposal](PROPUESTA_PROYECTO.md)
+- [Project proposal](docs/propuesta.md) ([PDF](docs/Propuesta_Proyecto.pdf))
 - [Architecture constitution](CONSTITUTION.md)
