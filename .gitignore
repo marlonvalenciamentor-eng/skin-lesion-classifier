@@ -8,3 +8,12 @@ wheels/
 
 # Virtual environments
 .venv
+
+# Local datasets and model weights
+data/
+models/
+
+# Development tool cache
+.atl/
+.pytest_cache/
+.ruff_cache/
