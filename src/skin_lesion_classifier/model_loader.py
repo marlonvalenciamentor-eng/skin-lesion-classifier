@@ -1,0 +1,164 @@
+"""
+=============================================================================
+MÓDULO: model_loader.py
+PROYECTO: SkinLesionClassifier (Detección Temprana de Cáncer de Piel)
+ARQUITECTURA: Clean Architecture / Resiliencia y Manejo Defensivo de Excepciones
+RESPONSABILIDAD ÚNICA:
+    Cargar, validar la integridad arquitectónica y clínica, y ensamblar el
+    Vision Transformer (ViT) y su procesador de imágenes, gestionando fallos
+    de red, corrupción de archivos o discrepancias en la taxonomía HAM10000.
+
+COMPONENTES:
+    1. MODEL_ID: 'Anwarkh1/Skin_Cancer-Image_Classification' (Modelo ajustado a HAM10000).
+    2. BASE_PROCESSOR_ID: 'google/vit-base-patch16-224-in21k' (Extractor base de características).
+
+OBJETIVO POR FUNCIÓN:
+    - validate_model_integrity(model: ViTForImageClassification) -> None
+      Certifica que el modelo cargado contiene exactamente las 7 neuronas de salida
+      y que sus etiquetas de clasificación corresponden rigurosamente con las
+      7 patologías dermatológicas del benchmark HAM10000.
+
+    - load_inference_service(model_id: str) -> InferenceService
+      Carga los pesos del modelo, inicializa el procesador de tensores y devuelve
+      una instancia de 'InferenceService' mediante inyección de dependencias.
+=============================================================================
+"""
+
+import logging
+
+from transformers import ViTForImageClassification, ViTImageProcessor
+
+from skin_lesion_classifier.inference import MODEL_LABEL_TO_CODE, InferenceService
+
+logger = logging.getLogger(__name__)
+
+# Identificador oficial del modelo en Hugging Face Hub (fine-tuned para 7 clases dermatológicas)
+MODEL_ID = "Anwarkh1/Skin_Cancer-Image_Classification"
+
+# El repositorio del modelo no incluye configuración propia del extractor de imágenes;
+# por tanto, se utiliza el procesador del checkpoint base oficial de Google (224x224 píxeles).
+BASE_PROCESSOR_ID = "google/vit-base-patch16-224-in21k"
+
+# Conjunto canónico de clases patológicas exigidas por el benchmark HAM10000
+EXPECTED_LABELS_COUNT = 7
+EXPECTED_MODEL_LABELS = frozenset(MODEL_LABEL_TO_CODE.keys())
+
+
+class ModelLoadingError(RuntimeError):
+    """Excepción de dominio lanzada cuando el modelo no puede cargarse o no supera la validación."""
+
+    pass
+
+
+def validate_model_integrity(model: ViTForImageClassification) -> None:
+    """
+    Certifica que el modelo cargado cumple estrictamente con la especificación clínica.
+
+    Valida tanto la cantidad de neuronas de salida como la correspondencia exacta
+    de las etiquetas diagnósticas con la taxonomía oficial de HAM10000.
+
+    Args:
+        model (ViTForImageClassification): Instancia del modelo a validar.
+
+    Raises:
+        ModelLoadingError: Si el número de clases difiere de 7 o si las etiquetas
+                           diagnósticas no coinciden con las patologías esperadas.
+    """
+    num_labels = getattr(model.config, "num_labels", None)
+    if num_labels != EXPECTED_LABELS_COUNT:
+        raise ModelLoadingError(
+            f"Fallo de integridad arquitectónica: Se esperaban {EXPECTED_LABELS_COUNT} "
+            f"clases patológicas, pero el modelo tiene {num_labels}."
+        )
+
+    id2label = getattr(model.config, "id2label", {})
+    # Validar que los identificadores numéricos cubran exactamente 0..6
+    expected_ids = set(range(EXPECTED_LABELS_COUNT))
+    actual_ids = {int(k) for k in id2label.keys()} if id2label else set()
+    if actual_ids != expected_ids:
+        raise ModelLoadingError(
+            f"Fallo de integridad arquitectónica: Los índices de id2label {actual_ids} "
+            f"no cubren la secuencia esperada 0..{EXPECTED_LABELS_COUNT - 1}."
+        )
+
+    model_labels = set(id2label.values())
+    if model_labels != EXPECTED_MODEL_LABELS:
+        missing = EXPECTED_MODEL_LABELS - model_labels
+        unexpected = model_labels - EXPECTED_MODEL_LABELS
+        raise ModelLoadingError(
+            f"Fallo de integridad clínica: Las etiquetas del modelo no coinciden con HAM10000. "
+            f"Faltantes: {missing or 'Ninguna'}, Inesperadas: {unexpected or 'Ninguna'}."
+        )
+
+    # Validar presencia obligatoria y correspondencia biyectiva estricta de label2id
+    label2id = getattr(model.config, "label2id", None)
+    if not isinstance(label2id, dict):
+        raise ModelLoadingError(
+            "Fallo de integridad clínica: La configuración del modelo "
+            "debe incluir el diccionario 'label2id'."
+        )
+
+    if set(label2id.keys()) != EXPECTED_MODEL_LABELS:
+        missing_keys = EXPECTED_MODEL_LABELS - set(label2id.keys())
+        extra_keys = set(label2id.keys()) - EXPECTED_MODEL_LABELS
+        raise ModelLoadingError(
+            f"Fallo de integridad clínica: Las claves de 'label2id' no coinciden con HAM10000. "
+            f"Faltantes: {missing_keys or 'Ninguna'}, Inesperadas: {extra_keys or 'Ninguna'}."
+        )
+
+    for idx_raw, label in id2label.items():
+        idx = int(idx_raw)
+        if label not in label2id or int(label2id[label]) != idx:
+            raise ModelLoadingError(
+                f"Fallo de integridad clínica: Inconsistencia biyectiva entre "
+                f"id2label[{idx}]='{label}' y label2id."
+            )
+
+
+def load_inference_service(model_id: str = MODEL_ID) -> InferenceService:
+    """
+    Carga de forma segura el modelo ViT y su procesador con manejo defensivo de excepciones.
+
+    Aplica el principio de Inyección de Dependencias: el modelo y el procesador
+    se configuran aquí y se inyectan en 'InferenceService', permitiendo que la interfaz
+    gráfica (Streamlit) o las pruebas unitarias consuman el servicio sin importar
+    directamente dependencias de bajo nivel como PyTorch o Transformers.
+
+    Args:
+        model_id (str, opcional): Ruta local o ID de Hugging Face del modelo.
+                                  Por defecto utiliza MODEL_ID.
+
+    Returns:
+        InferenceService: Instancia configurada y lista para ejecutar diagnósticos.
+
+    Raises:
+        ModelLoadingError: Si no se encuentra el modelo, falta conexión o los pesos están corruptos.
+    """
+    # 1. Intentar cargar los pesos de la red y su configuración
+    try:
+        model = ViTForImageClassification.from_pretrained(model_id)
+    except (OSError, ValueError) as err:
+        logger.error(f"Error al cargar el modelo desde '{model_id}': {err}")
+        raise ModelLoadingError(
+            f"No fue posible cargar el modelo desde '{model_id}'. "
+            "Verifique la ruta, la integridad del archivo 'model.safetensors' o su conexión a red."
+        ) from err
+    except Exception as err:
+        logger.error(f"Error inesperado al instanciar el modelo: {err}")
+        raise ModelLoadingError(f"Error crítico al inicializar el modelo: {err}") from err
+
+    # 2. Validar integridad de la arquitectura y taxonomía clínica
+    validate_model_integrity(model)
+
+    # 3. Intentar cargar el procesador de imágenes (normalización y redimensionado)
+    try:
+        processor = ViTImageProcessor.from_pretrained(BASE_PROCESSOR_ID)
+    except Exception as err:
+        logger.error(f"Error al cargar el procesador '{BASE_PROCESSOR_ID}': {err}")
+        raise ModelLoadingError(
+            f"No se pudo inicializar el procesador de imágenes '{BASE_PROCESSOR_ID}'. "
+            "Verifique la conectividad con Hugging Face o la caché local."
+        ) from err
+
+    # 4. Retornar el servicio con inyección de dependencias
+    return InferenceService(model=model, processor=processor)
