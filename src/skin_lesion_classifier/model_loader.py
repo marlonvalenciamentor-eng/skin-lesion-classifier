@@ -11,6 +11,7 @@ RESPONSABILIDAD ÚNICA:
 COMPONENTES:
     1. MODEL_ID: 'Anwarkh1/Skin_Cancer-Image_Classification' (Modelo ajustado a HAM10000).
     2. BASE_PROCESSOR_ID: 'google/vit-base-patch16-224-in21k' (Extractor base de características).
+    3. DEFAULT_LOCAL_MODEL_DIR: 'models/vit-skin-cancer' (Copia local preferida, offline-first).
 
 OBJETIVO POR FUNCIÓN:
     - validate_model_integrity(model: ViTForImageClassification) -> None
@@ -18,13 +19,19 @@ OBJETIVO POR FUNCIÓN:
       y que sus etiquetas de clasificación corresponden rigurosamente con las
       7 patologías dermatológicas del benchmark HAM10000.
 
-    - load_inference_service(model_id: str) -> InferenceService
-      Carga los pesos del modelo, inicializa el procesador de tensores y devuelve
-      una instancia de 'InferenceService' mediante inyección de dependencias.
+    - resolve_model_source(local_dir, remote_id, required_files) -> str
+      Decide de dónde cargar un artefacto: el directorio local si está completo,
+      o el identificador remoto de Hugging Face como respaldo.
+
+    - load_inference_service(model_id, processor_id, local_dir) -> InferenceService
+      Carga los pesos y el procesador aplicando política offline-first (local primero,
+      descarga de Hugging Face solo si el directorio local no existe o está incompleto)
+      y devuelve una instancia de 'InferenceService' mediante inyección de dependencias.
 =============================================================================
 """
 
 import logging
+from pathlib import Path
 
 from transformers import ViTForImageClassification, ViTImageProcessor
 
@@ -39,9 +46,50 @@ MODEL_ID = "Anwarkh1/Skin_Cancer-Image_Classification"
 # por tanto, se utiliza el procesador del checkpoint base oficial de Google (224x224 píxeles).
 BASE_PROCESSOR_ID = "google/vit-base-patch16-224-in21k"
 
+# Directorio local preferido para el modelo (relativo a la raíz del proyecto).
+# Si contiene los archivos requeridos, se carga desde disco y no se toca la red.
+DEFAULT_LOCAL_MODEL_DIR = Path("models/vit-skin-cancer")
+
+# Archivos mínimos que certifican que el directorio local está completo.
+MODEL_REQUIRED_FILES = ("config.json", "model.safetensors")
+PROCESSOR_REQUIRED_FILES = ("preprocessor_config.json",)
+
 # Conjunto canónico de clases patológicas exigidas por el benchmark HAM10000
 EXPECTED_LABELS_COUNT = 7
 EXPECTED_MODEL_LABELS = frozenset(MODEL_LABEL_TO_CODE.keys())
+
+
+def resolve_model_source(
+    local_dir: Path | None,
+    remote_id: str,
+    required_files: tuple[str, ...],
+) -> str:
+    """
+    Resuelve de dónde cargar un artefacto: primero el disco local, luego Hugging Face.
+
+    Aplica una política *offline-first*: si el directorio local existe y contiene
+    todos los archivos requeridos, se usa esa ruta. En caso contrario, se devuelve
+    el identificador remoto para que Hugging Face lo descargue o lo tome de su caché.
+
+    Args:
+        local_dir (Path | None): Directorio local candidato. Si es None se omite.
+        remote_id (str): Identificador de Hugging Face usado como respaldo.
+        required_files (tuple[str, ...]): Archivos que deben existir para considerar
+                                          el directorio local como válido.
+
+    Returns:
+        str: Ruta local (como texto) o el identificador remoto.
+    """
+    if local_dir is not None and local_dir.is_dir():
+        missing = [name for name in required_files if not (local_dir / name).is_file()]
+        if not missing:
+            logger.info(f"Usando artefacto local desde '{local_dir}'.")
+            return str(local_dir)
+        logger.warning(
+            f"Directorio local '{local_dir}' incompleto (faltan {missing}); "
+            f"se usará el origen remoto '{remote_id}'."
+        )
+    return remote_id
 
 
 class ModelLoadingError(RuntimeError):
@@ -115,9 +163,18 @@ def validate_model_integrity(model: ViTForImageClassification) -> None:
             )
 
 
-def load_inference_service(model_id: str = MODEL_ID) -> InferenceService:
+def load_inference_service(
+    model_id: str = MODEL_ID,
+    processor_id: str = BASE_PROCESSOR_ID,
+    local_dir: Path | None = DEFAULT_LOCAL_MODEL_DIR,
+) -> InferenceService:
     """
     Carga de forma segura el modelo ViT y su procesador con manejo defensivo de excepciones.
+
+    Política *offline-first*: si el directorio local contiene los archivos requeridos,
+    el modelo y el procesador se cargan desde disco sin tocar la red. Si el directorio
+    no existe o está incompleto, se usa el identificador remoto y Hugging Face realiza
+    la descarga (o la toma de su caché).
 
     Aplica el principio de Inyección de Dependencias: el modelo y el procesador
     se configuran aquí y se inyectan en 'InferenceService', permitiendo que la interfaz
@@ -125,8 +182,10 @@ def load_inference_service(model_id: str = MODEL_ID) -> InferenceService:
     directamente dependencias de bajo nivel como PyTorch o Transformers.
 
     Args:
-        model_id (str, opcional): Ruta local o ID de Hugging Face del modelo.
-                                  Por defecto utiliza MODEL_ID.
+        model_id (str, opcional): ID de Hugging Face del modelo, usado como respaldo.
+        processor_id (str, opcional): ID de Hugging Face del procesador, usado como respaldo.
+        local_dir (Path | None, opcional): Directorio local preferido. Si es None se
+                                           omite y se carga siempre desde el origen remoto.
 
     Returns:
         InferenceService: Instancia configurada y lista para ejecutar diagnósticos.
@@ -134,13 +193,17 @@ def load_inference_service(model_id: str = MODEL_ID) -> InferenceService:
     Raises:
         ModelLoadingError: Si no se encuentra el modelo, falta conexión o los pesos están corruptos.
     """
+    # 0. Resolver el origen de cada artefacto (local primero, remoto como respaldo)
+    model_source = resolve_model_source(local_dir, model_id, MODEL_REQUIRED_FILES)
+    processor_source = resolve_model_source(local_dir, processor_id, PROCESSOR_REQUIRED_FILES)
+
     # 1. Intentar cargar los pesos de la red y su configuración
     try:
-        model = ViTForImageClassification.from_pretrained(model_id)
+        model = ViTForImageClassification.from_pretrained(model_source)
     except (OSError, ValueError) as err:
-        logger.error(f"Error al cargar el modelo desde '{model_id}': {err}")
+        logger.error(f"Error al cargar el modelo desde '{model_source}': {err}")
         raise ModelLoadingError(
-            f"No fue posible cargar el modelo desde '{model_id}'. "
+            f"No fue posible cargar el modelo desde '{model_source}'. "
             "Verifique la ruta, la integridad del archivo 'model.safetensors' o su conexión a red."
         ) from err
     except Exception as err:
@@ -152,11 +215,11 @@ def load_inference_service(model_id: str = MODEL_ID) -> InferenceService:
 
     # 3. Intentar cargar el procesador de imágenes (normalización y redimensionado)
     try:
-        processor = ViTImageProcessor.from_pretrained(BASE_PROCESSOR_ID)
+        processor = ViTImageProcessor.from_pretrained(processor_source)
     except Exception as err:
-        logger.error(f"Error al cargar el procesador '{BASE_PROCESSOR_ID}': {err}")
+        logger.error(f"Error al cargar el procesador '{processor_source}': {err}")
         raise ModelLoadingError(
-            f"No se pudo inicializar el procesador de imágenes '{BASE_PROCESSOR_ID}'. "
+            f"No se pudo inicializar el procesador de imágenes '{processor_source}'. "
             "Verifique la conectividad con Hugging Face o la caché local."
         ) from err
 
