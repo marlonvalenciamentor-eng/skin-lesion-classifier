@@ -1,4 +1,5 @@
 import time
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -8,8 +9,11 @@ from skin_lesion_classifier.inference import HAM10000_LABELS, InferenceService
 from skin_lesion_classifier.model_loader import (
     EXPECTED_MODEL_LABELS,
     MODEL_ID,
+    MODEL_REQUIRED_FILES,
+    PROCESSOR_REQUIRED_FILES,
     ModelLoadingError,
     load_inference_service,
+    resolve_model_source,
     validate_model_integrity,
 )
 
@@ -103,7 +107,7 @@ def test_load_inference_service_success_mocked(
     mock_model_from_pretrained.return_value = fake_model
     mock_proc_from_pretrained.return_value = MagicMock()
 
-    service = load_inference_service("fake-repo/fake-model")
+    service = load_inference_service("fake-repo/fake-model", local_dir=None)
     assert isinstance(service, InferenceService)
     assert service._processor is not None
 
@@ -115,7 +119,72 @@ def test_load_inference_service_raises_on_nonexistent_model(
     mock_from_pretrained.side_effect = OSError("Model repo not found")
 
     with pytest.raises(ModelLoadingError, match="No fue posible cargar el modelo"):
-        load_inference_service("nonexistent/invalid-model-path-12345")
+        load_inference_service("nonexistent/invalid-model-path-12345", local_dir=None)
+
+
+def test_resolve_model_source_prefers_local_when_complete(tmp_path: Path) -> None:
+    for name in MODEL_REQUIRED_FILES:
+        (tmp_path / name).write_text("{}")
+
+    source = resolve_model_source(tmp_path, "remote/model", MODEL_REQUIRED_FILES)
+
+    assert source == str(tmp_path)
+
+
+def test_resolve_model_source_falls_back_when_incomplete(tmp_path: Path) -> None:
+    (tmp_path / "config.json").write_text("{}")  # falta model.safetensors
+
+    source = resolve_model_source(tmp_path, "remote/model", MODEL_REQUIRED_FILES)
+
+    assert source == "remote/model"
+
+
+def test_resolve_model_source_falls_back_when_local_dir_is_none() -> None:
+    source = resolve_model_source(None, "remote/model", MODEL_REQUIRED_FILES)
+
+    assert source == "remote/model"
+
+
+@patch("skin_lesion_classifier.model_loader.ViTImageProcessor.from_pretrained")
+@patch("skin_lesion_classifier.model_loader.ViTForImageClassification.from_pretrained")
+def test_load_inference_service_uses_local_dir_when_complete(
+    mock_model_from_pretrained: MagicMock,
+    mock_proc_from_pretrained: MagicMock,
+    tmp_path: Path,
+) -> None:
+    for name in (*MODEL_REQUIRED_FILES, *PROCESSOR_REQUIRED_FILES):
+        (tmp_path / name).write_text("{}")
+    fake_model = MagicMock()
+    fake_model.config.num_labels = 7
+    fake_model.config.id2label = {idx: label for idx, label in enumerate(EXPECTED_MODEL_LABELS)}
+    fake_model.config.label2id = {label: idx for idx, label in enumerate(EXPECTED_MODEL_LABELS)}
+    mock_model_from_pretrained.return_value = fake_model
+    mock_proc_from_pretrained.return_value = MagicMock()
+
+    load_inference_service("remote/model", local_dir=tmp_path)
+
+    mock_model_from_pretrained.assert_called_once_with(str(tmp_path))
+    mock_proc_from_pretrained.assert_called_once_with(str(tmp_path))
+
+
+@patch("skin_lesion_classifier.model_loader.ViTImageProcessor.from_pretrained")
+@patch("skin_lesion_classifier.model_loader.ViTForImageClassification.from_pretrained")
+def test_load_inference_service_downloads_when_local_dir_missing(
+    mock_model_from_pretrained: MagicMock,
+    mock_proc_from_pretrained: MagicMock,
+    tmp_path: Path,
+) -> None:
+    fake_model = MagicMock()
+    fake_model.config.num_labels = 7
+    fake_model.config.id2label = {idx: label for idx, label in enumerate(EXPECTED_MODEL_LABELS)}
+    fake_model.config.label2id = {label: idx for idx, label in enumerate(EXPECTED_MODEL_LABELS)}
+    mock_model_from_pretrained.return_value = fake_model
+    mock_proc_from_pretrained.return_value = MagicMock()
+
+    load_inference_service("remote/model", "remote/processor", local_dir=tmp_path / "missing")
+
+    mock_model_from_pretrained.assert_called_once_with("remote/model")
+    mock_proc_from_pretrained.assert_called_once_with("remote/processor")
 
 
 @pytest.mark.integration
