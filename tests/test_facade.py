@@ -100,10 +100,38 @@ def test_diagnose_explains_predicted_top1_class_by_default() -> None:
     )
 
     # Act
-    facade.diagnose(make_image())
+    result = facade.diagnose(make_image())
 
     # Assert
-    assert explainer.last_target_class == "mel"
+    assert explainer.last_target_class == "melanoma"
+    assert result.target_class == "mel"
+
+
+def test_diagnose_maps_each_ham10000_code_to_model_label() -> None:
+    # Arrange
+    expected_mapping = {
+        "mel": "melanoma",
+        "nv": "melanocytic_Nevi",
+        "bcc": "basal_cell_carcinoma",
+        "akiec": "actinic_keratoses",
+        "bkl": "benign_keratosis-like_lesions",
+        "df": "dermatofibroma",
+        "vasc": "vascular_lesions",
+    }
+
+    for code, model_label in expected_mapping.items():
+        explainer = FakeExplainer()
+        facade = DermatologyDiagnosticFacade(
+            inference_service=FakePredictionProvider(make_prediction(label=code)),
+            explainer=explainer,
+        )
+
+        # Act
+        result = facade.diagnose(make_image())
+
+        # Assert
+        assert explainer.last_target_class == model_label
+        assert result.target_class == code
 
 
 def test_diagnose_forwards_explicit_target_class() -> None:
@@ -115,10 +143,11 @@ def test_diagnose_forwards_explicit_target_class() -> None:
     )
 
     # Act
-    facade.diagnose(make_image(), target_class="nv")
+    result = facade.diagnose(make_image(), target_class="nv")
 
     # Assert
-    assert explainer.last_target_class == "nv"
+    assert explainer.last_target_class == "melanocytic_Nevi"
+    assert result.target_class == "nv"
 
 
 def test_diagnose_propagates_inference_error() -> None:
