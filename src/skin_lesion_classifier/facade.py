@@ -22,8 +22,13 @@ import numpy as np
 from PIL import Image
 
 from skin_lesion_classifier.gradcam import GradCAMResult, ViTGradCAM
-from skin_lesion_classifier.inference import InferenceService, Prediction
+from skin_lesion_classifier.inference import MODEL_LABEL_TO_CODE, InferenceService, Prediction
 from skin_lesion_classifier.model_loader import load_inference_service
+
+# Inverso de MODEL_LABEL_TO_CODE: código corto HAM10000 -> etiqueta larga del modelo.
+# El explainer (ViTGradCAM) resuelve clases contra model.config.id2label, que usa las
+# etiquetas largas de Hugging Face; la fachada traduce entre ambos dominios.
+CODE_TO_MODEL_LABEL = {code: label for label, code in MODEL_LABEL_TO_CODE.items()}
 
 
 class PredictionProvider(Protocol):
@@ -134,9 +139,10 @@ class DermatologyDiagnosticFacade:
             GradCAMError: Si falla la generación del mapa de explicabilidad.
         """
         prediction = self._inference_service.predict(image)
+        resolved_target = target_class or prediction.label
         explanation = self._explainer.explain(
             image,
-            target_class=target_class or prediction.label,
+            target_class=CODE_TO_MODEL_LABEL[resolved_target],
         )
         return DiagnosticResult(
             label=prediction.label,
@@ -144,5 +150,5 @@ class DermatologyDiagnosticFacade:
             probabilities=prediction.probabilities,
             heatmap=explanation.heatmap,
             superimposed_image=explanation.superimposed_image,
-            target_class=explanation.target_class,
+            target_class=resolved_target,
         )
