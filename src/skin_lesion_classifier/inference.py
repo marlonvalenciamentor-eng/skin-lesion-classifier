@@ -100,6 +100,9 @@ class InferenceService:
     (pesos reales de Hugging Face o mocks sintéticos para pruebas unitarias rápidas).
     """
 
+    _model: ClassificationModelProtocol
+    _processor: ImageProcessorProtocol
+
     def __init__(
         self,
         model: ClassificationModelProtocol,
@@ -114,6 +117,16 @@ class InferenceService:
         """
         self._model = model.eval()
         self._processor = processor
+
+    @property
+    def model(self) -> ClassificationModelProtocol:
+        """Modelo ViT inyectado, expuesto read-only para la orquestación (fachada)."""
+        return self._model
+
+    @property
+    def processor(self) -> ImageProcessorProtocol:
+        """Procesador de imágenes inyectado, expuesto read-only para la orquestación (fachada)."""
+        return self._processor
 
     def predict(self, image: Image.Image) -> Prediction:
         """
