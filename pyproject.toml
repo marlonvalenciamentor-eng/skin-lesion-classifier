@@ -9,13 +9,8 @@ authors = [
 ]
 requires-python = ">=3.13"
 dependencies = [
-    "matplotlib>=3.11.2",
-    "numpy>=2.5.3",
     "pillow>=11.0",
-    "streamlit>=1.64.0",
-    "torch>=2.6",
-    "torchvision>=0.21",
-    "transformers>=4.50",
+    "pydantic>=2.9",
 ]
 
 [build-system]
@@ -23,12 +18,34 @@ requires = ["uv_build>=0.12.9,<0.13.0"]
 build-backend = "uv_build"
 
 [dependency-groups]
+# Inference service: owns the model (ViT + Grad-CAM). Never installed alongside a
+# lean UI-only image; see docker/api.Dockerfile / docker/ui.Dockerfile.
+api = [
+    "fastapi>=0.115",
+    "matplotlib>=3.11.2",
+    "numpy>=2.5.3",
+    "python-multipart>=0.0.20",
+    "torch>=2.6",
+    "torchvision>=0.21",
+    "transformers>=4.50",
+    "uvicorn[standard]>=0.34",
+]
+# Web UI: talks to the inference API over HTTP only. Must never pull in torch or
+# transformers; enforced by tests/test_api_client.py's subprocess import check.
+ui = [
+    "httpx>=0.28",
+    "streamlit>=1.64.0",
+]
 dev = [
+    "httpx>=0.28",
     "mypy>=2.3.1",
     "pytest>=9.1.1",
     "pytest-cov>=7.1.0",
     "ruff>=0.16.8",
 ]
+
+[tool.uv]
+default-groups = ["dev", "api", "ui"]
 
 [tool.uv.sources]
 torch = { index = "pytorch-cpu" }
