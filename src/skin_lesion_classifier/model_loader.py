@@ -23,7 +23,7 @@ OBJETIVO POR FUNCIÓN:
       Decide de dónde cargar un artefacto: el directorio local si está completo,
       o el identificador remoto de Hugging Face como respaldo.
 
-    - load_inference_service(model_id, processor_id, local_dir) -> InferenceService
+    - load_inference_service(model_id, processor_id, local_dir, revision) -> InferenceService
       Carga los pesos y el procesador aplicando política offline-first (local primero,
       descarga de Hugging Face solo si el directorio local no existe o está incompleto)
       y devuelve una instancia de 'InferenceService' mediante inyección de dependencias.
@@ -32,6 +32,7 @@ OBJETIVO POR FUNCIÓN:
 
 import logging
 from pathlib import Path
+from typing import Any
 
 from transformers import ViTForImageClassification, ViTImageProcessor
 
@@ -167,6 +168,7 @@ def load_inference_service(
     model_id: str = MODEL_ID,
     processor_id: str = BASE_PROCESSOR_ID,
     local_dir: Path | None = DEFAULT_LOCAL_MODEL_DIR,
+    revision: str | None = None,
 ) -> InferenceService:
     """
     Carga de forma segura el modelo ViT y su procesador con manejo defensivo de excepciones.
@@ -186,6 +188,9 @@ def load_inference_service(
         processor_id (str, opcional): ID de Hugging Face del procesador, usado como respaldo.
         local_dir (Path | None, opcional): Directorio local preferido. Si es None se
                                            omite y se carga siempre desde el origen remoto.
+        revision (str | None, opcional): Commit/revisión fija del modelo remoto. Solo se
+                                         aplica si el modelo se descarga de Hugging Face;
+                                         un directorio local no usa revisiones.
 
     Returns:
         InferenceService: Instancia configurada y lista para ejecutar diagnósticos.
@@ -198,8 +203,11 @@ def load_inference_service(
     processor_source = resolve_model_source(local_dir, processor_id, PROCESSOR_REQUIRED_FILES)
 
     # 1. Intentar cargar los pesos de la red y su configuración
+    model_kwargs: dict[str, Any] = {}
+    if revision is not None and model_source == model_id:
+        model_kwargs["revision"] = revision
     try:
-        model = ViTForImageClassification.from_pretrained(model_source)
+        model = ViTForImageClassification.from_pretrained(model_source, **model_kwargs)
     except (OSError, ValueError) as err:
         logger.error(f"Error al cargar el modelo desde '{model_source}': {err}")
         raise ModelLoadingError(

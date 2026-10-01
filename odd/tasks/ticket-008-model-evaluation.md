@@ -61,7 +61,7 @@ documentar explícitamente la contaminación. No se afirma generalización.
 - [x] T008-3 Carga del split (`evaluation_dataset.py`): lectura del parquet fijado desde el
       caché HF, mapeo `dx` → código corto, conjunto de `image_id` de `train` para el
       subconjunto sin solapamiento. Ruta: delegada (writer).
-- [ ] T008-4 Ejecutor y CLI (`evaluation.py`, `uv run python -m
+- [x] T008-4 Ejecutor y CLI (`evaluation.py`, `uv run python -m
       skin_lesion_classifier.evaluation`): evalúa con `PredictionProvider` inyectado, mide
       latencia por imagen, ejecuta escenarios de robustez, guarda JSON + PNG y overlays
       Grad-CAM de muestra en `reports/evaluation/`. Ruta: delegada (writer).
