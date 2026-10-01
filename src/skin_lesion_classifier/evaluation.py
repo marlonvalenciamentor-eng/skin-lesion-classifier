@@ -159,7 +159,8 @@ def _assemble_run(
             name="latency_p95_seconds",
             value=latency.p95,
             target=LATENCY_TARGET_SECONDS,
-            met=latency.p95 < LATENCY_TARGET_SECONDS,
+            # Sin imágenes no hubo medición: la meta no puede darse por cumplida.
+            met=bool(latencies) and latency.p95 < LATENCY_TARGET_SECONDS,
         ),
     )
 
@@ -405,13 +406,26 @@ def build_default_dependencies() -> EvaluationDependencies:
     )
 
 
+def _positive_int(raw: str) -> int:
+    """Tipo de argparse: entero estrictamente positivo (evita corridas vacías)."""
+    try:
+        value = int(raw)
+    except ValueError as err:
+        raise argparse.ArgumentTypeError(f"'{raw}' no es un número entero.") from err
+    if value <= 0:
+        raise argparse.ArgumentTypeError(f"debe ser mayor que 0 (se recibió {value}).")
+    return value
+
+
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="python -m skin_lesion_classifier.evaluation",
         description="Evalúa el modelo ViT sobre el split de prueba de HAM10000.",
     )
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
-    parser.add_argument("--limit", type=int, default=None, help="Máximo de imágenes a evaluar.")
+    parser.add_argument(
+        "--limit", type=_positive_int, default=None, help="Máximo de imágenes a evaluar (> 0)."
+    )
     parser.add_argument("--gradcam-samples", type=int, default=DEFAULT_GRADCAM_SAMPLES)
     parser.add_argument(
         "--skip-overlap",
