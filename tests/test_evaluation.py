@@ -2,6 +2,7 @@ import json
 from collections.abc import Iterable, Iterator
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 import pytest
@@ -12,11 +13,13 @@ from skin_lesion_classifier.evaluation import (
     EvaluationRun,
     evaluate,
     main,
+    run_evaluation,
     select_subset,
 )
 from skin_lesion_classifier.evaluation_dataset import DATASET_REVISION, LabeledImage
 from skin_lesion_classifier.facade import DiagnosticResult
-from skin_lesion_classifier.inference import Prediction
+from skin_lesion_classifier.gradcam import GradCAMError
+from skin_lesion_classifier.inference import InferenceError, Prediction
 from skin_lesion_classifier.labels import HAM10000_CODES
 
 
@@ -249,3 +252,207 @@ def test_main_limit_restricts_the_number_of_evaluated_samples(tmp_path: Path) ->
 
     metrics = json.loads((out / "metrics.json").read_text(encoding="utf-8"))
     assert metrics["scenarios"]["original"]["samples"] == 2
+
+
+class RecordingProvider:
+    """Perfect model that logs each call into a shared event list and can fail on call N."""
+
+    def __init__(self, events: list[str], fail_on_call: int | None = None) -> None:
+        self._events = events
+        self._fail_on_call = fail_on_call
+        self.calls = 0
+
+    def predict(self, image: Image.Image) -> Prediction:
+        self.calls += 1
+        if self.calls == self._fail_on_call:
+            raise InferenceError("fallo simulado de inferencia")
+        self._events.append("predict")
+        return make_prediction(HAM10000_CODES[image.size[0] - 10])
+
+
+class FailingDiagnoser:
+    def __init__(self, error: Exception) -> None:
+        self._error = error
+
+    def diagnose(self, image: Image.Image, target_class: str | None = None) -> DiagnosticResult:
+        raise self._error
+
+
+def read_metrics(out: Path) -> dict[str, Any]:
+    loaded: dict[str, Any] = json.loads((out / "metrics.json").read_text(encoding="utf-8"))
+    return loaded
+
+
+def run(
+    dependencies: EvaluationDependencies,
+    out: Path,
+    gradcam_samples: int = 0,
+    skip_overlap: bool = False,
+) -> dict[str, Any]:
+    return run_evaluation(
+        dependencies,
+        output_dir=out,
+        limit=None,
+        gradcam_samples=gradcam_samples,
+        skip_overlap=skip_overlap,
+    )
+
+
+def test_run_evaluation_fetches_train_ids_before_evaluating_any_scenario(tmp_path: Path) -> None:
+    events: list[str] = []
+    base = make_dependencies()
+
+    def fetch_train_ids() -> frozenset[str]:
+        events.append("fetch")
+        return frozenset({"img1"})
+
+    dependencies = EvaluationDependencies(
+        provider=RecordingProvider(events),
+        diagnoser=base.diagnoser,
+        samples_factory=base.samples_factory,
+        fetch_train_ids=fetch_train_ids,
+        now=base.now,
+    )
+
+    run(dependencies, tmp_path / "out")
+
+    assert events[0] == "fetch"
+    assert events.count("fetch") == 1
+    assert "predict" in events
+
+
+def test_run_evaluation_runs_no_scenario_when_fetching_train_ids_fails(tmp_path: Path) -> None:
+    events: list[str] = []
+    provider = RecordingProvider(events)
+    base = make_dependencies()
+
+    def fetch_train_ids() -> frozenset[str]:
+        raise OSError("sin red")
+
+    dependencies = EvaluationDependencies(
+        provider=provider,
+        diagnoser=base.diagnoser,
+        samples_factory=base.samples_factory,
+        fetch_train_ids=fetch_train_ids,
+        now=base.now,
+    )
+    out = tmp_path / "out"
+
+    with pytest.raises(OSError, match="sin red"):
+        run(dependencies, out)
+
+    assert provider.calls == 0
+    assert not (out / "metrics.json").exists()
+
+
+def test_run_evaluation_keeps_partial_metrics_when_a_later_scenario_fails(tmp_path: Path) -> None:
+    out = tmp_path / "out"
+    base = make_dependencies()
+    # 5 samples per scenario: call 6 is the first image of the second scenario.
+    dependencies = EvaluationDependencies(
+        provider=RecordingProvider([], fail_on_call=6),
+        diagnoser=base.diagnoser,
+        samples_factory=base.samples_factory,
+        fetch_train_ids=base.fetch_train_ids,
+        now=base.now,
+    )
+
+    with pytest.raises(InferenceError, match="fallo simulado"):
+        run(dependencies, out)
+
+    metrics = read_metrics(out)
+    assert metrics["status"] == "partial"
+    assert metrics["completed_scenarios"] == ["original"]
+    assert set(metrics["scenarios"]) == {"original"}
+    assert metrics["targets"]["melanoma_recall"]["met"] is True
+    assert (out / "confusion_matrix.png").stat().st_size > 0
+
+
+def test_run_evaluation_writes_no_metrics_file_when_original_scenario_fails(tmp_path: Path) -> None:
+    out = tmp_path / "out"
+    base = make_dependencies()
+    dependencies = EvaluationDependencies(
+        provider=RecordingProvider([], fail_on_call=1),
+        diagnoser=base.diagnoser,
+        samples_factory=base.samples_factory,
+        fetch_train_ids=base.fetch_train_ids,
+        now=base.now,
+    )
+
+    with pytest.raises(InferenceError):
+        run(dependencies, out, skip_overlap=True)
+
+    assert not (out / "metrics.json").exists()
+
+
+def test_run_evaluation_successful_run_ends_complete_with_all_scenarios_in_order(
+    tmp_path: Path,
+) -> None:
+    out = tmp_path / "out"
+
+    document = run(make_dependencies(), out)
+
+    metrics = read_metrics(out)
+    assert metrics["status"] == "complete"
+    assert metrics["completed_scenarios"] == [
+        "original",
+        "low_brightness",
+        "gaussian_noise",
+        "unseen_in_train",
+    ]
+    assert metrics == json.loads(json.dumps(document))
+    assert sorted(path.name for path in out.glob("*.tmp")) == []
+    assert sorted(path.name for path in out.iterdir() if path.name.startswith(".")) == []
+
+
+def test_run_evaluation_records_gradcam_ok_with_sample_count(tmp_path: Path) -> None:
+    out = tmp_path / "out"
+
+    run(make_dependencies(), out, gradcam_samples=2)
+
+    assert read_metrics(out)["gradcam"] == {"status": "ok", "samples": 2}
+
+
+def test_run_evaluation_records_gradcam_skipped_when_no_samples_requested(tmp_path: Path) -> None:
+    out = tmp_path / "out"
+
+    run(make_dependencies(), out, gradcam_samples=0)
+
+    assert read_metrics(out)["gradcam"] == {"status": "skipped"}
+
+
+@pytest.mark.parametrize("error", [GradCAMError("hook sin activaciones"), InferenceError("falla")])
+def test_run_evaluation_gradcam_domain_failure_still_completes(
+    tmp_path: Path, error: Exception, caplog: pytest.LogCaptureFixture
+) -> None:
+    out = tmp_path / "out"
+    base = make_dependencies()
+    dependencies = EvaluationDependencies(
+        provider=base.provider,
+        diagnoser=FailingDiagnoser(error),
+        samples_factory=base.samples_factory,
+        fetch_train_ids=base.fetch_train_ids,
+        now=base.now,
+    )
+
+    with caplog.at_level("WARNING"):
+        run(dependencies, out, gradcam_samples=2)
+
+    metrics = read_metrics(out)
+    assert metrics["status"] == "complete"
+    assert metrics["gradcam"] == {"status": "failed", "error": str(error)}
+    assert "Grad-CAM" in caplog.text
+
+
+def test_run_evaluation_does_not_swallow_unexpected_gradcam_errors(tmp_path: Path) -> None:
+    base = make_dependencies()
+    dependencies = EvaluationDependencies(
+        provider=base.provider,
+        diagnoser=FailingDiagnoser(ZeroDivisionError("bug")),
+        samples_factory=base.samples_factory,
+        fetch_train_ids=base.fetch_train_ids,
+        now=base.now,
+    )
+
+    with pytest.raises(ZeroDivisionError):
+        run(dependencies, tmp_path / "out", gradcam_samples=2)

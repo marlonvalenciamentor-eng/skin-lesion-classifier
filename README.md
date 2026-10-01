@@ -99,6 +99,11 @@ repository, and runs in about 6 minutes on CPU. Results go to `reports/evaluatio
 Use `--limit N` for a quick run, `--skip-overlap` to skip the train-overlap check, and
 `--help` for all options.
 
+Train IDs are read first, so a network failure aborts before any scenario runs.
+`metrics.json` is rewritten atomically after each scenario with `status: partial` and
+`completed_scenarios`, and becomes `status: complete` at the end; an optional Grad-CAM
+failure is recorded under `gradcam` without discarding the results.
+
 The committed results and their interpretation, including the train/test overlap
 limitation, are in [`docs/REPORTE_VALIDACION_MODELO.md`](docs/REPORTE_VALIDACION_MODELO.md).
 

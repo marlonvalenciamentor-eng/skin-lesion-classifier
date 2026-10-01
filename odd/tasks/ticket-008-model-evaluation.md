@@ -123,7 +123,8 @@ coherente en 1 de 6 muestras. Detalle en `docs/REPORTE_VALIDACION_MODELO.md`.
 - R2-001: el CLI no calcula el solapamiento por `lesion_id` ni contra `validation` (las
   cifras de 28 imágenes / 1 melanoma del reporte vienen de un análisis puntual; el reporte
   ya lo aclara).
-- R3/R4: el solapamiento y Grad-CAM corren después de los 3 escenarios y `metrics.json` se
+- R3/R4 (Resuelto en `605c255`: train ids al inicio, `metrics.json` parcial y atómico por
+  escenario, Grad-CAM no fatal): el solapamiento y Grad-CAM corren después de los 3 escenarios y `metrics.json` se
   escribe al final; un fallo de red tardío pierde ≈ 6 min. Mover `fetch_train_ids` al inicio
   o escribir resultados parciales.
 - R4: `main` no captura `DatasetLoadingError`/`ModelLoadingError` (traceback crudo sin red).
