@@ -132,12 +132,12 @@ def test_evaluate_applies_transform_before_predicting() -> None:
     assert provider.received_sizes == [(50, 40)]
 
 
-def test_evaluate_with_no_samples_returns_empty_zeroed_run() -> None:
+def test_evaluate_with_no_samples_does_not_meet_the_latency_target() -> None:
     run = evaluate(WidthProvider(), [])
 
     assert run.report.total == 0
     assert run.latency.mean == 0.0
-    assert run.latency_check.met is True
+    assert run.latency_check.met is False
 
 
 def test_select_subset_keeps_only_requested_ids_and_rebuilds_report() -> None:
@@ -252,6 +252,17 @@ def test_main_limit_restricts_the_number_of_evaluated_samples(tmp_path: Path) ->
 
     metrics = json.loads((out / "metrics.json").read_text(encoding="utf-8"))
     assert metrics["scenarios"]["original"]["samples"] == 2
+
+
+@pytest.mark.parametrize("limit", ["0", "-3", "abc"])
+def test_main_rejects_a_non_positive_or_invalid_limit(tmp_path: Path, limit: str) -> None:
+    out = tmp_path / "out"
+
+    with pytest.raises(SystemExit) as exc_info:
+        main(["--output-dir", str(out), "--limit", limit], make_dependencies())
+
+    assert exc_info.value.code == 2
+    assert not (out / "metrics.json").exists()
 
 
 class RecordingProvider:
