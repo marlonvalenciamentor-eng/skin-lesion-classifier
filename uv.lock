@@ -1845,8 +1845,10 @@ dependencies = [
 [package.dev-dependencies]
 api = [
     { name = "fastapi" },
+    { name = "huggingface-hub" },
     { name = "matplotlib" },
     { name = "numpy" },
+    { name = "pyarrow" },
     { name = "python-multipart" },
     { name = "torch", version = "2.14.0", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "sys_platform == 'darwin'" },
     { name = "torch", version = "2.14.0+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "sys_platform != 'darwin'" },
@@ -1876,8 +1878,10 @@ requires-dist = [
 [package.metadata.requires-dev]
 api = [
     { name = "fastapi", specifier = ">=0.115" },
+    { name = "huggingface-hub", specifier = ">=1.32.0" },
     { name = "matplotlib", specifier = ">=3.11.2" },
     { name = "numpy", specifier = ">=2.5.3" },
+    { name = "pyarrow", specifier = ">=25.0.1" },
     { name = "python-multipart", specifier = ">=0.0.20" },
     { name = "torch", specifier = ">=2.6", index = "https://download.pytorch.org/whl/cpu" },
     { name = "torchvision", specifier = ">=0.21", index = "https://download.pytorch.org/whl/cpu" },
