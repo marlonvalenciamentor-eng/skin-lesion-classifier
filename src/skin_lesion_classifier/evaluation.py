@@ -22,7 +22,9 @@ generalización.
 import argparse
 import json
 import logging
+import os
 import sys
+import tempfile
 import time
 from collections.abc import Callable, Iterable, Sequence
 from dataclasses import asdict, dataclass
@@ -55,6 +57,8 @@ from skin_lesion_classifier.facade import (
     DiagnosticResult,
     PredictionProvider,
 )
+from skin_lesion_classifier.gradcam import GradCAMError
+from skin_lesion_classifier.inference import InferenceError
 from skin_lesion_classifier.model_loader import MODEL_ID, load_inference_service
 from skin_lesion_classifier.perturbations import add_gaussian_noise, darken
 
@@ -64,6 +68,13 @@ MODEL_REVISION: Final[str] = "e37ebda4a662db26d9221c78f6c72b1cb8736ce0"
 LATENCY_TARGET_SECONDS: Final[float] = 3.0
 DEFAULT_OUTPUT_DIR: Final[Path] = Path("reports/evaluation")
 DEFAULT_GRADCAM_SAMPLES: Final[int] = 6
+METRICS_FILENAME: Final[str] = "metrics.json"
+
+STATUS_PARTIAL: Final[str] = "partial"
+STATUS_COMPLETE: Final[str] = "complete"
+GRADCAM_OK: Final[str] = "ok"
+GRADCAM_SKIPPED: Final[str] = "skipped"
+GRADCAM_FAILED: Final[str] = "failed"
 
 SCENARIO_ORIGINAL: Final[str] = "original"
 SCENARIO_LOW_BRIGHTNESS: Final[str] = "low_brightness"
@@ -271,6 +282,37 @@ def _targets_block(original: EvaluationRun) -> dict[str, Any]:
     }
 
 
+def _write_metrics_atomically(document: dict[str, Any], output_dir: Path) -> None:
+    """Escribe `metrics.json` en un temporal del mismo directorio y lo reemplaza atómicamente."""
+    target = output_dir / METRICS_FILENAME
+    handle, temp_name = tempfile.mkstemp(dir=output_dir, prefix=".metrics-", suffix=".tmp")
+    temp_path = Path(temp_name)
+    try:
+        with open(handle, "w", encoding="utf-8") as stream:
+            stream.write(json.dumps(document, indent=2, ensure_ascii=False))
+        os.replace(temp_path, target)
+    except BaseException:
+        temp_path.unlink(missing_ok=True)
+        raise
+
+
+def _generate_gradcam_overlays(
+    dependencies: EvaluationDependencies, gradcam_samples: int, output_dir: Path
+) -> dict[str, Any]:
+    """Genera los overlays Grad-CAM; al ser salida opcional, un error de dominio no aborta."""
+    if gradcam_samples <= 0:
+        return {"status": GRADCAM_SKIPPED}
+    logger.info("Generando overlays Grad-CAM de muestra...")
+    try:
+        saved = save_gradcam_overlays(
+            dependencies.diagnoser, dependencies.samples_factory(None), gradcam_samples, output_dir
+        )
+    except (GradCAMError, InferenceError) as err:
+        logger.warning("No se pudieron generar los overlays Grad-CAM: %s", err)
+        return {"status": GRADCAM_FAILED, "error": str(err)}
+    return {"status": GRADCAM_OK, "samples": len(saved)}
+
+
 def run_evaluation(
     dependencies: EvaluationDependencies,
     output_dir: Path,
@@ -278,43 +320,21 @@ def run_evaluation(
     gradcam_samples: int,
     skip_overlap: bool,
 ) -> dict[str, Any]:
-    """Ejecuta todos los escenarios, escribe los artefactos y devuelve el documento de métricas."""
+    """Ejecuta los escenarios, persiste resultados parciales y devuelve el documento final.
+
+    Los `image_id` de `train` se leen antes de evaluar (falla rápido sin red) y `metrics.json`
+    se reescribe de forma atómica tras cada escenario con `status: partial` hasta el final.
+    """
     output_dir.mkdir(parents=True, exist_ok=True)
     provider = dependencies.provider
     clock = dependencies.clock
 
-    scenarios: dict[str, EvaluationRun] = {}
-    transforms: dict[str, Transform | None] = {
-        SCENARIO_ORIGINAL: None,
-        SCENARIO_LOW_BRIGHTNESS: lambda image: darken(image, DARKEN_FACTOR),
-        SCENARIO_GAUSSIAN_NOISE: lambda image: add_gaussian_noise(image, NOISE_SIGMA, NOISE_SEED),
-    }
-    for name, transform in transforms.items():
-        logger.info("Evaluando escenario '%s'...", name)
-        scenarios[name] = evaluate(
-            provider, dependencies.samples_factory(limit), transform=transform, clock=clock
-        )
-
-    original = scenarios[SCENARIO_ORIGINAL]
-    overlap: dict[str, Any] = {"skipped": skip_overlap}
+    train_ids: frozenset[str] = frozenset()
     if not skip_overlap:
         logger.info("Leyendo los image_id de 'train' para el subconjunto sin solapamiento...")
         train_ids = dependencies.fetch_train_ids()
-        unseen_ids = frozenset(original.image_ids) - train_ids
-        scenarios[SCENARIO_UNSEEN] = select_subset(original, unseen_ids)
-        overlap.update(
-            test_samples=original.report.total,
-            in_train=original.report.total - len(unseen_ids),
-            not_in_train=len(unseen_ids),
-        )
 
-    save_confusion_matrix_png(original.report, output_dir / "confusion_matrix.png")
-    if gradcam_samples > 0:
-        logger.info("Generando overlays Grad-CAM de muestra...")
-        save_gradcam_overlays(
-            dependencies.diagnoser, dependencies.samples_factory(None), gradcam_samples, output_dir
-        )
-
+    scenarios: dict[str, EvaluationRun] = {}
     document: dict[str, Any] = {
         "generated_at": dependencies.now().isoformat(),
         "dataset": {
@@ -329,13 +349,47 @@ def run_evaluation(
             SCENARIO_LOW_BRIGHTNESS: {"factor": DARKEN_FACTOR},
             SCENARIO_GAUSSIAN_NOISE: {"sigma": NOISE_SIGMA, "seed": NOISE_SEED},
         },
-        "overlap": overlap,
-        "targets": _targets_block(original),
-        "scenarios": {name: _scenario_to_dict(run) for name, run in scenarios.items()},
+        "overlap": {"skipped": skip_overlap},
+        "scenarios": {},
+        "status": STATUS_PARTIAL,
+        "completed_scenarios": [],
     }
-    (output_dir / "metrics.json").write_text(
-        json.dumps(document, indent=2, ensure_ascii=False), encoding="utf-8"
-    )
+
+    def record(name: str, run: EvaluationRun) -> None:
+        scenarios[name] = run
+        document["scenarios"][name] = _scenario_to_dict(run)
+        document["completed_scenarios"].append(name)
+        _write_metrics_atomically(document, output_dir)
+
+    transforms: dict[str, Transform | None] = {
+        SCENARIO_ORIGINAL: None,
+        SCENARIO_LOW_BRIGHTNESS: lambda image: darken(image, DARKEN_FACTOR),
+        SCENARIO_GAUSSIAN_NOISE: lambda image: add_gaussian_noise(image, NOISE_SIGMA, NOISE_SEED),
+    }
+    for name, transform in transforms.items():
+        logger.info("Evaluando escenario '%s'...", name)
+        run = evaluate(
+            provider, dependencies.samples_factory(limit), transform=transform, clock=clock
+        )
+        if name == SCENARIO_ORIGINAL:
+            # `targets` solo existe una vez completado `original`; antes no hay archivo.
+            document["targets"] = _targets_block(run)
+            save_confusion_matrix_png(run.report, output_dir / "confusion_matrix.png")
+        record(name, run)
+
+    original = scenarios[SCENARIO_ORIGINAL]
+    if not skip_overlap:
+        unseen_ids = frozenset(original.image_ids) - train_ids
+        document["overlap"].update(
+            test_samples=original.report.total,
+            in_train=original.report.total - len(unseen_ids),
+            not_in_train=len(unseen_ids),
+        )
+        record(SCENARIO_UNSEEN, select_subset(original, unseen_ids))
+
+    document["gradcam"] = _generate_gradcam_overlays(dependencies, gradcam_samples, output_dir)
+    document["status"] = STATUS_COMPLETE
+    _write_metrics_atomically(document, output_dir)
     return document
 
 
