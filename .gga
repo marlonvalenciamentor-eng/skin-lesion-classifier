@@ -1,0 +1,16 @@
+# Gentleman Guardian Angel (gga) — revisión de código con IA en cada commit
+# https://github.com/Gentleman-Programming/gentleman-guardian-angel
+#
+# Activación local (cada integrante, una vez): gga install
+
+PROVIDER="claude"
+
+# Código Python de la solución y de las pruebas
+FILE_PATTERNS="*.py"
+
+# Reportes generados y artefactos que no son código fuente
+EXCLUDE_PATTERNS="tests/reports/*"
+
+RULES_FILE="AGENTS.md"
+STRICT_MODE="true"
+TIMEOUT="300"
