@@ -1,0 +1,645 @@
+{
+  "generated_at": "2026-10-01T15:41:09.172496+00:00",
+  "dataset": {
+    "id": "marmal88/skin_cancer",
+    "revision": "bdd59e10860746202dfdc452e0ac3a9eaa25268d",
+    "split": "test",
+    "file": "data/test-00000-of-00001-61e7cf54bf274ae2.parquet",
+    "limit": null
+  },
+  "model": {
+    "id": "Anwarkh1/Skin_Cancer-Image_Classification",
+    "revision": "e37ebda4a662db26d9221c78f6c72b1cb8736ce0"
+  },
+  "perturbations": {
+    "low_brightness": {
+      "factor": 0.4
+    },
+    "gaussian_noise": {
+      "sigma": 25.0,
+      "seed": 0
+    }
+  },
+  "overlap": {
+    "skipped": false,
+    "test_samples": 1285,
+    "in_train": 1025,
+    "not_in_train": 260
+  },
+  "targets": {
+    "melanoma_recall": {
+      "name": "melanoma_recall",
+      "value": 0.875,
+      "target": 0.9,
+      "met": false
+    },
+    "latency": {
+      "name": "latency_p95_seconds",
+      "value": 0.054185483600303994,
+      "target": 3.0,
+      "met": true
+    }
+  },
+  "scenarios": {
+    "original": {
+      "samples": 1285,
+      "accuracy": 0.8319066147859923,
+      "macro_f1": 0.6900980619841957,
+      "labels": [
+        "akiec",
+        "bcc",
+        "bkl",
+        "df",
+        "mel",
+        "nv",
+        "vasc"
+      ],
+      "confusion_matrix": [
+        [
+          37,
+          0,
+          1,
+          0,
+          4,
+          0,
+          0
+        ],
+        [
+          22,
+          24,
+          1,
+          0,
+          14,
+          6,
+          0
+        ],
+        [
+          6,
+          0,
+          52,
+          0,
+          64,
+          20,
+          0
+        ],
+        [
+          1,
+          0,
+          0,
+          7,
+          5,
+          1,
+          0
+        ],
+        [
+          1,
+          0,
+          0,
+          0,
+          126,
+          17,
+          0
+        ],
+        [
+          1,
+          1,
+          2,
+          0,
+          45,
+          809,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          1,
+          3,
+          14
+        ]
+      ],
+      "per_class": [
+        {
+          "code": "akiec",
+          "precision": 0.5441176470588235,
+          "recall": 0.8809523809523809,
+          "f1": 0.6727272727272727,
+          "support": 42
+        },
+        {
+          "code": "bcc",
+          "precision": 0.96,
+          "recall": 0.3582089552238806,
+          "f1": 0.5217391304347826,
+          "support": 67
+        },
+        {
+          "code": "bkl",
+          "precision": 0.9285714285714286,
+          "recall": 0.36619718309859156,
+          "f1": 0.5252525252525253,
+          "support": 142
+        },
+        {
+          "code": "df",
+          "precision": 1.0,
+          "recall": 0.5,
+          "f1": 0.6666666666666666,
+          "support": 14
+        },
+        {
+          "code": "mel",
+          "precision": 0.4864864864864865,
+          "recall": 0.875,
+          "f1": 0.6253101736972706,
+          "support": 144
+        },
+        {
+          "code": "nv",
+          "precision": 0.9450934579439252,
+          "recall": 0.9428904428904429,
+          "f1": 0.9439906651108517,
+          "support": 858
+        },
+        {
+          "code": "vasc",
+          "precision": 1.0,
+          "recall": 0.7777777777777778,
+          "f1": 0.8750000000000001,
+          "support": 18
+        }
+      ],
+      "latency_seconds": {
+        "mean": 0.0523136191206596,
+        "p50": 0.05207449999943492,
+        "p95": 0.054185483600303994,
+        "max": 0.08431462500084308
+      },
+      "targets": {
+        "melanoma_recall": {
+          "name": "melanoma_recall",
+          "value": 0.875,
+          "target": 0.9,
+          "met": false
+        },
+        "latency": {
+          "name": "latency_p95_seconds",
+          "value": 0.054185483600303994,
+          "target": 3.0,
+          "met": true
+        }
+      }
+    },
+    "low_brightness": {
+      "samples": 1285,
+      "accuracy": 0.7229571984435798,
+      "macro_f1": 0.4077826945858824,
+      "labels": [
+        "akiec",
+        "bcc",
+        "bkl",
+        "df",
+        "mel",
+        "nv",
+        "vasc"
+      ],
+      "confusion_matrix": [
+        [
+          14,
+          0,
+          10,
+          0,
+          1,
+          17,
+          0
+        ],
+        [
+          8,
+          5,
+          1,
+          0,
+          0,
+          53,
+          0
+        ],
+        [
+          0,
+          0,
+          31,
+          0,
+          1,
+          110,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          4,
+          0,
+          10,
+          0
+        ],
+        [
+          0,
+          0,
+          6,
+          0,
+          14,
+          124,
+          0
+        ],
+        [
+          0,
+          0,
+          3,
+          0,
+          0,
+          855,
+          0
+        ],
+        [
+          0,
+          0,
+          1,
+          0,
+          0,
+          11,
+          6
+        ]
+      ],
+      "per_class": [
+        {
+          "code": "akiec",
+          "precision": 0.6363636363636364,
+          "recall": 0.3333333333333333,
+          "f1": 0.43749999999999994,
+          "support": 42
+        },
+        {
+          "code": "bcc",
+          "precision": 1.0,
+          "recall": 0.07462686567164178,
+          "f1": 0.13888888888888887,
+          "support": 67
+        },
+        {
+          "code": "bkl",
+          "precision": 0.5961538461538461,
+          "recall": 0.21830985915492956,
+          "f1": 0.3195876288659793,
+          "support": 142
+        },
+        {
+          "code": "df",
+          "precision": 1.0,
+          "recall": 0.2857142857142857,
+          "f1": 0.4444444444444445,
+          "support": 14
+        },
+        {
+          "code": "mel",
+          "precision": 0.875,
+          "recall": 0.09722222222222222,
+          "f1": 0.17500000000000002,
+          "support": 144
+        },
+        {
+          "code": "nv",
+          "precision": 0.7245762711864406,
+          "recall": 0.9965034965034965,
+          "f1": 0.8390578999018645,
+          "support": 858
+        },
+        {
+          "code": "vasc",
+          "precision": 1.0,
+          "recall": 0.3333333333333333,
+          "f1": 0.5,
+          "support": 18
+        }
+      ],
+      "latency_seconds": {
+        "mean": 0.05451741278286369,
+        "p50": 0.05434491699998034,
+        "p95": 0.055831933800072876,
+        "max": 0.08065033399907406
+      },
+      "targets": {
+        "melanoma_recall": {
+          "name": "melanoma_recall",
+          "value": 0.09722222222222222,
+          "target": 0.9,
+          "met": false
+        },
+        "latency": {
+          "name": "latency_p95_seconds",
+          "value": 0.055831933800072876,
+          "target": 3.0,
+          "met": true
+        }
+      }
+    },
+    "gaussian_noise": {
+      "samples": 1285,
+      "accuracy": 0.8202334630350194,
+      "macro_f1": 0.676239546227544,
+      "labels": [
+        "akiec",
+        "bcc",
+        "bkl",
+        "df",
+        "mel",
+        "nv",
+        "vasc"
+      ],
+      "confusion_matrix": [
+        [
+          37,
+          0,
+          0,
+          0,
+          5,
+          0,
+          0
+        ],
+        [
+          15,
+          26,
+          1,
+          0,
+          18,
+          7,
+          0
+        ],
+        [
+          6,
+          1,
+          38,
+          0,
+          69,
+          28,
+          0
+        ],
+        [
+          1,
+          0,
+          0,
+          7,
+          5,
+          1,
+          0
+        ],
+        [
+          2,
+          0,
+          1,
+          0,
+          115,
+          26,
+          0
+        ],
+        [
+          2,
+          1,
+          0,
+          0,
+          38,
+          817,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          4,
+          14
+        ]
+      ],
+      "per_class": [
+        {
+          "code": "akiec",
+          "precision": 0.5873015873015873,
+          "recall": 0.8809523809523809,
+          "f1": 0.7047619047619047,
+          "support": 42
+        },
+        {
+          "code": "bcc",
+          "precision": 0.9285714285714286,
+          "recall": 0.3880597014925373,
+          "f1": 0.5473684210526316,
+          "support": 67
+        },
+        {
+          "code": "bkl",
+          "precision": 0.95,
+          "recall": 0.2676056338028169,
+          "f1": 0.41758241758241754,
+          "support": 142
+        },
+        {
+          "code": "df",
+          "precision": 1.0,
+          "recall": 0.5,
+          "f1": 0.6666666666666666,
+          "support": 14
+        },
+        {
+          "code": "mel",
+          "precision": 0.46,
+          "recall": 0.7986111111111112,
+          "f1": 0.5837563451776651,
+          "support": 144
+        },
+        {
+          "code": "nv",
+          "precision": 0.9252548131370328,
+          "recall": 0.9522144522144522,
+          "f1": 0.9385410683515222,
+          "support": 858
+        },
+        {
+          "code": "vasc",
+          "precision": 1.0,
+          "recall": 0.7777777777777778,
+          "f1": 0.8750000000000001,
+          "support": 18
+        }
+      ],
+      "latency_seconds": {
+        "mean": 0.05496604970583802,
+        "p50": 0.05491733300004853,
+        "p95": 0.056191991601372136,
+        "max": 0.06162525000036112
+      },
+      "targets": {
+        "melanoma_recall": {
+          "name": "melanoma_recall",
+          "value": 0.7986111111111112,
+          "target": 0.9,
+          "met": false
+        },
+        "latency": {
+          "name": "latency_p95_seconds",
+          "value": 0.056191991601372136,
+          "target": 3.0,
+          "met": true
+        }
+      }
+    },
+    "unseen_in_train": {
+      "samples": 260,
+      "accuracy": 0.7923076923076923,
+      "macro_f1": 0.6054727154872402,
+      "labels": [
+        "akiec",
+        "bcc",
+        "bkl",
+        "df",
+        "mel",
+        "nv",
+        "vasc"
+      ],
+      "confusion_matrix": [
+        [
+          7,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          4,
+          5,
+          0,
+          0,
+          3,
+          2,
+          0
+        ],
+        [
+          1,
+          0,
+          9,
+          0,
+          18,
+          5,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          1,
+          2,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          18,
+          2,
+          0
+        ],
+        [
+          1,
+          1,
+          1,
+          0,
+          12,
+          164,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          2
+        ]
+      ],
+      "per_class": [
+        {
+          "code": "akiec",
+          "precision": 0.5384615384615384,
+          "recall": 1.0,
+          "f1": 0.7000000000000001,
+          "support": 7
+        },
+        {
+          "code": "bcc",
+          "precision": 0.8333333333333334,
+          "recall": 0.35714285714285715,
+          "f1": 0.5,
+          "support": 14
+        },
+        {
+          "code": "bkl",
+          "precision": 0.9,
+          "recall": 0.2727272727272727,
+          "f1": 0.41860465116279066,
+          "support": 33
+        },
+        {
+          "code": "df",
+          "precision": 1.0,
+          "recall": 0.25,
+          "f1": 0.4,
+          "support": 4
+        },
+        {
+          "code": "mel",
+          "precision": 0.33962264150943394,
+          "recall": 0.9,
+          "f1": 0.4931506849315068,
+          "support": 20
+        },
+        {
+          "code": "nv",
+          "precision": 0.9371428571428572,
+          "recall": 0.9162011173184358,
+          "f1": 0.9265536723163842,
+          "support": 179
+        },
+        {
+          "code": "vasc",
+          "precision": 1.0,
+          "recall": 0.6666666666666666,
+          "f1": 0.8,
+          "support": 3
+        }
+      ],
+      "latency_seconds": {
+        "mean": 0.05222587980785577,
+        "p50": 0.05198191700037569,
+        "p95": 0.05419143955296022,
+        "max": 0.06769116600116831
+      },
+      "targets": {
+        "melanoma_recall": {
+          "name": "melanoma_recall",
+          "value": 0.9,
+          "target": 0.9,
+          "met": false
+        },
+        "latency": {
+          "name": "latency_p95_seconds",
+          "value": 0.05419143955296022,
+          "target": 3.0,
+          "met": true
+        }
+      }
+    }
+  }
+}

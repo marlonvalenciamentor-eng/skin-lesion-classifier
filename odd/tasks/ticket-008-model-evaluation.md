@@ -65,19 +65,19 @@ documentar explícitamente la contaminación. No se afirma generalización.
       skin_lesion_classifier.evaluation`): evalúa con `PredictionProvider` inyectado, mide
       latencia por imagen, ejecuta escenarios de robustez, guarda JSON + PNG y overlays
       Grad-CAM de muestra en `reports/evaluation/`. Ruta: delegada (writer).
-- [ ] T008-5 Ejecutar la evaluación real, revisar Grad-CAM cualitativamente, escribir
+- [x] T008-5 Ejecutar la evaluación real, revisar Grad-CAM cualitativamente, escribir
       `docs/REPORTE_VALIDACION_MODELO.md` y la sección de evaluación del `README.md`.
       Ruta: inline (ejecución + documentación).
-- [ ] T008-6 Checks completos y cierre del ticket.
+- [x] T008-6 Checks completos y cierre del ticket.
 
 ## Criterios de aceptación
 
-- [ ] Recall de `mel` reportado y comparado con la meta > 90 %.
-- [ ] Latencia de inferencia en CPU reportada y comparada con la meta < 3 s por imagen.
-- [ ] Matriz de confusión y métricas por clase documentadas en `docs/`.
-- [ ] Resultados de robustez (baja luminosidad / ruido) documentados.
-- [ ] README indica cómo ejecutar la aplicación Streamlit.
-- [ ] `uv run pytest`, `uv run ruff check .` y `uv run ruff format --check .` pasan.
+- [x] Recall de `mel` reportado y comparado con la meta > 90 %.
+- [x] Latencia de inferencia en CPU reportada y comparada con la meta < 3 s por imagen.
+- [x] Matriz de confusión y métricas por clase documentadas en `docs/`.
+- [x] Resultados de robustez (baja luminosidad / ruido) documentados.
+- [x] README indica cómo ejecutar la aplicación Streamlit.
+- [x] `uv run pytest`, `uv run ruff check .` y `uv run ruff format --check .` pasan.
 
 ## Checks aplicables
 
@@ -90,21 +90,36 @@ documentar explícitamente la contaminación. No se afirma generalización.
 
 Rama: `feature/model-evaluation` (desde `main` @ `669e68d`).
 
-Entrega: pronóstico ~900 líneas (supera ~400); la estrategia de PR (`stacked-to-main` o
-`feature-branch-chain`) queda pendiente de confirmación del usuario. Los commits por
-unidad de trabajo sirven para ambas.
+Entrega: pronóstico ~900 líneas (real ~1500 tras T008-4, supera ~400). Estrategia
+elegida por el usuario: `single-pr` (un solo PR hacia `main`, por la fecha límite).
 
 Espejo Engram `odd/ticket-008-model-evaluation/tasks`: **pendiente** (servidor engram no
 conectado en esta sesión).
 
 Commits por tarea (rama `feature/model-evaluation`): T008-1 `08b7ee1`, T008-2 `c86720a`,
 T008-3 `a665666`, T008-4 `f56eedb` (incluye `revision` opcional en `load_inference_service`
-y `/reports/` en `.gitignore`).
+y `/reports/` en `.gitignore`). Dependencias: `20c6831` (`pyarrow` y `huggingface-hub`
+declarados en el grupo `api`, regla 5 de `AGENTS.md`). T008-5/T008-6: commit del reporte.
+
+Resultado (2026-10-01): recall `mel` 87,5 % (meta > 90 %: **no cumplida**); latencia p95
+0,054 s (meta < 3 s: cumplida); baja luminosidad hunde el recall `mel` a 9,7 %; Grad-CAM
+coherente en 1 de 6 muestras. Detalle en `docs/REPORTE_VALIDACION_MODELO.md`.
 
 ### Evidencia de verificación
 
-(pendiente)
+- `uv run pytest`: 128 passed, 2 deselected.
+- `uv run pytest -m integration`: 2 passed (modelo real).
+- `uv run ruff check .`: All checks passed.
+- `uv run ruff format --check .`: 43 files already formatted.
+- `uv run mypy --strict src tests`: no issues found in 28 source files.
+- Evaluación real: `uv run python -m skin_lesion_classifier.evaluation`, exit 0, ≈ 6 min.
+- gga: aprobó los commits de T008-1..4 sin bloqueos.
 
 ### Desviaciones respecto al diseño original
 
-(ninguna aún)
+- La meta de latencia se evalúa sobre p95 (no la media) para ser más exigente.
+- `.gitignore` usa `/reports/` anclado a la raíz para no ignorar `tests/reports/`.
+- El procesador no tiene revisión fijada (el cargador no la admite); queda como próximo paso.
+- `pyarrow` y `huggingface-hub` se declararon explícitamente (antes eran transitivas), en
+  contra de la restricción inicial "sin dependencias nuevas", para cumplir la regla 5.
+- Los overlays Grad-CAM no se versionan (imágenes clínicas); se regeneran con el CLI.
