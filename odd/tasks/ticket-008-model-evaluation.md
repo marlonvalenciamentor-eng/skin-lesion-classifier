@@ -56,7 +56,7 @@ documentar explícitamente la contaminación. No se afirma generalización.
 - [x] T008-1 Métricas puras (`evaluation_metrics.py`): matriz de confusión, precisión,
       recall, F1 y soporte por clase en orden `HAM10000_CODES`, exactitud global,
       comparación de recall `mel` contra la meta (> 90 %). Ruta: delegada (writer).
-- [ ] T008-2 Perturbaciones de robustez (`perturbations.py`): baja luminosidad y ruido
+- [x] T008-2 Perturbaciones de robustez (`perturbations.py`): baja luminosidad y ruido
       gaussiano deterministas (semilla). Ruta: delegada (writer).
 - [ ] T008-3 Carga del split (`evaluation_dataset.py`): lectura del parquet fijado desde el
       caché HF, mapeo `dx` → código corto, conjunto de `image_id` de `train` para el
