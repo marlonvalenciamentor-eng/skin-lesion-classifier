@@ -128,7 +128,7 @@ coherente en 1 de 6 muestras. Detalle en `docs/REPORTE_VALIDACION_MODELO.md`.
   escribe al final; un fallo de red tardío pierde ≈ 6 min. Mover `fetch_train_ids` al inicio
   o escribir resultados parciales.
 - R4: `main` no captura `DatasetLoadingError`/`ModelLoadingError` (traceback crudo sin red).
-- R3: `--limit 0` o negativo evalúa 0 imágenes y reporta la meta de latencia como cumplida.
+- Resuelto en `c1760ba`: R3: `--limit 0` o negativo evalúa 0 imágenes y reporta la meta de latencia como cumplida.
 - R3: el ruido usa la misma semilla para todas las imágenes (un solo patrón de ruido).
 - R3: `in_train` asume `image_id` únicos en `test`.
 - R2: `targets` duplicado en `metrics.json`; factor 0,4 de oscurecimiento definido dos veces.
