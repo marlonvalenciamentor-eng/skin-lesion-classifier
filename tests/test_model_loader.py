@@ -200,3 +200,40 @@ def test_loaded_service_classifies_an_image_on_cpu_under_3_seconds() -> None:
     assert prediction.label in HAM10000_LABELS
     assert len(prediction.probabilities) == 7
     assert elapsed < 3.0, f"CPU inference took {elapsed:.2f}s"
+
+
+@patch("skin_lesion_classifier.model_loader.ViTImageProcessor.from_pretrained")
+@patch("skin_lesion_classifier.model_loader.ViTForImageClassification.from_pretrained")
+def test_load_inference_service_pins_model_revision_when_remote(
+    mock_model_from_pretrained: MagicMock,
+    mock_proc_from_pretrained: MagicMock,
+) -> None:
+    fake_model = MagicMock()
+    fake_model.config.num_labels = 7
+    fake_model.config.id2label = {idx: label for idx, label in enumerate(EXPECTED_MODEL_LABELS)}
+    fake_model.config.label2id = {label: idx for idx, label in enumerate(EXPECTED_MODEL_LABELS)}
+    mock_model_from_pretrained.return_value = fake_model
+    mock_proc_from_pretrained.return_value = MagicMock()
+
+    load_inference_service("remote/model", "remote/processor", local_dir=None, revision="abc123")
+
+    mock_model_from_pretrained.assert_called_once_with("remote/model", revision="abc123")
+    mock_proc_from_pretrained.assert_called_once_with("remote/processor")
+
+
+@patch("skin_lesion_classifier.model_loader.ViTImageProcessor.from_pretrained")
+@patch("skin_lesion_classifier.model_loader.ViTForImageClassification.from_pretrained")
+def test_load_inference_service_without_revision_keeps_previous_call_shape(
+    mock_model_from_pretrained: MagicMock,
+    mock_proc_from_pretrained: MagicMock,
+) -> None:
+    fake_model = MagicMock()
+    fake_model.config.num_labels = 7
+    fake_model.config.id2label = {idx: label for idx, label in enumerate(EXPECTED_MODEL_LABELS)}
+    fake_model.config.label2id = {label: idx for idx, label in enumerate(EXPECTED_MODEL_LABELS)}
+    mock_model_from_pretrained.return_value = fake_model
+    mock_proc_from_pretrained.return_value = MagicMock()
+
+    load_inference_service("remote/model", "remote/processor", local_dir=None)
+
+    mock_model_from_pretrained.assert_called_once_with("remote/model")

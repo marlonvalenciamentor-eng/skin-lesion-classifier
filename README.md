@@ -54,6 +54,8 @@ uv run uvicorn skin_lesion_classifier.api:app --port 8000
 uv run streamlit run app.py
 ```
 
+Start the API first, then open the Streamlit app at http://localhost:8501.
+
 The UI is configured via two environment variables:
 
 | Variable | Default | Purpose |
@@ -83,6 +85,23 @@ uv run pytest -v                 # unit tests (no model download)
 uv run pytest -v -m integration  # downloads the real model from Hugging Face
 ```
 
+## Evaluate the model
+
+```bash
+uv run python -m skin_lesion_classifier.evaluation
+```
+
+Evaluates the pinned model revision on the pinned `test` split of
+[`marmal88/skin_cancer`](https://huggingface.co/datasets/marmal88/skin_cancer) (HAM10000).
+It downloads about 700 MB (model + split) into the Hugging Face cache, never into the
+repository, and runs in about 6 minutes on CPU. Results go to `reports/evaluation/`
+(git-ignored): `metrics.json`, `confusion_matrix.png` and sample Grad-CAM overlays.
+Use `--limit N` for a quick run, `--skip-overlap` to skip the train-overlap check, and
+`--help` for all options.
+
+The committed results and their interpretation, including the train/test overlap
+limitation, are in [`docs/REPORTE_VALIDACION_MODELO.md`](docs/REPORTE_VALIDACION_MODELO.md).
+
 ## Lint and format
 
 ```bash
@@ -94,7 +113,8 @@ uv run ruff format .
 
 ```
 src/skin_lesion_classifier/   # package: image loading, preprocessing, model, Grad-CAM,
-                               # facade, Pydantic schemas, FastAPI app, HTTP client
+                               # facade, Pydantic schemas, FastAPI app, HTTP client,
+                               # evaluation (metrics, dataset loader, perturbations, CLI)
 app.py                        # Streamlit UI (HTTP client only, no torch/transformers)
 docker/                       # api.Dockerfile, ui.Dockerfile
 docker-compose.yml            # api + ui services, named HF cache volume
