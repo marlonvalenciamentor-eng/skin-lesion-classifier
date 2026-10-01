@@ -97,6 +97,10 @@ unidad de trabajo sirven para ambas.
 Espejo Engram `odd/ticket-008-model-evaluation/tasks`: **pendiente** (servidor engram no
 conectado en esta sesión).
 
+Commits por tarea (rama `feature/model-evaluation`): T008-1 `08b7ee1`, T008-2 `c86720a`,
+T008-3 `a665666`, T008-4 `f56eedb` (incluye `revision` opcional en `load_inference_service`
+y `/reports/` en `.gitignore`).
+
 ### Evidencia de verificación
 
 (pendiente)
