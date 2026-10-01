@@ -114,6 +114,23 @@ coherente en 1 de 6 muestras. Detalle en `docs/REPORTE_VALIDACION_MODELO.md`.
 - `uv run mypy --strict src tests`: no issues found in 28 source files.
 - Evaluación real: `uv run python -m skin_lesion_classifier.evaluation`, exit 0, ≈ 6 min.
 - gga: aprobó los commits de T008-1..4 sin bloqueos.
+- Revisión nativa (RDD), rango `669e68d..0b0e786`: riesgo alto (`pyproject.toml`),
+  consentimiento otorgado por el usuario, 4 lentes, **aprobada** y reconocida
+  (lineage `review-6dd9b7fb91a44c8e`, autoridad consumida). 0 hallazgos bloqueantes.
+
+### Seguimiento (hallazgos no bloqueantes de la revisión, trabajo posterior)
+
+- R2-001: el CLI no calcula el solapamiento por `lesion_id` ni contra `validation` (las
+  cifras de 28 imágenes / 1 melanoma del reporte vienen de un análisis puntual; el reporte
+  ya lo aclara).
+- R3/R4: el solapamiento y Grad-CAM corren después de los 3 escenarios y `metrics.json` se
+  escribe al final; un fallo de red tardío pierde ≈ 6 min. Mover `fetch_train_ids` al inicio
+  o escribir resultados parciales.
+- R4: `main` no captura `DatasetLoadingError`/`ModelLoadingError` (traceback crudo sin red).
+- R3: `--limit 0` o negativo evalúa 0 imágenes y reporta la meta de latencia como cumplida.
+- R3: el ruido usa la misma semilla para todas las imágenes (un solo patrón de ruido).
+- R3: `in_train` asume `image_id` únicos en `test`.
+- R2: `targets` duplicado en `metrics.json`; factor 0,4 de oscurecimiento definido dos veces.
 
 ### Desviaciones respecto al diseño original
 

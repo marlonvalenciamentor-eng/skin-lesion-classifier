@@ -60,7 +60,11 @@ identificadores de los splits (lectura de solo las columnas `image_id` y `lesion
 | Imágenes de `test` | 1285 |
 | Imágenes de `test` idénticas (`image_id`) a una de `train` | **1025 (79,8 %)** |
 | Imágenes de `test` cuyo `image_id` no está en `train` | 260 |
-| Imágenes de `test` de lesiones nunca vistas en `train` ni `validation` | 28 (1 melanoma) |
+| Imágenes de `test` de lesiones nunca vistas en `train` ni `validation` | 28 (1 melanoma) \* |
+
+\* Las tres primeras filas las produce el CLI (`overlap` en `metrics.json`). La última
+proviene de un análisis puntual del 2026-10-01 que leyó además `lesion_id` de `train` y
+`validation`; el CLI todavía no la calcula (pendiente registrado en el ticket #008).
 
 Los splits suman 13 354 imágenes, pero HAM10000 tiene 10 015: el dataset publicado repite
 imágenes entre splits. Por eso:
