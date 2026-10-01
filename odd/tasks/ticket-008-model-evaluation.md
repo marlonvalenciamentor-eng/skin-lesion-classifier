@@ -58,7 +58,7 @@ documentar explícitamente la contaminación. No se afirma generalización.
       comparación de recall `mel` contra la meta (> 90 %). Ruta: delegada (writer).
 - [x] T008-2 Perturbaciones de robustez (`perturbations.py`): baja luminosidad y ruido
       gaussiano deterministas (semilla). Ruta: delegada (writer).
-- [ ] T008-3 Carga del split (`evaluation_dataset.py`): lectura del parquet fijado desde el
+- [x] T008-3 Carga del split (`evaluation_dataset.py`): lectura del parquet fijado desde el
       caché HF, mapeo `dx` → código corto, conjunto de `image_id` de `train` para el
       subconjunto sin solapamiento. Ruta: delegada (writer).
 - [ ] T008-4 Ejecutor y CLI (`evaluation.py`, `uv run python -m
