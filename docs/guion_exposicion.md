@@ -4,15 +4,31 @@ Detección temprana de cáncer de piel con Vision Transformers (ViT) y Grad-CAM.
 
 ---
 
-## 1. Apertura (30 seg)
+## Reparto de la exposición
+
+Cada bloque lo presenta quien construyó esa parte del sistema.
+
+| Bloque | Expositor | Contenido |
+|---|---|---|
+| 1. Contexto y planeación | Marlon | Problema, enfoque asistivo, Kanban y cronograma |
+| 2–5. Producto, arquitectura y demo | Miguel | Fachada, ViT, Grad-CAM, UI y reporte PDF |
+| 6. Proceso de ingeniería | Marlon | CI, Docker y decisión de servicio único |
+| 7. Validación del modelo | Marlon | Métricas y limitaciones |
+| 8. Cierre | Miguel | Mensaje final |
+
+## 1. Contexto y planeación — Marlon (30 seg)
+
+> "El cáncer de piel tiene una alta probabilidad de cura cuando se detecta a tiempo, y el melanoma es el más peligroso. Por eso nos propusimos un sistema **asistivo**, no un reemplazo del dermatólogo. Organizamos el trabajo en 4 fases con un tablero Kanban en GitHub Projects y un cronograma de 15 días con ruta crítica; cada funcionalidad entró al proyecto mediante pull request."
+
+## 2. Apertura del producto — Miguel (30 seg)
 
 > "SkinLesionClassifier es un sistema asistivo para la detección temprana de cáncer de piel. Subís una imagen dermatoscópica y, en segundos, te devuelve el diagnóstico probable, la severidad clínica, y un mapa de calor Grad-CAM que muestra **dónde** el modelo está mirando para decidir. Todo bajo Clean Architecture, con Python 3.13 y Streamlit."
 
-## 2. Arquitectura en una frase
+## 3. Arquitectura en una frase — Miguel
 
 > "El sistema sigue el patrón **Fachada**. La interfaz (Streamlit) **nunca** importa `torch` ni `transformers`: habla solo con `DermatologyDiagnosticFacade`, que es el único componente que toca el modelo. Eso se llama desacoplamiento UI ↔ modelo."
 
-## 3. El recorrido paso a paso (el corazón de la demo)
+## 4. El recorrido paso a paso (el corazón de la demo) — Miguel
 
 ### Paso 1 — Abrir la app
 
@@ -21,6 +37,8 @@ Ejecutás `uv run streamlit run app.py`. Se renderiza `app.py`: el título insti
 ### Paso 2 — Subir la imagen
 
 Con `st.file_uploader` elegís un PNG/JPG. Con `st.text_input` escribís el nombre del paciente (opcional). Acá todavía **no se tocó el modelo**.
+
+> Sugerencia para la demo: usar una imagen de **melanoma**, la clase clínicamente prioritaria. Evitar apoyarse en carcinoma basocelular, cuyo recall medido es de solo 36 % (ver sección 7).
 
 ### Paso 3 — Cargar la fachada (una sola vez)
 
@@ -56,7 +74,7 @@ El resultado se combina en un DTO inmutable `DiagnosticResult` (label, confidenc
 
 El botón "Descargar reporte (PDF)" llama a `build_report_pdf()` de `report.py`, que con `matplotlib` genera un **A4** con: nombre del paciente, fecha, diagnóstico, severidad, confianza, ambas imágenes y las probabilidades. Todo sin tocar el modelo.
 
-## 4. Tabla resumen (para mostrar en diapositiva)
+## 5. Tabla resumen (para mostrar en diapositiva) — Miguel
 
 | Módulo | Responsabilidad | Función clave |
 |---|---|---|
@@ -68,6 +86,22 @@ El botón "Descargar reporte (PDF)" llama a `build_report_pdf()` de `report.py`,
 | `labels.py` | Taxonomía clínica | `human_name()`, `severity_of()`, `severity_badge()` |
 | `report.py` | Reporte PDF | `build_report_pdf()` |
 
-## 5. Cierre (15 seg)
+## 6. Proceso de ingeniería — Marlon (45 seg)
+
+> "Probamos separar el sistema en una API con FastAPI y una interfaz que la consumía por HTTP, cada una en su propio contenedor Docker. Funcionó, pero comprobamos que el desacoplamiento real ya lo daba la fachada y que dos procesos solo sumaban complejidad. Por eso volvimos a un **servicio único**: una decisión basada en evidencia, no en moda."
+
+> "Todo cambio pasa por integración continua antes de entrar a `main`: análisis estático con `ruff`, la suite de pruebas con `pytest` y la construcción de la imagen Docker. Además, cada commit pasa por una revisión automática de código (`gga`) que valida las reglas de arquitectura, por ejemplo que la UI nunca importe `torch`."
+
+## 7. Validación del modelo — Marlon (1 min)
+
+Fuente: [`REPORTE_VALIDACION_MODELO.md`](REPORTE_VALIDACION_MODELO.md).
+
+> "Evaluamos el modelo sobre el split de prueba de HAM10000. La exactitud global es de **83,2 %**, pero ese número engaña: la clase mayoritaria son los nevus benignos. Lo clínicamente importante es la sensibilidad para melanoma: **87,5 %** (126 de 144), y nuestra meta era superar el 90 %, así que **no se cumple**."
+
+> "Además encontramos que el split de prueba se solapa con el de entrenamiento, lo que hace optimistas los resultados. Y en carcinoma basocelular el modelo solo acierta el **36 %** de los casos."
+
+> "Por eso lo presentamos como herramienta de **apoyo**. Los siguientes pasos serían reentrenar con datos sin solapamiento y ajustar el umbral de decisión para priorizar la sensibilidad en melanoma."
+
+## 8. Cierre — Miguel (15 seg)
 
 > "El resultado: un pipeline modular donde cada pieza tiene una responsabilidad única, testeable y desacoplada. La UI no sabe nada de deep learning, y el modelo no sabe nada de la interfaz. Y lo más importante clínicamente: no es una caja negra — Grad-CAM te muestra **por qué** el modelo decide lo que decide."
