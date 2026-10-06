@@ -14,4 +14,3 @@ def test_app_renders_header_and_inputs_without_loading_model() -> None:
     assert not app.exception
     assert any(title.value == "SkinLesionClassifier" for title in app.title)
     assert len(app.file_uploader) == 1
-    assert len(app.selectbox) == 1

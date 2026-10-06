@@ -16,7 +16,6 @@ EJECUCIÓN:
 """
 
 import time
-from pathlib import Path
 
 import streamlit as st
 from PIL import Image
@@ -27,8 +26,6 @@ from skin_lesion_classifier.inference import InferenceError
 from skin_lesion_classifier.labels import human_name, severity_badge, severity_of
 from skin_lesion_classifier.model_loader import ModelLoadingError
 from skin_lesion_classifier.report import build_report_pdf
-
-SAMPLES_DIR = Path(__file__).parent / "data" / "samples"
 
 # Ancho fijo de visualización para ambas imágenes (original y Grad-CAM), de modo
 # que se muestren del mismo tamaño y sin ocupar todo el ancho de la columna.
@@ -42,13 +39,6 @@ _OVERLAY_MAX_LONG_SIDE = 512
 def get_facade() -> DermatologyDiagnosticFacade:
     """Carga la fachada una única vez (el ViT se reutiliza entre reruns)."""
     return DermatologyDiagnosticFacade()
-
-
-def list_samples() -> list[Path]:
-    """Devuelve las muestras dermatoscópicas disponibles en data/samples/."""
-    if not SAMPLES_DIR.is_dir():
-        return []
-    return sorted(SAMPLES_DIR.glob("*.jpg"))
 
 
 def resize_overlay_to_match(overlay: Image.Image, original: Image.Image) -> Image.Image:
@@ -84,17 +74,9 @@ st.caption(
 )
 
 # Entrada de imagen y datos del paciente.
-col_upload, col_sample, col_patient = st.columns(3)
+col_upload, col_patient = st.columns(2)
 with col_upload:
     uploaded = st.file_uploader("Subir imagen dermatoscópica", type=["png", "jpg", "jpeg"])
-with col_sample:
-    samples = list_samples()
-    sample_names = [sample.name for sample in samples]
-    selected_sample = st.selectbox(
-        "O usar una muestra de prueba",
-        options=[""] + sample_names,
-        format_func=lambda name: name or "Seleccionar…",
-    )
 with col_patient:
     patient_name = st.text_input("Nombre del paciente", placeholder="Opcional")
 
@@ -105,14 +87,9 @@ if uploaded is not None:
         image = Image.open(uploaded).convert("RGB")
     except Exception:
         st.error("No se pudo leer la imagen subida. Verificá que el archivo sea una imagen válida.")
-elif selected_sample:
-    try:
-        image = Image.open(SAMPLES_DIR / selected_sample).convert("RGB")
-    except Exception:
-        st.error("No se pudo cargar la muestra seleccionada.")
 
 if image is None:
-    st.info("Subí una imagen dermatoscópica o seleccioná una muestra de prueba para comenzar.")
+    st.info("Subí una imagen dermatoscópica para comenzar.")
     st.stop()
 
 # Diagnóstico clínico completo (predicción + Grad-CAM).
