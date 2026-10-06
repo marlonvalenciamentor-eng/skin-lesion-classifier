@@ -105,3 +105,30 @@ Fuente: [`REPORTE_VALIDACION_MODELO.md`](REPORTE_VALIDACION_MODELO.md).
 ## 8. Cierre — Miguel (15 seg)
 
 > "El resultado: un pipeline modular donde cada pieza tiene una responsabilidad única, testeable y desacoplada. La UI no sabe nada de deep learning, y el modelo no sabe nada de la interfaz. Y lo más importante clínicamente: no es una caja negra — Grad-CAM te muestra **por qué** el modelo decide lo que decide."
+
+---
+
+## Anexo — Flujo técnico de referencia (resumen)
+
+Guía rápida del recorrido completo, de la interfaz al PDF. La **fachada orquesta**:
+llama a `model_loader` → `inference` → `gradcam` **en orden** (secuencial, no en paralelo)
+y junta el resultado.
+
+```
+1. app.py   →  file_uploader captura la imagen → Image.open().convert("RGB")
+2. app.py   →  get_facade()  (cacheado: se construye UNA sola vez)
+3. facade   →  load_inference_service()  (model_loader)
+               · local-first: models/vit-skin-cancer si está completo
+               · si no → descarga de Hugging Face Hub (transformers, SIN API)
+               · valida las 7 clases HAM10000
+4. facade   →  predict(image)  (inference)
+               · RGB → 224×224 → tensor → forward pass → softmax → Top-1
+5. facade   →  explain(image)  (gradcam)   ← secuencial, después de predict
+               · hook en la última capa → gradientes → heatmap → overlay
+6. facade   →  combina todo en DiagnosticResult
+7. app.py   →  muestra 3 columnas (imagen | heatmap | diagnóstico)
+8. report   →  build_report_pdf() genera el PDF descargable
+```
+
+> `load_inference_service()` **solo carga** el modelo y el procesador (una vez).
+> La **predicción** la hace `predict()`, y la **explicación** `explain()` — son pasos distintos.
