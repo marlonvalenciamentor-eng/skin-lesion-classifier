@@ -6,9 +6,9 @@ ante cualquier duda, manda la constitución.
 
 ## Bloqueantes (rechazar el commit)
 
-1. **Desacoplamiento UI ↔ modelo:** `app.py` y `api_client.py` no importan
-   `torch`, `transformers`, `safetensors` ni la fachada. La UI solo habla con la
-   API por HTTP y valida respuestas con los contratos Pydantic de `schemas.py`.
+1. **Desacoplamiento UI ↔ modelo:** `app.py` no importa `torch`, `transformers`
+   ni `safetensors`. Consume la fachada `DermatologyDiagnosticFacade`, que es el
+   único componente que toca el modelo.
 2. **Sin pesos ni datasets en git:** nada de `.safetensors`, `.pt`, `.bin`,
    imágenes clínicas masivas ni rutas `models/` o `data/` versionadas. Se
    descargan bajo demanda desde Hugging Face Hub.
@@ -26,7 +26,7 @@ ante cualquier duda, manda la constitución.
   inferencia y Grad-CAM; los demás componentes no se llaman entre sí saltándola.
 - Inyección de dependencias: los servicios reciben modelo y procesador por
   parámetro; no instancian dependencias pesadas en el constructor.
-- Salidas estructuradas como `@dataclass(frozen=True)` o modelos Pydantic v2.
+- Salidas estructuradas como `@dataclass(frozen=True)`.
 - Errores esperables (red, archivo corrupto, dimensiones inválidas) se envuelven
   en excepciones de dominio (`ModelLoadingError`, `InferenceError`,
   `GradCAMError`, …) con mensaje claro en español y `raise ... from err`.
