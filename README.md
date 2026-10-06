@@ -1,26 +1,24 @@
 # Skin Lesion Classifier
 
 Skin lesion classification from dermoscopic images using a pretrained model,
-with Grad-CAM visual explanations, a FastAPI inference service, and a
-Streamlit web UI.
+with Grad-CAM visual explanations and a Streamlit web UI.
 
 Course project — *Desarrollo de Proyectos de IA*, Universidad Autónoma de Occidente (2026-5B).
 
 ## Architecture
 
-The system is split into two independently deployable services:
+The system runs as a single service: the Streamlit UI orchestrates everything
+through the `DermatologyDiagnosticFacade`, which owns the model.
 
 ```
-Streamlit UI  --HTTP/JSON (Pydantic contracts)-->  FastAPI Inference API  --> Facade --> Model
-(no torch/transformers)                            (owns the ViT + Grad-CAM)
+Streamlit UI  -->  DermatologyDiagnosticFacade  -->  Model (ViT + Grad-CAM)
+(no torch/transformers)   (preprocessing + inference + Grad-CAM)
 ```
 
-- **Inference API** (`skin_lesion_classifier.api`) owns the model: it loads the
-  ViT once at startup, runs the diagnostic facade, and returns a validated
-  `DiagnosisResponse` (Pydantic v2) over HTTP.
-- **Web UI** (`app.py`) never imports `torch`, `transformers`, or the facade.
-  It talks to the API through `skin_lesion_classifier.api_client`, validating
-  every response against the same Pydantic contracts (`schemas.py`).
+- **Facade** (`skin_lesion_classifier.facade`) orchestrates preprocessing,
+  inference and Grad-CAM, exposing a single `diagnose()` method.
+- **Web UI** (`app.py`) never imports `torch` or `transformers` directly: it
+  consumes the facade, which is the only component that touches the model.
 
 ## Team
 
@@ -41,27 +39,17 @@ cd skin-lesion-classifier
 uv sync
 ```
 
-`uv sync` installs everything (dev + api + ui groups) by default, so a single
-command still sets up the full development environment.
+`uv sync` installs everything (runtime + dev) by default, so a single command
+still sets up the full development environment.
 
-## Run locally (two terminals)
+## Run locally
 
 ```bash
-# Terminal 1: inference API (owns the model)
-uv run uvicorn skin_lesion_classifier.api:app --port 8000
-
-# Terminal 2: web UI (talks to the API over HTTP)
 uv run streamlit run app.py
 ```
 
-Start the API first, then open the Streamlit app at http://localhost:8501.
-
-The UI is configured via two environment variables:
-
-| Variable | Default | Purpose |
-|----------|---------|---------|
-| `API_URL` | `http://localhost:8000` | Base URL of the inference API. |
-| `API_TIMEOUT_SECONDS` | `60.0` | HTTP client timeout (seconds). Falls back to the default if unset, not a number, or not strictly positive. |
+Then open http://localhost:8501. The first diagnosis loads the model (cached
+afterwards for subsequent requests).
 
 ## Run with Docker
 
@@ -69,14 +57,11 @@ The UI is configured via two environment variables:
 docker compose up --build
 ```
 
-- API: http://localhost:8000 (docs at http://localhost:8000/docs)
 - UI: http://localhost:8501
 
-The API image only installs the `api` dependency group (torch, transformers,
-FastAPI); the UI image only installs the `ui` group (Streamlit, httpx) and
-never pulls in torch or transformers. Model weights are cached in a named
-Docker volume so they download once, on first run, instead of being baked
-into the image.
+A single image runs the Streamlit UI together with the model. Weights are
+cached in a named Docker volume so they download once, on first run, instead
+of being baked into the image.
 
 ## Run tests
 
@@ -118,11 +103,10 @@ uv run ruff format .
 
 ```
 src/skin_lesion_classifier/   # package: image loading, preprocessing, model, Grad-CAM,
-                               # facade, Pydantic schemas, FastAPI app, HTTP client,
-                               # evaluation (metrics, dataset loader, perturbations, CLI)
-app.py                        # Streamlit UI (HTTP client only, no torch/transformers)
-docker/                       # api.Dockerfile, ui.Dockerfile
-docker-compose.yml            # api + ui services, named HF cache volume
+                               # facade, evaluation (metrics, dataset loader, perturbations, CLI)
+app.py                        # Streamlit UI (facade only, no torch/transformers)
+docker/Dockerfile             # single image: Streamlit UI + model
+docker-compose.yml            # single service, named HF cache volume
 tests/                        # pytest suite
 odd/tasks/                    # SDD ticket specs (spec-driven development)
 docs/propuesta.md             # formal project proposal (M2 deliverable, PDF in docs/)
