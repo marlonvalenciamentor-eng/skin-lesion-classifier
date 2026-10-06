@@ -1,42 +1,26 @@
 services:
-  api:
+  app:
     build:
       context: .
-      dockerfile: docker/api.Dockerfile
+      dockerfile: docker/Dockerfile
     ports:
-      - "8000:8000"
+      - "8501:8501"
     volumes:
-      # Named volume: model weights download once (Hugging Face cache) and are
-      # never baked into the image layer.
+      # Named volume: los pesos del modelo se descargan una vez (caché de
+      # Hugging Face) y nunca se hornean en la capa de imagen.
       - hf-cache:/home/appuser/.cache/huggingface
+      - ./data/samples:/app/data/samples:ro
     healthcheck:
       test:
         - "CMD"
         - "/app/.venv/bin/python"
         - "-c"
-        - "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=3)"
+        - "import urllib.request; urllib.request.urlopen('http://localhost:8501/_stcore/health', timeout=3)"
       interval: 30s
       timeout: 5s
       retries: 3
-      # Generous start_period: first boot downloads the ~343 MB ViT checkpoint.
+      # Generous start_period: el primer arranque descarga el ViT de ~343 MB.
       start_period: 180s
-
-  ui:
-    build:
-      context: .
-      dockerfile: docker/ui.Dockerfile
-    ports:
-      - "8501:8501"
-    environment:
-      API_URL: http://api:8000
-      # Generous UI-side timeout: the API's own model-load/warm-up can take a while
-      # on first boot, and CPU inference is slower than a typical HTTP call.
-      API_TIMEOUT_SECONDS: "60"
-    depends_on:
-      api:
-        condition: service_healthy
-    volumes:
-      - ./data/samples:/app/data/samples:ro
 
 volumes:
   hf-cache:
