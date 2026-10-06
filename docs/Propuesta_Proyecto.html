@@ -180,6 +180,111 @@
       padding: 1pt 3pt;
       border-radius: 2pt;
     }
+    /* ===== Diagrama de Gantt (Cap. 3) ===== */
+    .gantt {
+      margin: 10pt 0 6pt;
+      page-break-inside: avoid;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+      font-size: 7.6pt;
+      line-height: 1.25;
+      text-align: left;
+    }
+    .gantt-title {
+      font-size: 9pt;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 5pt;
+    }
+    .g-row {
+      display: grid;
+      grid-template-columns: 9mm 60mm 14mm 1fr;
+      align-items: center;
+      border-bottom: 0.4pt solid #E2E8F0;
+      min-height: 11pt;
+    }
+    .g-head {
+      font-weight: bold;
+      border-bottom: 0.8pt solid #475569;
+      background: #F1F5F9;
+      min-height: 12pt;
+    }
+    .g-phase {
+      grid-column: 1 / -1;
+      background: #E2E8F0;
+      font-weight: bold;
+      padding: 1.5pt 3pt;
+      border-bottom: 0.4pt solid #94A3B8;
+      font-size: 7.4pt;
+    }
+    .g-id, .g-dep {
+      font-family: "Consolas", "Courier New", monospace;
+      font-size: 7pt;
+      padding-left: 2pt;
+    }
+    .g-task { padding-right: 3pt; }
+    .g-grid {
+      display: grid;
+      grid-template-columns: repeat(16, 1fr);
+      height: 11pt;
+      align-items: center;
+      border-left: 0.4pt solid #CBD5E1;
+    }
+    .g-head .g-grid { height: 12pt; }
+    .g-grid > span {
+      border-right: 0.4pt solid #E2E8F0;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 6pt;
+      color: #475569;
+    }
+    .g-bar {
+      height: 6.5pt;
+      border-radius: 1.5pt;
+      background: #64748B;
+      align-self: center;
+      margin: 0 0.6pt;
+    }
+    .g-bar.crit { background: #B91C1C; }
+    .g-ms {
+      align-self: center;
+      justify-self: center;
+      width: 6pt;
+      height: 6pt;
+      background: #0F766E;
+      transform: rotate(45deg);
+    }
+    .g-legend {
+      display: flex;
+      gap: 12pt;
+      flex-wrap: wrap;
+      font-size: 7.4pt;
+      margin-top: 5pt;
+      justify-content: center;
+    }
+    .g-legend span { display: inline-flex; align-items: center; gap: 3pt; }
+    .g-key {
+      display: inline-block;
+      width: 12pt;
+      height: 5pt;
+      border-radius: 1.5pt;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .g-key.n { background: #64748B; }
+    .g-key.c { background: #B91C1C; }
+    .g-key.m {
+      width: 6pt; height: 6pt; border-radius: 0;
+      background: #0F766E; transform: rotate(45deg);
+    }
+    .g-note {
+      font-size: 7.6pt;
+      color: #334155;
+      margin-top: 5pt;
+      text-align: left;
+    }
   </style>
 </head>
 <body>
@@ -319,33 +424,137 @@
 <h2>CAPÍTULO 3: CRONOGRAMA Y RUTA CRÍTICA (CPM)</h2>
 <h3>3.1. Cronograma de Ejecución (15 Días)</h3>
 <p>El proyecto se desarrollará en 4 fases principales coordinadas mediante sprints cortos:</p>
-<pre><code class="language-mermaid">gantt
-    title Cronograma de Implementación y Ruta Crítica (15 Días)
-    dateFormat  YYYY-MM-DD
-    section Fase 1: Planeación
-    Revisión de Requisitos y Guía Clase 2       :done, p1, 2026-09-16, 2026-09-17
-    Elaboración de Propuesta Formal (PDF/MD)    :active, p2, 2026-09-17, 2026-09-18
-    Diseño de Mapas Mentales (Agile + DevOps)   :crit, p3, 2026-09-18, 2026-09-19
-    Configuración de Tablero Kanban y Repo Git  :p4, 2026-09-19, 2026-09-20
-    section Fase 2: Backend &amp; Inferencia
-    Configuración Entorno UV y Dependencias     :crit, b1, 2026-09-20, 2026-09-21
-    Módulo de Ingesta y Preprocesamiento        :b2, 2026-09-21, 2026-09-22
-    Integración Inferencia ViT (Hugging Face)   :crit, b3, 2026-09-22, 2026-09-24
-    Módulo de Explicabilidad Grad-CAM           :crit, b4, 2026-09-24, 2026-09-26
-    section Fase 3: Frontend &amp; Fachada
-    Implementación Capa Fachada (Integrator)    :crit, f1, 2026-09-26, 2026-09-27
-    Diseño UI con Streamlit                     :f2, 2026-09-27, 2026-09-29
-    section Fase 4: Calidad &amp; Entrega
-    Suite de Pruebas Unitarias (Pytest)         :crit, q1, 2026-09-29, 2026-09-30
-    Validación Cruzada y Reporte Final          :q2, 2026-09-30, 2026-10-01
-</code></pre>
+<div class="gantt">
+  <div class="gantt-title">Diagrama de Gantt — Cronograma de Implementación y Ruta Crítica (15 días)</div>
+
+  <div class="g-row g-head">
+    <div class="g-id">ID</div>
+    <div class="g-task">Tarea</div>
+    <div class="g-dep">Depende</div>
+    <div class="g-grid">
+      <span>16</span><span>17</span><span>18</span><span>19</span><span>20</span><span>21</span><span>22</span><span>23</span>
+      <span>24</span><span>25</span><span>26</span><span>27</span><span>28</span><span>29</span><span>30</span><span>01</span>
+    </div>
+  </div>
+
+  <div class="g-row"><div class="g-phase">FASE 1 — Planeación (16 al 20 de septiembre)</div></div>
+
+  <div class="g-row">
+    <div class="g-id">P1</div>
+    <div class="g-task">Revisión de requisitos y guía de Clase 2</div>
+    <div class="g-dep">—</div>
+    <div class="g-grid"><div class="g-bar" style="grid-column: 1 / span 1;"></div></div>
+  </div>
+  <div class="g-row">
+    <div class="g-id">P2</div>
+    <div class="g-task">Elaboración de propuesta formal (PDF/MD)</div>
+    <div class="g-dep">P1</div>
+    <div class="g-grid"><div class="g-bar" style="grid-column: 2 / span 1;"></div></div>
+  </div>
+  <div class="g-row">
+    <div class="g-id">P3</div>
+    <div class="g-task">Diseño de mapas mentales (Agile + DevOps)</div>
+    <div class="g-dep">P2</div>
+    <div class="g-grid"><div class="g-bar" style="grid-column: 3 / span 1;"></div></div>
+  </div>
+  <div class="g-row">
+    <div class="g-id">P4</div>
+    <div class="g-task">Configuración de tablero Kanban y repositorio Git</div>
+    <div class="g-dep">P3</div>
+    <div class="g-grid"><div class="g-bar" style="grid-column: 4 / span 1;"></div></div>
+  </div>
+
+  <div class="g-row"><div class="g-phase">FASE 2 — Backend e Inferencia (20 al 26 de septiembre)</div></div>
+
+  <div class="g-row">
+    <div class="g-id">B1</div>
+    <div class="g-task">Configuración de entorno <code>uv</code> y dependencias</div>
+    <div class="g-dep">P4</div>
+    <div class="g-grid"><div class="g-bar crit" style="grid-column: 5 / span 1;"></div></div>
+  </div>
+  <div class="g-row">
+    <div class="g-id">B2</div>
+    <div class="g-task">Módulo de ingesta y preprocesamiento</div>
+    <div class="g-dep">B1</div>
+    <div class="g-grid"><div class="g-bar" style="grid-column: 6 / span 1;"></div></div>
+  </div>
+  <div class="g-row">
+    <div class="g-id">B3</div>
+    <div class="g-task">Integración de inferencia ViT (Hugging Face)</div>
+    <div class="g-dep">B2</div>
+    <div class="g-grid"><div class="g-bar crit" style="grid-column: 7 / span 2;"></div></div>
+  </div>
+  <div class="g-row">
+    <div class="g-id">B4</div>
+    <div class="g-task">Módulo de explicabilidad Grad-CAM</div>
+    <div class="g-dep">B3</div>
+    <div class="g-grid"><div class="g-bar crit" style="grid-column: 9 / span 2;"></div></div>
+  </div>
+
+  <div class="g-row"><div class="g-phase">FASE 3 — Frontend y Fachada (26 al 29 de septiembre)</div></div>
+
+  <div class="g-row">
+    <div class="g-id">F1</div>
+    <div class="g-task">Implementación de la capa Fachada (integrator)</div>
+    <div class="g-dep">B4</div>
+    <div class="g-grid"><div class="g-bar crit" style="grid-column: 11 / span 1;"></div></div>
+  </div>
+  <div class="g-row">
+    <div class="g-id">F2</div>
+    <div class="g-task">Diseño de interfaz con Streamlit</div>
+    <div class="g-dep">F1</div>
+    <div class="g-grid"><div class="g-bar" style="grid-column: 12 / span 2;"></div></div>
+  </div>
+
+  <div class="g-row"><div class="g-phase">FASE 4 — Calidad y Entrega (29 de septiembre al 1 de octubre)</div></div>
+
+  <div class="g-row">
+    <div class="g-id">Q1</div>
+    <div class="g-task">Suite de pruebas unitarias (pytest)</div>
+    <div class="g-dep">F2</div>
+    <div class="g-grid"><div class="g-bar crit" style="grid-column: 14 / span 1;"></div></div>
+  </div>
+  <div class="g-row">
+    <div class="g-id">Q2</div>
+    <div class="g-task">Validación cruzada y reporte final</div>
+    <div class="g-dep">Q1</div>
+    <div class="g-grid"><div class="g-bar" style="grid-column: 15 / span 1;"></div></div>
+  </div>
+
+  <div class="g-row">
+    <div class="g-id">—</div>
+    <div class="g-task"><strong>Hitos (milestones)</strong></div>
+    <div class="g-dep">—</div>
+    <div class="g-grid">
+      <div class="g-ms" style="grid-column: 7;" title="H1"></div>
+      <div class="g-ms" style="grid-column: 11;" title="H2"></div>
+      <div class="g-ms" style="grid-column: 16;" title="H3"></div>
+    </div>
+  </div>
+
+  <div class="g-legend">
+    <span><i class="g-key n"></i> Tarea con holgura</span>
+    <span><i class="g-key c"></i> Tarea en ruta crítica (holgura cero)</span>
+    <span><i class="g-key m"></i> Hito de entrega</span>
+  </div>
+
+  <div class="g-note">
+    <strong>Dependencias:</strong> el proyecto encadena las doce tareas en secuencia fin-a-inicio
+    (P1 → P2 → P3 → P4 → B1 → B2 → B3 → B4 → F1 → F2 → Q1 → Q2); la columna <em>Depende</em> indica
+    la tarea predecesora obligatoria de cada actividad.
+    <strong>Hitos:</strong> H1 — Entrega del Módulo 2 (22/09); H2 — Núcleo funcional de inferencia y
+    explicabilidad completo (26/09); H3 — Entrega final validada (01/10).
+  </div>
+</div>
 <h3>3.2. Identificación de la Ruta Crítica (CPM)</h3>
-<p>Las actividades que determinan la duración mínima del proyecto y no admiten holgura son:
-1. <strong>Configuración de Entorno <code>uv</code>:</strong> Base para la reproducibilidad de paquetes.
-2. <strong>Pipeline de Inferencia con ViT:</strong> La carga de pesos Safetensors y extracción de tensores de atención.
-3. <strong>Mapeo Grad-CAM en Capas de Auto-Atención:</strong> La adaptación matemática de Grad-CAM a arquitecturas Transformer (manipulación del tensor de salida de la última capa de atención previa a la cabeza de clasificación).
-4. <strong>Capa Fachada (<code>Integrator</code>):</strong> Garantiza el desacoplamiento estricto requerido por la arquitectura limpia de la cátedra.
-5. <strong>Testing Unitario con <code>pytest</code>:</strong> Criterio mandatorio de aceptación para asegurar estabilidad.</p>
+<p>Las actividades que determinan la duración mínima del proyecto y no admiten holgura son:</p>
+<ol>
+<li><strong>Configuración de Entorno <code>uv</code> (B1):</strong> Base para la reproducibilidad de paquetes.</li>
+<li><strong>Pipeline de Inferencia con ViT (B3):</strong> La carga de pesos Safetensors y extracción de tensores de atención.</li>
+<li><strong>Mapeo Grad-CAM en Capas de Auto-Atención (B4):</strong> La adaptación matemática de Grad-CAM a arquitecturas Transformer (manipulación del tensor de salida de la última capa de atención previa a la cabeza de clasificación).</li>
+<li><strong>Capa Fachada (F1):</strong> Garantiza el desacoplamiento estricto requerido por la arquitectura limpia de la cátedra.</li>
+<li><strong>Testing Unitario con <code>pytest</code> (Q1):</strong> Criterio mandatorio de aceptación para asegurar estabilidad.</li>
+</ol>
 <hr />
 <h2>CAPÍTULO 4: MARCO DE INVESTIGACIÓN Y METODOLOGÍA CRISP-DM</h2>
 <h3>4.1. Modelos y Formatos Considerados</h3>
@@ -473,7 +682,7 @@
 <h3>6.1. Enlaces a Artefactos Digitales</h3>
 <ul>
 <li><strong>Repositorio de Código Fuente:</strong> <a href="https://github.com/marlonvalenciamentor-eng/skin-lesion-classifier">https://github.com/marlonvalenciamentor-eng/skin-lesion-classifier</a></li>
-<li><strong>Tablero Kanban (GitHub Projects):</strong> Disponible en la pestaña <em>Projects</em> del repositorio oficial.</li>
+<li><strong>Tablero Kanban público (GitHub Projects):</strong> <a href="https://github.com/users/miguelortizR/projects/2">https://github.com/users/miguelortizR/projects/2</a></li>
 <li><strong>Ficha del Modelo en Hugging Face:</strong> <a href="https://huggingface.co/Anwarkh1/Skin_Cancer-Image_Classification">Anwarkh1/Skin_Cancer-Image_Classification</a></li>
 </ul>
 <h3>6.2. Referencias Bibliográficas</h3>

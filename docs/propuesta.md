@@ -88,23 +88,32 @@ El proyecto se desarrollará en 4 fases principales coordinadas mediante sprints
 gantt
     title Cronograma de Implementación y Ruta Crítica (15 Días)
     dateFormat  YYYY-MM-DD
+    axisFormat  %d/%m
     section Fase 1: Planeación
-    Revisión de Requisitos y Guía Clase 2       :done, p1, 2026-09-16, 2026-09-17
-    Elaboración de Propuesta Formal (PDF/MD)    :active, p2, 2026-09-17, 2026-09-18
-    Diseño de Mapas Mentales (Agile + DevOps)   :crit, p3, 2026-09-18, 2026-09-19
-    Configuración de Tablero Kanban y Repo Git  :p4, 2026-09-19, 2026-09-20
+    Revisión de Requisitos y Guía Clase 2       :done, p1, 2026-09-16, 1d
+    Elaboración de Propuesta Formal (PDF/MD)    :done, p2, after p1, 1d
+    Diseño de Mapas Mentales (Agile + DevOps)   :done, p3, after p2, 1d
+    Configuración de Tablero Kanban y Repo Git  :done, p4, after p3, 1d
     section Fase 2: Backend & Inferencia
-    Configuración Entorno UV y Dependencias     :crit, b1, 2026-09-20, 2026-09-21
-    Módulo de Ingesta y Preprocesamiento        :b2, 2026-09-21, 2026-09-22
-    Integración Inferencia ViT (Hugging Face)   :crit, b3, 2026-09-22, 2026-09-24
-    Módulo de Explicabilidad Grad-CAM           :crit, b4, 2026-09-24, 2026-09-26
+    Configuración Entorno UV y Dependencias     :crit, done, b1, after p4, 1d
+    Módulo de Ingesta y Preprocesamiento        :done, b2, after b1, 1d
+    Integración Inferencia ViT (Hugging Face)   :crit, done, b3, after b2, 2d
+    Módulo de Explicabilidad Grad-CAM           :crit, done, b4, after b3, 2d
+    Hito H1 - Entrega Módulo 2                  :milestone, h1, 2026-09-22, 0d
     section Fase 3: Frontend & Fachada
-    Implementación Capa Fachada (Integrator)    :crit, f1, 2026-09-26, 2026-09-27
-    Diseño UI con Streamlit                     :f2, 2026-09-27, 2026-09-29
+    Implementación Capa Fachada (Integrator)    :crit, f1, after b4, 1d
+    Diseño UI con Streamlit                     :f2, after f1, 2d
+    Hito H2 - Núcleo funcional completo         :milestone, h2, 2026-09-26, 0d
     section Fase 4: Calidad & Entrega
-    Suite de Pruebas Unitarias (Pytest)         :crit, q1, 2026-09-29, 2026-09-30
-    Validación Cruzada y Reporte Final          :q2, 2026-09-30, 2026-10-01
+    Suite de Pruebas Unitarias (Pytest)         :crit, q1, after f2, 1d
+    Validación Cruzada y Reporte Final          :q2, after q1, 1d
+    Hito H3 - Entrega final validada            :milestone, h3, 2026-10-01, 0d
 ```
+
+**Dependencias:** las doce tareas se encadenan en secuencia fin-a-inicio
+(P1 → P2 → P3 → P4 → B1 → B2 → B3 → B4 → F1 → F2 → Q1 → Q2), declaradas en el diagrama
+mediante la cláusula `after`. Las barras marcadas como `crit` corresponden a la ruta crítica
+detallada en la sección 3.2.
 
 ### 3.2. Identificación de la Ruta Crítica (CPM)
 Las actividades que determinan la duración mínima del proyecto y no admiten holgura son:
@@ -242,7 +251,7 @@ El proyecto implementará un tablero ágil en **GitHub Projects** con 4 estados 
 
 ### 6.1. Enlaces a Artefactos Digitales
 * **Repositorio de Código Fuente:** [https://github.com/marlonvalenciamentor-eng/skin-lesion-classifier](https://github.com/marlonvalenciamentor-eng/skin-lesion-classifier)
-* **Tablero Kanban (GitHub Projects):** Disponible en la pestaña *Projects* del repositorio oficial.
+* **Tablero Kanban público (GitHub Projects):** [https://github.com/users/miguelortizR/projects/2](https://github.com/users/miguelortizR/projects/2)
 * **Ficha del Modelo en Hugging Face:** [Anwarkh1/Skin_Cancer-Image_Classification](https://huggingface.co/Anwarkh1/Skin_Cancer-Image_Classification)
 
 ### 6.2. Referencias Bibliográficas
