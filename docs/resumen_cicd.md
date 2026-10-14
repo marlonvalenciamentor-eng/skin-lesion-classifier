@@ -70,14 +70,24 @@ deploy:      # SSH al droplet → docker pull + docker run
 - **`HTTP request to an HTTPS server`** → usar Docker sin TLS (`DOCKER_HOST=tcp://docker:2375`, `DOCKER_TLS_CERTDIR=""`).
 - **`insufficient scopes`** → el token de Docker Hub debe ser **Read & Write** (no Read-only), y hay que reemplazarlo en la variable.
 
-### Runner propio
+### Runner (en el droplet, 24/7)
+
+El runner corre en el **droplet** (no en la PC), así el CI funciona sin depender de ninguna máquina local.
 
 ```bash
-sudo gitlab-runner register --url https://gitlab.com --token glrt-XXXX \
-  --name skin-lesion-runner --executor docker --docker-image python:3.13-slim
+# Instalar en el droplet (Ubuntu):
+curl -fsSL https://packages.gitlab.com/install/repositories/runner/gitlab-runner/script.deb.sh | bash
+apt-get install -y gitlab-runner
+
+# Registrar (el MISMO token sirve para un worker en otra máquina):
+gitlab-runner register --non-interactive --url https://gitlab.com --token glrt-XXXX \
+  --name droplet-runner --executor docker --docker-image python:3.13-slim
+
+# privado para Docker-in-Docker: privileged = true en /etc/gitlab-runner/config.toml
+systemctl enable --now gitlab-runner
 ```
-- Requiere la **PC encendida** (el runner corre en la laptop).
-- `privileged = true` en `/etc/gitlab-runner/config.toml` para Docker-in-Docker.
+- Para forzar que use **solo el droplet**: `sudo gitlab-runner stop` en la PC.
+- (Antes corría en la laptop, que exigía tener la PC encendida.)
 
 ---
 
@@ -115,6 +125,7 @@ docker run -p 8501:8501 -v skin-lesion-hf:/home/appuser/.cache/huggingface migue
 - Clave `ed25519` dedicada: `~/.ssh/gitlab-deploy` (privada) + `.pub` (pública).
 - La **pública** se instaló en el droplet al crearlo (DigitalOcean).
 - La **privada** se guardó en GitLab como variable `SSH_KEY` (tipo **File**), para que el pipeline entre al droplet sin contraseña.
+- ⚠️ **Gotcha:** la clave debe conservar el **newline final**. Si se crea la variable con `$(cat ...)`, el `$()` se come ese newline y OpenSSH falla con *"error in libcrypto: unsupported"*. Solución: subirla leyendo el archivo **crudo** (`--form "value=<archivo"`).
 
 ### Job `deploy`
 ```yaml
@@ -165,15 +176,17 @@ export DIGITALOCEAN_API_TOKEN="dop_v1_..."
 
 ## 7. Estado final
 
-- ✅ CI de GitLab: test + lint + typecheck en verde.
+- ✅ Pipeline completo en verde: test → lint → typecheck → build → deploy.
 - ✅ Imagen publicada en Docker Hub (build + push automático).
 - ✅ Deploy automático por SSH al droplet.
 - ✅ App corriendo: **http://167.99.165.18:8501**.
+- ✅ Runner en el droplet (24/7, sin depender de la PC).
+- ✅ GitHub Actions también ejecuta test + docker build en cada push.
 - ✅ MCP servers de GitHub, GitLab y DigitalOcean configurados.
 - ✅ Makefile con las tareas de desarrollo.
 
 ## 8. Notas de operación
 
-- **El runner de GitLab corre en tu PC** → los pipelines solo ejecutan con la laptop encendida. La **app** (droplet) funciona igual, 24/7.
+- **El runner corre en el droplet** (24/7) → el CI ya **no necesita la PC**.
 - **Cada `git push gitlab main`** reconstruye, publica y redespliega la app.
 - **El droplet cuesta ~$12/mes** (por horas, mientras está encendido).
