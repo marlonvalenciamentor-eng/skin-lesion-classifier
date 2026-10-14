@@ -92,6 +92,21 @@ failure is recorded under `gradcam` without discarding the results.
 The committed results and their interpretation, including the train/test overlap
 limitation, are in [`docs/REPORTE_VALIDACION_MODELO.md`](docs/REPORTE_VALIDACION_MODELO.md).
 
+## MLOps tracking (MLflow)
+
+Model evaluations are tracked with [MLflow](https://mlflow.org/):
+
+```bash
+make evaluate-mlflow   # runs the evaluation and logs it to MLflow
+make mlflow-ui         # opens the MLflow UI at http://localhost:5000
+```
+
+Each run logs parameters (architecture, learning rate, batch size, model and
+dataset revisions), metrics (accuracy, F1, per-class recall, latencies), the
+project metadata (team, course, git commit) and artifacts (model weights,
+confusion matrix, Grad-CAM overlays). Point `--tracking-uri` at a remote server
+(e.g. an MLflow server on the droplet) to centralize runs.
+
 ## Lint and format
 
 ```bash
