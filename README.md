@@ -63,12 +63,44 @@ A single image runs the Streamlit UI together with the model. Weights are
 cached in a named Docker volume so they download once, on first run, instead
 of being baked into the image.
 
+## Deployment
+
+The image is published to
+[Docker Hub](https://hub.docker.com/r/miguelortizro/skin-lesion-classifier) and
+deployed to a DigitalOcean droplet:
+
+```bash
+docker pull miguelortizro/skin-lesion-classifier:latest
+docker run -d -p 8501:8501 --restart unless-stopped \
+  -v skin-lesion-hf:/home/appuser/.cache/huggingface \
+  miguelortizro/skin-lesion-classifier:latest
+```
+
+The GitLab pipeline automates this: after building and pushing the image, the
+`deploy` job connects to the droplet over SSH and restarts the container. Setup
+details (runner, CI/CD variables, SSH key) are in
+[`docs/resumen_cicd.md`](docs/resumen_cicd.md).
+
 ## Run tests
 
 ```bash
 uv run pytest -v                 # unit tests (no model download)
 uv run pytest -v -m integration  # downloads the real model from Hugging Face
 ```
+
+## Continuous integration
+
+Every push to `main` runs the test suite on two platforms:
+
+| Platform | Jobs |
+|----------|------|
+| GitHub Actions | `test` (ruff + pytest) and `docker` (`docker compose build`) |
+| GitLab CI | `test` → `lint` → `typecheck` → `build-image` → `deploy` |
+
+The GitLab pipeline (see [`.gitlab-ci.yml`](.gitlab-ci.yml)) runs on a
+self-hosted runner, builds the image, pushes it to Docker Hub and deploys it
+(see [Deployment](#deployment)). The same checks run locally with `make test`
+and `make check`.
 
 ## Evaluate the model
 
@@ -91,6 +123,21 @@ failure is recorded under `gradcam` without discarding the results.
 
 The committed results and their interpretation, including the train/test overlap
 limitation, are in [`docs/REPORTE_VALIDACION_MODELO.md`](docs/REPORTE_VALIDACION_MODELO.md).
+
+## MLOps tracking (MLflow)
+
+Model evaluations are tracked with [MLflow](https://mlflow.org/):
+
+```bash
+make evaluate-mlflow   # runs the evaluation and logs it to MLflow
+make mlflow-ui         # opens the MLflow UI at http://localhost:5000
+```
+
+Each run logs parameters (architecture, learning rate, batch size, model and
+dataset revisions), metrics (accuracy, F1, per-class recall, latencies), the
+project metadata (team, course, git commit) and artifacts (model weights,
+confusion matrix, Grad-CAM overlays). Point `--tracking-uri` at a remote server
+(e.g. an MLflow server on the droplet) to centralize runs.
 
 ## Lint and format
 
