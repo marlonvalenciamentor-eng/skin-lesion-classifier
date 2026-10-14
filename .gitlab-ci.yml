@@ -1,7 +1,12 @@
 # =============================================================================
 # Pipeline de CI — SkinLesionClassifier (GitLab CI)
-# 1. Verificación: test / lint / typecheck (Makefile, imagen python:3.13-slim).
-# 2. Build: construye la imagen Docker y la publica en Docker Hub.
+#   1. test / lint / typecheck  → verificación (Makefile + python:3.13-slim)
+#   2. build-image              → construye y publica la imagen en Docker Hub
+#   3. deploy                   → SSH al droplet, pull + run del contenedor
+#
+# Variables requeridas (Settings > CI/CD > Variables):
+#   DOCKERHUB_USER, DOCKERHUB_TOKEN (Masked)
+#   SSH_HOST, SSH_USER, SSH_KEY (File)
 # =============================================================================
 
 image: python:3.13-slim
@@ -16,6 +21,7 @@ stages:
   - lint
   - typecheck
   - build
+  - deploy
 
 test:
   stage: test
@@ -33,11 +39,6 @@ typecheck:
   script:
     - make typecheck
 
-# --- Publicación de la imagen en Docker Hub --------------------------------
-# Requiere variables CI/CD en GitLab (Settings -> CI/CD -> Variables):
-#   DOCKERHUB_USER   = miguelortizro
-#   DOCKERHUB_TOKEN  = dckr_pat_... (Access Token, con Read/Write/Delete)
-# Requiere runner con executor docker + privileged = true (para Docker-in-Docker).
 build-image:
   stage: build
   image: docker:24.0.5
@@ -53,31 +54,11 @@ build-image:
     - docker push "$DOCKERHUB_USER/skin-lesion-classifier:$CI_COMMIT_SHORT_SHA"
     - docker push "$DOCKERHUB_USER/skin-lesion-classifier:latest"
 
-# =============================================================================
-# DEPLOY (SSH a un servidor remoto) — DESACTIVADO hasta tener una VPS
-# =============================================================================
-# Cómo activarlo:
-#   1. Descomentá el bloque `deploy` de abajo.
-#   2. Agregá `deploy` a la lista de `stages` (arriba).
-#   3. Cargá estas variables en GitLab (Settings > CI/CD > Variables):
-#        SSH_HOST           = IP/host del servidor (ej. 165.22.42.102)
-#        SSH_USER           = usuario con acceso (ej. root)
-#        SSH_KEY            = clave privada SSH (tipo File, con permiso de acceso)
-#        DOCKERHUB_USER     = miguelortizro  (ya usada en build-image)
-#        DOCKERHUB_TOKEN    = dckr_pat_...    (ya usada en build-image)
-#   4. El servidor debe tener Docker instalado.
-#
-# deploy:
-#   stage: deploy
-#   image: alpine:latest
-#   before_script:
-#     - apk add --no-cache openssh-client
-#     - chmod 400 "$SSH_KEY"
-#   script:
-#     - ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no "$SSH_USER@$SSH_HOST" "
-#         docker login -u \"$DOCKERHUB_USER\" -p \"$DOCKERHUB_TOKEN\" &&
-#         docker pull \"$DOCKERHUB_USER/skin-lesion-classifier:latest\" &&
-#         (docker stop skin-lesion-classifier || true) &&
-#         (docker rm skin-lesion-classifier || true) &&
-#         docker run -d -p 8501:8501 --name skin-lesion-classifier \"$DOCKERHUB_USER/skin-lesion-classifier:latest\" &&
-#         docker image prune -f"
+deploy:
+  stage: deploy
+  image: alpine:latest
+  before_script:
+    - apk add --no-cache openssh-client
+    - chmod 400 "$SSH_KEY"
+  script:
+    - ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no "$SSH_USER@$SSH_HOST" "docker pull $DOCKERHUB_USER/skin-lesion-classifier:latest && (docker stop skin-lesion-classifier || true) && (docker rm skin-lesion-classifier || true) && docker run -d -p 8501:8501 --name skin-lesion-classifier $DOCKERHUB_USER/skin-lesion-classifier:latest"
