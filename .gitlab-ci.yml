@@ -1,8 +1,7 @@
 # =============================================================================
 # Pipeline de CI — SkinLesionClassifier (GitLab CI)
-# Imagen: python:3.13-slim (Debian, ya trae apt + pip). Al usar `image:` se
-# ejecuta en un runner Linux con Docker. Se instala make + uv y se corren las
-# verificaciones vía el Makefile.
+# 1. Verificación: test / lint / typecheck (Makefile, imagen python:3.13-slim).
+# 2. Build: construye la imagen Docker y la publica en Docker Hub.
 # =============================================================================
 
 image: python:3.13-slim
@@ -12,15 +11,44 @@ before_script:
   - pip install --no-cache-dir uv
   - uv sync
 
+stages:
+  - test
+  - lint
+  - typecheck
+  - build
+
 test:
+  stage: test
   script:
     - make test
 
 lint:
+  stage: lint
   script:
     - make lint
     - make format-check
 
 typecheck:
+  stage: typecheck
   script:
     - make typecheck
+
+# --- Publicación de la imagen en Docker Hub --------------------------------
+# Requiere variables CI/CD en GitLab (Settings -> CI/CD -> Variables):
+#   DOCKERHUB_USER   = miguelortizro
+#   DOCKERHUB_TOKEN  = dckr_pat_... (Access Token, con Read/Write/Delete)
+# Requiere runner con executor docker + privileged = true (para Docker-in-Docker).
+build-image:
+  stage: build
+  image: docker:24.0.5
+  services:
+    - docker:24.0.5-dind
+  variables:
+    DOCKER_HOST: tcp://docker:2376
+    DOCKER_TLS_CERTDIR: "/certs"
+  before_script:
+    - docker login -u "$DOCKERHUB_USER" -p "$DOCKERHUB_TOKEN"
+  script:
+    - docker build -f docker/Dockerfile -t "$DOCKERHUB_USER/skin-lesion-classifier:$CI_COMMIT_SHORT_SHA" -t "$DOCKERHUB_USER/skin-lesion-classifier:latest" .
+    - docker push "$DOCKERHUB_USER/skin-lesion-classifier:$CI_COMMIT_SHORT_SHA"
+    - docker push "$DOCKERHUB_USER/skin-lesion-classifier:latest"
