@@ -70,6 +70,20 @@ uv run pytest -v                 # unit tests (no model download)
 uv run pytest -v -m integration  # downloads the real model from Hugging Face
 ```
 
+## Continuous integration
+
+Every push to `main` runs the test suite on two platforms:
+
+| Platform | Jobs |
+|----------|------|
+| GitHub Actions | `test` (ruff + pytest) and `docker` (`docker compose build`) |
+| GitLab CI | `test` → `lint` → `typecheck` → `build-image` → `deploy` |
+
+The GitLab pipeline (see [`.gitlab-ci.yml`](.gitlab-ci.yml)) runs on a
+self-hosted runner, builds the image, pushes it to Docker Hub and deploys it
+(see [Deployment](#deployment)). The same checks run locally with `make test`
+and `make check`.
+
 ## Evaluate the model
 
 ```bash
