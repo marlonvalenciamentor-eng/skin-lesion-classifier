@@ -12,6 +12,7 @@ RESPONSABILIDAD ÚNICA:
 """
 
 import logging
+import subprocess
 from pathlib import Path
 from typing import Any, Final
 
@@ -30,6 +31,12 @@ PRETRAINED_BATCH_SIZE: Final[int] = 32
 # Curvas de validación del entrenamiento original (Model Card, épocas 1..5).
 PRETRAINED_VAL_LOSS: Final[tuple[float, ...]] = (0.4994, 0.3237, 0.1790, 0.1498, 0.1000)
 PRETRAINED_VAL_ACCURACY: Final[tuple[float, ...]] = (0.8355, 0.8973, 0.9530, 0.9555, 0.9695)
+
+# Metadatos del proyecto, registrados como tags de la corrida.
+PROJECT_NAME: Final[str] = "SkinLesionClassifier"
+PROJECT_INSTITUTION: Final[str] = "Universidad Autónoma de Occidente (UAO)"
+PROJECT_COURSE: Final[str] = "Desarrollo de Soluciones de IA II — Módulo 2"
+PROJECT_TEAM: Final[str] = "Miguel Ángel Ortiz Roldán, Marlon Valencia Velosa"
 
 
 def _log_params(mlflow: Any, document: dict[str, Any]) -> None:
@@ -99,16 +106,57 @@ def _log_pretrained_training(mlflow: Any) -> None:
         mlflow.log_metric("pretrained.val_accuracy", accuracy, step=epoch)
 
 
+def _git_commit_hash() -> str | None:
+    """Hash corto del commit actual, o `None` si no hay repositorio git."""
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "--short", "HEAD"],
+            capture_output=True,
+            text=True,
+            check=True,
+            timeout=5,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return None
+    return result.stdout.strip() or None
+
+
+def _log_project_metadata(mlflow: Any) -> None:
+    """Registra los metadatos del proyecto como tags de la corrida."""
+    tags = {
+        "project.name": PROJECT_NAME,
+        "project.institution": PROJECT_INSTITUTION,
+        "project.course": PROJECT_COURSE,
+        "project.team": PROJECT_TEAM,
+    }
+    commit = _git_commit_hash()
+    if commit is not None:
+        tags["git.commit"] = commit
+    mlflow.set_tags(tags)
+
+
 def _log_artifacts(mlflow: Any, output_dir: Path) -> None:
+    """Sube los artefactos de evaluación: metrics.json, matriz de confusión y overlays Grad-CAM."""
     for path in sorted(output_dir.glob("*")):
         if path.is_file() and path.suffix.lower() in {".json", ".png"}:
             mlflow.log_artifact(str(path))
+
+
+def _log_model_weights(mlflow: Any, model_dir: Path) -> None:
+    """Registra los pesos del modelo local como artefactos (versionado del modelo)."""
+    if not model_dir.is_dir():
+        logger.warning("Directorio de modelo '%s' inexistente; no se registran pesos.", model_dir)
+        return
+    for path in sorted(model_dir.glob("*")):
+        if path.is_file():
+            mlflow.log_artifact(str(path), artifact_path="model")
 
 
 def log_evaluation(
     document: dict[str, Any],
     output_dir: Path,
     tracking_uri: str,
+    model_dir: Path | None = None,
     experiment: str = DEFAULT_EXPERIMENT,
 ) -> str:
     """Registra una corrida de evaluación en MLflow y devuelve su `run_id`.
@@ -116,7 +164,8 @@ def log_evaluation(
     Args:
         document: documento de resultados producido por `run_evaluation`.
         output_dir: directorio con `metrics.json`, `confusion_matrix.png` y overlays.
-        tracking_uri: URI de MLflow (ej. `file:./mlruns` o `http://host:5000`).
+        tracking_uri: URI de MLflow (ej. `sqlite:///mlflow.db` o `http://host:5000`).
+        model_dir: directorio local con los pesos del modelo (opcional; se suben como artefactos).
         experiment: nombre del experimento en MLflow.
 
     Returns:
@@ -128,12 +177,15 @@ def log_evaluation(
     mlflow.set_experiment(experiment)
 
     with mlflow.start_run() as active_run:
+        _log_project_metadata(mlflow)
         _log_params(mlflow, document)
         _log_summary_metrics(mlflow, document)
         _log_scenarios(mlflow, document)
         _log_targets(mlflow, document)
         _log_pretrained_training(mlflow)
         _log_artifacts(mlflow, output_dir)
+        if model_dir is not None:
+            _log_model_weights(mlflow, model_dir)
         run_id: str = str(active_run.info.run_id)
 
     logger.info("Corrida registrada en MLflow: run_id=%s (tracking: %s)", run_id, tracking_uri)

@@ -436,7 +436,13 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--tracking-uri",
         default=None,
-        help="URI de MLflow para registrar la corrida (ej. file:./mlruns). Sin esto, no registra.",
+        help="URI de MLflow (ej. sqlite:///mlflow.db). Sin esto, no registra.",
+    )
+    parser.add_argument(
+        "--model-dir",
+        type=Path,
+        default=None,
+        help="Directorio con los pesos del modelo para subirlos como artefactos (opcional).",
     )
     return parser
 
@@ -456,7 +462,7 @@ def main(
         skip_overlap=args.skip_overlap,
     )
     if args.tracking_uri:
-        log_evaluation(document, args.output_dir, args.tracking_uri)
+        log_evaluation(document, args.output_dir, args.tracking_uri, model_dir=args.model_dir)
     recall = document["targets"]["melanoma_recall"]
     latency = document["targets"]["latency"]
     logger.info(

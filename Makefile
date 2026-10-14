@@ -38,8 +38,8 @@ docker: ## Levanta la app con Docker
 evaluate: ## Evalúa el modelo (≈6 min, descarga ~700 MB)
 	uv run python -m skin_lesion_classifier.evaluation
 
-evaluate-mlflow: ## Evalúa y registra la corrida en MLflow (backend SQLite local)
-	uv run python -m skin_lesion_classifier.evaluation --tracking-uri sqlite:///mlflow.db
+evaluate-mlflow: ## Evalúa y registra en MLflow (métricas + artefactos + pesos del modelo)
+	uv run python -m skin_lesion_classifier.evaluation --tracking-uri sqlite:///mlflow.db --model-dir models/vit-skin-cancer
 
 mlflow-ui: ## Abre la UI de MLflow en http://localhost:5000
 	uv run mlflow ui --backend-store-uri sqlite:///mlflow.db

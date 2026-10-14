@@ -66,6 +66,8 @@ def test_log_evaluation_logs_params_metrics_and_targets(tmp_path: Path) -> None:
     assert run.data.metrics["latency_p95"] == 0.06
     assert run.data.metrics["pretrained.val_loss"] == 0.1
     assert run.data.tags["target.melanoma_recall.met"] == "False"
+    assert run.data.tags["project.name"] == "SkinLesionClassifier"
+    assert run.data.tags["project.institution"] == "Universidad Autónoma de Occidente (UAO)"
 
 
 def test_log_evaluation_records_artifacts(tmp_path: Path) -> None:
@@ -80,3 +82,22 @@ def test_log_evaluation_records_artifacts(tmp_path: Path) -> None:
     mlflow.set_tracking_uri(tracking_uri)
     client = mlflow.tracking.MlflowClient()
     assert any(artifact.path == "metrics.json" for artifact in client.list_artifacts(run_id))
+
+
+def test_log_evaluation_uploads_model_weights(tmp_path: Path) -> None:
+    # Arrange
+    output_dir = _output_dir(tmp_path)
+    model_dir = tmp_path / "model"
+    model_dir.mkdir()
+    (model_dir / "model.safetensors").write_bytes(b"fake-weights")
+    (model_dir / "config.json").write_text("{}", encoding="utf-8")
+    tracking_uri = f"sqlite:///{tmp_path / 'mlflow.db'}"
+
+    # Act
+    run_id = log_evaluation(_document(), output_dir, tracking_uri, model_dir=model_dir)
+
+    # Assert
+    mlflow.set_tracking_uri(tracking_uri)
+    client = mlflow.tracking.MlflowClient()
+    uploaded = {Path(artifact.path).name for artifact in client.list_artifacts(run_id, "model")}
+    assert uploaded == {"model.safetensors", "config.json"}
