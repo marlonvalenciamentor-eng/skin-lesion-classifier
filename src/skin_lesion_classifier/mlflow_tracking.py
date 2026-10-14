@@ -27,6 +27,9 @@ DEFAULT_EXPERIMENT: str = "skin-lesion-classifier"
 PRETRAINED_ARCHITECTURE: Final[str] = "google/vit-base-patch16-224-in21k"
 PRETRAINED_LEARNING_RATE: Final[float] = 1e-4
 PRETRAINED_BATCH_SIZE: Final[int] = 32
+# Curvas de validación del entrenamiento original (Model Card, épocas 1..5).
+PRETRAINED_VAL_LOSS: Final[tuple[float, ...]] = (0.4994, 0.3237, 0.1790, 0.1498, 0.1000)
+PRETRAINED_VAL_ACCURACY: Final[tuple[float, ...]] = (0.8355, 0.8973, 0.9530, 0.9555, 0.9695)
 
 
 def _log_params(mlflow: Any, document: dict[str, Any]) -> None:
@@ -76,6 +79,26 @@ def _log_targets(mlflow: Any, document: dict[str, Any]) -> None:
         mlflow.set_tag("target.latency.met", str(latency.get("met", False)))
 
 
+def _log_summary_metrics(mlflow: Any, document: dict[str, Any]) -> None:
+    """Métricas de nivel superior (escenario original) para comparar corridas entre sí."""
+    original = document.get("scenarios", {}).get("original", {})
+    if not original:
+        return
+    mlflow.log_metric("accuracy", float(original.get("accuracy", 0.0)))
+    mlflow.log_metric("f1_score", float(original.get("macro_f1", 0.0)))
+    for key, value in original.get("latency_seconds", {}).items():
+        if isinstance(value, int | float):
+            mlflow.log_metric(f"latency_{key}", float(value))
+
+
+def _log_pretrained_training(mlflow: Any) -> None:
+    """Curvas de validación del entrenamiento upstream (Model Card), por época."""
+    for epoch, loss in enumerate(PRETRAINED_VAL_LOSS, start=1):
+        mlflow.log_metric("pretrained.val_loss", loss, step=epoch)
+    for epoch, accuracy in enumerate(PRETRAINED_VAL_ACCURACY, start=1):
+        mlflow.log_metric("pretrained.val_accuracy", accuracy, step=epoch)
+
+
 def _log_artifacts(mlflow: Any, output_dir: Path) -> None:
     for path in sorted(output_dir.glob("*")):
         if path.is_file() and path.suffix.lower() in {".json", ".png"}:
@@ -106,8 +129,10 @@ def log_evaluation(
 
     with mlflow.start_run() as active_run:
         _log_params(mlflow, document)
+        _log_summary_metrics(mlflow, document)
         _log_scenarios(mlflow, document)
         _log_targets(mlflow, document)
+        _log_pretrained_training(mlflow)
         _log_artifacts(mlflow, output_dir)
         run_id: str = str(active_run.info.run_id)
 

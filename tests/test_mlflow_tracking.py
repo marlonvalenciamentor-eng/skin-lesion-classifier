@@ -61,6 +61,10 @@ def test_log_evaluation_logs_params_metrics_and_targets(tmp_path: Path) -> None:
     assert run.data.params["batch_size"] == "32"
     assert run.data.metrics["original.accuracy"] == 0.83
     assert run.data.metrics["original.mel.recall"] == 0.88
+    assert run.data.metrics["accuracy"] == 0.83
+    assert run.data.metrics["f1_score"] == 0.69
+    assert run.data.metrics["latency_p95"] == 0.06
+    assert run.data.metrics["pretrained.val_loss"] == 0.1
     assert run.data.tags["target.melanoma_recall.met"] == "False"
 
 
