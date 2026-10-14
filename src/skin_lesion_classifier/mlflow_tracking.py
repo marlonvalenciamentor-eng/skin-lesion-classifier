@@ -13,12 +13,20 @@ RESPONSABILIDAD ÚNICA:
 
 import logging
 from pathlib import Path
-from typing import Any
+from typing import Any, Final
 
 logger = logging.getLogger(__name__)
 
 # Nombre por defecto del experimento en MLflow.
 DEFAULT_EXPERIMENT: str = "skin-lesion-classifier"
+
+# Arquitectura e hiperparámetros del entrenamiento ORIGINAL del modelo base,
+# documentados en su Model Card (Anwarkh1/Skin_Cancer-Image_Classification).
+# Este proyecto NO entrena: consume el modelo pre-entrenado, por lo que estos
+# valores son los del entrenamiento upstream (no medidos por nosotros).
+PRETRAINED_ARCHITECTURE: Final[str] = "google/vit-base-patch16-224-in21k"
+PRETRAINED_LEARNING_RATE: Final[float] = 1e-4
+PRETRAINED_BATCH_SIZE: Final[int] = 32
 
 
 def _log_params(mlflow: Any, document: dict[str, Any]) -> None:
@@ -29,6 +37,9 @@ def _log_params(mlflow: Any, document: dict[str, Any]) -> None:
         {
             "model_id": str(model.get("id", "")),
             "model_revision": str(model.get("revision", "")),
+            "architecture": PRETRAINED_ARCHITECTURE,
+            "learning_rate": str(PRETRAINED_LEARNING_RATE),
+            "batch_size": str(PRETRAINED_BATCH_SIZE),
             "dataset_id": str(dataset.get("id", "")),
             "dataset_revision": str(dataset.get("revision", "")),
             "dataset_split": str(dataset.get("split", "")),

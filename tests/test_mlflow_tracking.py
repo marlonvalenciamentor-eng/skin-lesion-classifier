@@ -56,6 +56,9 @@ def test_log_evaluation_logs_params_metrics_and_targets(tmp_path: Path) -> None:
     mlflow.set_tracking_uri(tracking_uri)
     run = mlflow.get_run(run_id)
     assert run.data.params["model_id"] == "test/model"
+    assert run.data.params["architecture"] == "google/vit-base-patch16-224-in21k"
+    assert run.data.params["learning_rate"] == "0.0001"
+    assert run.data.params["batch_size"] == "32"
     assert run.data.metrics["original.accuracy"] == 0.83
     assert run.data.metrics["original.mel.recall"] == 0.88
     assert run.data.tags["target.melanoma_recall.met"] == "False"
