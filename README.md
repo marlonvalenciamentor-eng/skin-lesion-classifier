@@ -63,6 +63,24 @@ A single image runs the Streamlit UI together with the model. Weights are
 cached in a named Docker volume so they download once, on first run, instead
 of being baked into the image.
 
+## Deployment
+
+The image is published to
+[Docker Hub](https://hub.docker.com/r/miguelortizro/skin-lesion-classifier) and
+deployed to a DigitalOcean droplet:
+
+```bash
+docker pull miguelortizro/skin-lesion-classifier:latest
+docker run -d -p 8501:8501 --restart unless-stopped \
+  -v skin-lesion-hf:/home/appuser/.cache/huggingface \
+  miguelortizro/skin-lesion-classifier:latest
+```
+
+The GitLab pipeline automates this: after building and pushing the image, the
+`deploy` job connects to the droplet over SSH and restarts the container. Setup
+details (runner, CI/CD variables, SSH key) are in
+[`docs/resumen_cicd.md`](docs/resumen_cicd.md).
+
 ## Run tests
 
 ```bash
