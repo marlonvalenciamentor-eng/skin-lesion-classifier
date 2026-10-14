@@ -4,7 +4,7 @@
 # Uso: make <target>   (ej. `make test`, `make run`, `make check`)
 # =============================================================================
 
-.PHONY: help run test integration lint format format-check typecheck check docker evaluate clean
+.PHONY: help run test integration lint format format-check typecheck check docker evaluate evaluate-mlflow mlflow-ui clean
 
 help: ## Lista los targets disponibles
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-14s\033[0m %s\n", $$1, $$2}'
@@ -37,6 +37,12 @@ docker: ## Levanta la app con Docker
 
 evaluate: ## Evalúa el modelo (≈6 min, descarga ~700 MB)
 	uv run python -m skin_lesion_classifier.evaluation
+
+evaluate-mlflow: ## Evalúa y registra la corrida en MLflow (backend SQLite local)
+	uv run python -m skin_lesion_classifier.evaluation --tracking-uri sqlite:///mlflow.db
+
+mlflow-ui: ## Abre la UI de MLflow en http://localhost:5000
+	uv run mlflow ui --backend-store-uri sqlite:///mlflow.db
 
 clean: ## Limpia cachés de Python, pytest, mypy y ruff
 	rm -rf .pytest_cache .mypy_cache .ruff_cache

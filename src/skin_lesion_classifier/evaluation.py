@@ -59,6 +59,7 @@ from skin_lesion_classifier.facade import (
 )
 from skin_lesion_classifier.gradcam import GradCAMError
 from skin_lesion_classifier.inference import InferenceError
+from skin_lesion_classifier.mlflow_tracking import log_evaluation
 from skin_lesion_classifier.model_loader import MODEL_ID, load_inference_service
 from skin_lesion_classifier.perturbations import add_gaussian_noise, darken
 
@@ -432,6 +433,11 @@ def _build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="No leer los image_id de train (omite el subconjunto sin solapamiento).",
     )
+    parser.add_argument(
+        "--tracking-uri",
+        default=None,
+        help="URI de MLflow para registrar la corrida (ej. file:./mlruns). Sin esto, no registra.",
+    )
     return parser
 
 
@@ -449,6 +455,8 @@ def main(
         gradcam_samples=args.gradcam_samples,
         skip_overlap=args.skip_overlap,
     )
+    if args.tracking_uri:
+        log_evaluation(document, args.output_dir, args.tracking_uri)
     recall = document["targets"]["melanoma_recall"]
     latency = document["targets"]["latency"]
     logger.info(
