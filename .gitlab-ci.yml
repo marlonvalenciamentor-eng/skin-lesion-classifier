@@ -1,41 +1,26 @@
 # =============================================================================
 # Pipeline de CI — SkinLesionClassifier (GitLab CI)
-# Imagen base: Debian 12 (bookworm) con Python 3.13 oficial.
-# Se fuerza runner Linux con Docker, se instala make + uv y se corren las
+# Imagen: python:3.13-slim (Debian, ya trae apt + pip). Al usar `image:` se
+# ejecuta en un runner Linux con Docker. Se instala make + uv y se corren las
 # verificaciones vía el Makefile.
 # =============================================================================
 
 image: python:3.13-slim
 
-default:
-  tags:
-    - gitlab-org-docker
-
 before_script:
-  # make no viene en la imagen; se instala desde apt (Debian).
   - apt-get update && apt-get install -y make
-  # uv se instala vía pip (más robusto que depender de una imagen específica de uv).
   - pip install --no-cache-dir uv
-  # Instala las dependencias del proyecto (torch CPU, transformers, streamlit...).
   - uv sync
 
-stages:
-  - test
-  - lint
-  - typecheck
-
 test:
-  stage: test
   script:
     - make test
 
 lint:
-  stage: lint
   script:
     - make lint
     - make format-check
 
 typecheck:
-  stage: typecheck
   script:
     - make typecheck
