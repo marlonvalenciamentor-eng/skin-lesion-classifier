@@ -4,7 +4,10 @@
 # Uso: make <target>   (ej. `make test`, `make run`, `make check`)
 # =============================================================================
 
-.PHONY: help run test integration lint format format-check typecheck check docker evaluate evaluate-mlflow mlflow-ui clean
+.PHONY: help run test integration lint format format-check typecheck check docker evaluate evaluate-mlflow evaluate-mlflow-remote mlflow-ui clean
+
+# Servidor MLflow remoto (droplet). Override: make evaluate-mlflow-remote MLFLOW_TRACKING_URI=http://host:5000
+MLFLOW_TRACKING_URI ?= http://167.99.165.18:5000
 
 help: ## Lista los targets disponibles
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-14s\033[0m %s\n", $$1, $$2}'
@@ -40,6 +43,9 @@ evaluate: ## Evalúa el modelo (≈6 min, descarga ~700 MB)
 
 evaluate-mlflow: ## Evalúa y registra en MLflow (métricas + artefactos + pesos del modelo)
 	uv run python -m skin_lesion_classifier.evaluation --tracking-uri sqlite:///mlflow.db --model-dir models/vit-skin-cancer
+
+evaluate-mlflow-remote: ## Evalúa y registra en el MLflow remoto del droplet
+	uv run python -m skin_lesion_classifier.evaluation --tracking-uri $(MLFLOW_TRACKING_URI) --model-dir models/vit-skin-cancer
 
 mlflow-ui: ## Abre la UI de MLflow en http://localhost:5000
 	uv run mlflow ui --backend-store-uri sqlite:///mlflow.db
