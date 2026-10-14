@@ -61,4 +61,4 @@ deploy:
     - apk add --no-cache openssh-client
     - chmod 400 "$SSH_KEY"
   script:
-    - ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no "$SSH_USER@$SSH_HOST" "docker pull $DOCKERHUB_USER/skin-lesion-classifier:latest && (docker stop skin-lesion-classifier || true) && (docker rm skin-lesion-classifier || true) && docker run -d -p 8501:8501 --name skin-lesion-classifier $DOCKERHUB_USER/skin-lesion-classifier:latest"
+    - ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no "$SSH_USER@$SSH_HOST" "docker pull $DOCKERHUB_USER/skin-lesion-classifier:latest && (docker stop skin-lesion-classifier || true) && (docker rm skin-lesion-classifier || true) && docker run -d -p 8501:8501 --restart unless-stopped --name skin-lesion-classifier $DOCKERHUB_USER/skin-lesion-classifier:latest"
