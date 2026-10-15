@@ -50,14 +50,10 @@ build-image:
   before_script:
     - docker login -u "$DOCKERHUB_USER" -p "$DOCKERHUB_TOKEN"
   script:
-    - docker build -f docker/Dockerfile -t "$DOCKERHUB_USER/skin-lesion-classifier:$CI_COMMIT_SHORT_SHA" -t "$DOCKERHUB_USER/skin-lesion-classifier:latest" .
+    - docker pull "$DOCKERHUB_USER/skin-lesion-classifier:latest" || true
+    - docker build --cache-from "$DOCKERHUB_USER/skin-lesion-classifier:latest" -f docker/Dockerfile -t "$DOCKERHUB_USER/skin-lesion-classifier:$CI_COMMIT_SHORT_SHA" -t "$DOCKERHUB_USER/skin-lesion-classifier:latest" .
     - docker push "$DOCKERHUB_USER/skin-lesion-classifier:$CI_COMMIT_SHORT_SHA"
     - docker push "$DOCKERHUB_USER/skin-lesion-classifier:latest"
-    # La imagen ya fue publicada a Docker Hub. Borrar la imagen recién creada
-    # y todas las anteriores sin uso para no llenar el disco del runner.
-    - docker rmi "$DOCKERHUB_USER/skin-lesion-classifier:$CI_COMMIT_SHORT_SHA" || true
-    - docker rmi "$DOCKERHUB_USER/skin-lesion-classifier:latest" || true
-    - docker image prune -af || true
 
 deploy:
   stage: deploy
@@ -68,4 +64,4 @@ deploy:
     - apk add --no-cache openssh-client
     - chmod 400 "$SSH_KEY"
   script:
-    - ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no "$SSH_USER@$SSH_HOST" "docker pull $DOCKERHUB_USER/skin-lesion-classifier:latest && (docker stop skin-lesion-classifier || true) && (docker rm skin-lesion-classifier || true) && docker run -d -p 8501:8501 --restart unless-stopped --name skin-lesion-classifier $DOCKERHUB_USER/skin-lesion-classifier:latest"
+    - ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no "$SSH_USER@$SSH_HOST" "docker pull $DOCKERHUB_USER/skin-lesion-classifier:latest && (docker stop skin-lesion-classifier || true) && (docker rm skin-lesion-classifier || true) && docker run -d -p 8501:8501 --restart unless-stopped --name skin-lesion-classifier $DOCKERHUB_USER/skin-lesion-classifier:latest && docker image prune -f"
