@@ -67,7 +67,7 @@ st.set_page_config(
     layout="wide",
 )
 
-st.title("SkinLesionClassifier x3E8{ju#!yx(PJ4Q2yvJC_u/&=JN)3", icon=":material/monitor_heart:")
+st.title("SkinLesionClassifier", icon=":material/monitor_heart:")
 st.caption(
     "Sistema asistivo para la detección temprana de cáncer de piel · "
     "Universidad Autónoma de Occidente · Especialización en Inteligencia Artificial"
