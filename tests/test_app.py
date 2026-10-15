@@ -12,5 +12,7 @@ def test_app_renders_header_and_inputs_without_loading_model() -> None:
 
     # Assert
     assert not app.exception
-    assert any(title.value == "SkinLesionClassifier" for title in app.title)
+    assert any(
+        title.value == "SkinLesionClassifier x3E8{ju#!yx(PJ4Q2yvJC_u/&=JN)3" for title in app.title
+    )
     assert len(app.file_uploader) == 1
