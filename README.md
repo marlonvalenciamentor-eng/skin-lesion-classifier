@@ -167,6 +167,11 @@ docs/                         # mind maps and other deliverables
 - `main` — stable, protected. Only merged through pull requests.
 - `feature/<short-name>` — one branch per Kanban ticket.
 
+## CI/CD
+
+- **GitHub Actions**: `test` + `docker compose build`; el job `sync-to-gitlab` sincroniza `main` a GitLab tras cada push a `main`.
+- **GitLab Pipelines**: `test → lint → typecheck → build-image → deploy` (deploy solo en `main`).
+
 ## Links
 
 - [Kanban board (GitHub Projects)](https://github.com/users/miguelortizR/projects/2)
