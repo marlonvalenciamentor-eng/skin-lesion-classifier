@@ -53,6 +53,9 @@ build-image:
     - docker build -f docker/Dockerfile -t "$DOCKERHUB_USER/skin-lesion-classifier:$CI_COMMIT_SHORT_SHA" -t "$DOCKERHUB_USER/skin-lesion-classifier:latest" .
     - docker push "$DOCKERHUB_USER/skin-lesion-classifier:$CI_COMMIT_SHORT_SHA"
     - docker push "$DOCKERHUB_USER/skin-lesion-classifier:latest"
+    # Liberar disco del runner: la imagen ya fue publicada a Docker Hub.
+    - docker rmi "$DOCKERHUB_USER/skin-lesion-classifier:$CI_COMMIT_SHORT_SHA" || true
+    - docker image prune -f || true
 
 deploy:
   stage: deploy
